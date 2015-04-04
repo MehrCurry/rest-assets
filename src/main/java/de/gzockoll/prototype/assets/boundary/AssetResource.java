@@ -5,17 +5,16 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.apache.camel.Exchange;
+import org.apache.camel.component.file.GenericFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @RestController
 @RequestMapping("/assets")
 @Slf4j
-public class AssertResource {
+public class AssetResource {
 
     @Autowired
     private GridFsTemplate template;
@@ -91,4 +90,11 @@ public class AssertResource {
         else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    public void fileImport(Exchange ex) {
+        File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
+        Asset asset=new Asset(file);
+        save(asset);
+    }
+
 }

@@ -5,7 +5,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 import de.gzockoll.prototype.assets.AssetRepositoryApplication;
 import de.gzockoll.prototype.assets.entity.Asset;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.internal.ByteArrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Slf4j
 public class AssertResourceTest {
     @Autowired
-    private AssertResource resource;
+    private AssetResource resource;
 
     @Autowired
     private GridFsTemplate template;
