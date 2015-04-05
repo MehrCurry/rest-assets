@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 @RestController
@@ -86,17 +87,54 @@ public class AssetResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
-        HttpHeaders httpHeaders = new HttpHeaders();
         Optional<GridFSDBFile> result = dao.findById(id);
 
+        return streamResult(result);
+    }
+
+    @RequestMapping(value = "/query", method = RequestMethod.GET, params = "filename")
+    public HttpEntity<InputStreamResource> findByFilename(@RequestParam(value = "filename") String filename) throws IOException {
+        // send it back to the client
+        Optional<GridFSDBFile> result = dao.findByKeyValue("filename", filename);
+
+        return streamResult(result);
+    }
+
+    @RequestMapping(value = "/query", method = RequestMethod.DELETE, params = "filename")
+    public HttpEntity<InputStreamResource> deleteByFilename(@RequestParam(value = "filename") String filename) throws IOException {
+        // send it back to the client
+        Optional<GridFSDBFile> result = dao.findByKeyValue("filename", filename);
+        return deleteIfPresent(result);
+    }
+
+    private HttpEntity<InputStreamResource> streamResult(Optional<GridFSDBFile> result) {
+        HttpHeaders httpHeaders = new HttpHeaders();
         if (result.isPresent()) {
             httpHeaders.setContentType(MediaType.valueOf(result.get().getContentType()));
-            httpHeaders.setContentDispositionFormData("attachment",result.get().getFilename());
+            httpHeaders.setContentDispositionFormData("attachment", result.get().getFilename());
             httpHeaders.setContentLength(result.get().getLength());
             return new ResponseEntity<>(new InputStreamResource(result.get().getInputStream()), httpHeaders, HttpStatus.OK);
         }
         else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public HttpEntity deleteDocument(@PathVariable String id) throws IOException {
+        checkArgument(id != null);
+        Optional<GridFSDBFile> found = dao.findByKeyValue("_id", id);
+        return deleteIfPresent(found);
+    }
+
+    private HttpEntity deleteIfPresent(Optional<GridFSDBFile> found) {
+        if (found.isPresent()) {
+            String id=found.get().getId().toString();
+            dao.deleteByKeyValue("_id", id);
+            log.debug(found.get().getFilename() + " deleted!");
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
     }
 
     public void fileImport(Exchange ex) {

@@ -35,4 +35,8 @@ public class AssetDao {
     public void deleteByHash(String param) {
          template.delete(query(where("md5").is(param)));
     }
+
+    public void deleteByKeyValue(String key, String value) {
+        template.delete(query(where(key).is(value)));
+    }
 }
