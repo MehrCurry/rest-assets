@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -83,14 +84,16 @@ public class AssetResource {
      * @return The document file
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public HttpEntity<byte[]> getDocument(@PathVariable String id) throws IOException {
+    public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
         HttpHeaders httpHeaders = new HttpHeaders();
         Optional<GridFSDBFile> result = dao.findById(id);
 
         if (result.isPresent()) {
             httpHeaders.setContentType(MediaType.valueOf(result.get().getContentType()));
-            return new ResponseEntity<>(ByteStreams.toByteArray(result.get().getInputStream()), httpHeaders, HttpStatus.OK);
+            httpHeaders.setContentDispositionFormData("attachment",result.get().getFilename());
+            httpHeaders.setContentLength(result.get().getLength());
+            return new ResponseEntity<>(new InputStreamResource(result.get().getInputStream()), httpHeaders, HttpStatus.OK);
         }
         else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
