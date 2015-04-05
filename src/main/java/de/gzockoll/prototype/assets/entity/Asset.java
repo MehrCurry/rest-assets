@@ -110,6 +110,6 @@ public class Asset {
     }
 
     public static String checksum(byte[] data) {
-        return Arrays.asList(ArrayUtils.toObject(calculateHash(data))).stream().map(b -> String.format("%02X",0xff & b).toUpperCase()).collect(Collectors.joining());
+        return Arrays.asList(ArrayUtils.toObject(calculateHash(data))).stream().map(b -> String.format("%02X",0xff & b).toLowerCase()).collect(Collectors.joining());
     }
 }

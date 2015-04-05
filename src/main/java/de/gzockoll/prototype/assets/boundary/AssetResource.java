@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
+import de.gzockoll.prototype.assets.entity.AssetDao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
@@ -16,10 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
+import static com.google.common.base.Preconditions.checkState;
 
 @RestController
 @RequestMapping("/assets")
@@ -28,6 +29,9 @@ public class AssetResource {
 
     @Autowired
     private GridFsTemplate template;
+
+    @Autowired
+    private AssetDao dao;
 
     public GridFSFile save(Asset a) {
         return template.store(a.asByteStream(),a.getFilename(),a.getMimeType());
@@ -82,10 +86,11 @@ public class AssetResource {
     public HttpEntity<byte[]> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
         HttpHeaders httpHeaders = new HttpHeaders();
-        GridFSDBFile result = template.findOne(query(where("_id").is(id)));
-        if (result!=null) {
-            httpHeaders.setContentType(MediaType.valueOf(result.getContentType()));
-            return new ResponseEntity<>(ByteStreams.toByteArray(result.getInputStream()), httpHeaders, HttpStatus.OK);
+        Optional<GridFSDBFile> result = dao.findById(id);
+
+        if (result.isPresent()) {
+            httpHeaders.setContentType(MediaType.valueOf(result.get().getContentType()));
+            return new ResponseEntity<>(ByteStreams.toByteArray(result.get().getInputStream()), httpHeaders, HttpStatus.OK);
         }
         else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -94,7 +99,12 @@ public class AssetResource {
     public void fileImport(Exchange ex) {
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
         Asset asset=new Asset(file);
-        save(asset);
+        Optional<GridFSDBFile> existing = dao.findByHash(asset.checksum());
+        if (existing.isPresent()) {
+            log.debug("File already existing: " + asset.getFilename() + " HASH: " + asset.checksum());
+        } else {
+            save(asset);
+        }
     }
 
 }
