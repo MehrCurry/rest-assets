@@ -1,6 +1,5 @@
 package de.gzockoll.prototype.assets.boundary;
 
-import com.google.common.io.ByteStreams;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
@@ -22,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 @RestController
 @RequestMapping("/assets")
@@ -47,7 +45,7 @@ public class AssetResource {
      * @param file A file posted in a multipart request
      * @return The meta data of the added document
      */
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
     String handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file) {
@@ -92,7 +90,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
-    @RequestMapping(value = "/query", method = RequestMethod.GET, params = "filename")
+    @RequestMapping(method = RequestMethod.GET, params = "filename")
     public HttpEntity<InputStreamResource> findByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
         Optional<GridFSDBFile> result = dao.findByKeyValue("filename", filename);
@@ -100,7 +98,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
-    @RequestMapping(value = "/query", method = RequestMethod.DELETE, params = "filename")
+    @RequestMapping(method = RequestMethod.DELETE, params = "filename")
     public HttpEntity<InputStreamResource> deleteByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
         Optional<GridFSDBFile> result = dao.findByKeyValue("filename", filename);
