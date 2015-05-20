@@ -132,7 +132,7 @@ public class AssetResource {
         save(asset);
     }
 
-    private void save(Asset asset) {
+    void save(Asset asset) {
         Optional<GridFSDBFile> existing = dao.findByHash(asset.checksum());
         if (existing.isPresent()) {
             log.debug("File already existing: " + asset.getFilename() + " HASH: " + asset.checksum());
