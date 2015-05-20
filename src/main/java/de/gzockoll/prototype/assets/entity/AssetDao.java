@@ -1,10 +1,12 @@
 package de.gzockoll.prototype.assets.entity;
 
 import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -15,6 +17,10 @@ public class AssetDao {
 
     @Autowired
     private GridFsTemplate template;
+
+    public GridFSFile save(Asset a) {
+        return template.store(a.asByteStream(),a.getFilename(),a.getMimeType());
+    }
 
     public Optional<GridFSDBFile> findById(String param) {
         return findByKeyValue("_id", param);
@@ -38,5 +44,8 @@ public class AssetDao {
 
     public void deleteByKeyValue(String key, String value) {
         template.delete(query(where(key).is(value)));
+    }
+
+    public List<GridFSDBFile> findAll() { return template.find(null);
     }
 }

@@ -1,7 +1,6 @@
 package de.gzockoll.prototype.assets.boundary;
 
 import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
 import de.gzockoll.prototype.assets.entity.AssetDao;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,14 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class AssetResource {
 
     @Autowired
-    private GridFsTemplate template;
-
-    @Autowired
     private AssetDao dao;
-
-    public GridFSFile save(Asset a) {
-        return template.store(a.asByteStream(),a.getFilename(),a.getMimeType());
-    }
 
     /**
      * Adds a document to the archive.
@@ -52,7 +43,7 @@ public class AssetResource {
 
         try {
             Asset asset=new Asset(file.getInputStream(),file.getOriginalFilename());
-            return save(asset).toString();
+            return dao.save(asset).toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +61,7 @@ public class AssetResource {
     @RequestMapping(method = RequestMethod.GET)
     public HttpEntity<List<String>> findAll() {
         HttpHeaders httpHeaders = new HttpHeaders();
-        List<GridFSDBFile> results = template.find(null);
+        List<GridFSDBFile> results = dao.findAll();
         return new ResponseEntity<>(results.stream().map(f -> f.toString()).collect(Collectors.toList()), httpHeaders,HttpStatus.OK);
     }
 
@@ -138,11 +129,15 @@ public class AssetResource {
     public void fileImport(Exchange ex) {
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
         Asset asset=new Asset(file);
+        save(asset);
+    }
+
+    private void save(Asset asset) {
         Optional<GridFSDBFile> existing = dao.findByHash(asset.checksum());
         if (existing.isPresent()) {
             log.debug("File already existing: " + asset.getFilename() + " HASH: " + asset.checksum());
         } else {
-            save(asset);
+            dao.save(asset);
         }
     }
 
