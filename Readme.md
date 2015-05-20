@@ -7,7 +7,7 @@ The AssetResource class has some methods to store files into GridFS. Main goal i
 
 Some methods loads the file into memory (which is bad for large files), some methods try to use the stream as is.
 
-The is also a camel route which moves every file in the ./asset subdirectory to the DB.
+There is also a camel route which moves every file in the ./asset subdirectory to the DB.
 
 You can start the application in your IDE as usual by executing the main class, in this case AssetRepositoryApplcation or from the command line
 by executing the fatjar with java -jar.
