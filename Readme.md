@@ -14,7 +14,7 @@ by executing the fatjar with java -jar.
  
 The application expects a mongodb to be present (see application.properties).
 
-I use a docker instance with boot to docker on my mac. I use docker image [tutum/mongodb](https://registry.hub.docker.com/u/tutum/mongodb/). You can create one with
+I use a docker instance with boot2docker on my mac. I use docker image [tutum/mongodb](https://registry.hub.docker.com/u/tutum/mongodb/). You can create one with
 
     docker run -d -e MONGODB_PASSWORD=123456 -p 27017:27017 tutum/mongodb
     

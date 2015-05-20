@@ -1,6 +1,7 @@
 package de.gzockoll.prototype.assets.boundary;
 
 import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
 import de.gzockoll.prototype.assets.entity.AssetDao;
 import lombok.extern.slf4j.Slf4j;
@@ -39,14 +40,10 @@ public class AssetResource {
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
     String handleFileUpload(
-            @RequestParam(value = "file", required = true) MultipartFile file) {
+            @RequestParam(value = "file", required = true) MultipartFile file) throws IOException {
 
-        try {
-            Asset asset=new Asset(file.getInputStream(),file.getOriginalFilename());
-            return dao.save(asset).toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Asset asset=new Asset(file.getInputStream(),file.getOriginalFilename());
+        return save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
     }
 
     /**
@@ -132,12 +129,13 @@ public class AssetResource {
         save(asset);
     }
 
-    void save(Asset asset) {
+    Optional<GridFSFile> save(Asset asset) {
         Optional<GridFSDBFile> existing = dao.findByHash(asset.checksum());
         if (existing.isPresent()) {
             log.debug("File already existing: " + asset.getFilename() + " HASH: " + asset.checksum());
+            return Optional.empty();
         } else {
-            dao.save(asset);
+            return Optional.of(dao.save(asset));
         }
     }
 
