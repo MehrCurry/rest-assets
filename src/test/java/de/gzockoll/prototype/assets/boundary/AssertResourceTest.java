@@ -14,6 +14,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class AssertResourceTest {
     @Test
     public void testSave() throws Exception {
         String data="bla";
-        Asset asset=new Asset(data.getBytes(),"bla.txt");
+        Asset asset=new Asset(new File("bla.txt"));
         resource.save(asset);
 
 
@@ -55,7 +56,7 @@ public class AssertResourceTest {
     @Test
     public void testFindByMD5() throws IOException {
         String data="sdfsakjdfhkhsdkfhsdkjhfksdhfk";
-        Asset asset=new Asset(data.getBytes(),"bla.txt");
+        Asset asset=new Asset(new File("bla.txt"));
         resource.save(asset);
 
         GridFSDBFile found = template.findOne(query(where("md5").is(asset.checksum().toLowerCase())));

@@ -19,7 +19,7 @@ public class AssetDao {
     private GridFsTemplate template;
 
     public GridFSFile save(Asset a) {
-        return template.store(a.asByteStream(),a.getFilename(),a.getMimeType());
+        return template.store(a.getAsStream(),a.getFilename(),a.getMimeType());
     }
 
     public Optional<GridFSDBFile> findById(String param) {
@@ -28,6 +28,10 @@ public class AssetDao {
 
     public Optional<GridFSDBFile> findByHash(String param) {
         return findByKeyValue("md5",param);
+    }
+
+    public Optional<GridFSDBFile> findByFilename(String param) {
+        return findByKeyValue("filename",param);
     }
 
     public Optional<GridFSDBFile> findByKeyValue(String key,String value) {

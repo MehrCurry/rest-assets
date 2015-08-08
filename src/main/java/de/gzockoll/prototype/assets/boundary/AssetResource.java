@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.assets.boundary;
 
+import com.google.common.base.Stopwatch;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
@@ -7,6 +8,7 @@ import de.gzockoll.prototype.assets.entity.AssetDao;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
@@ -15,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,8 +46,26 @@ public class AssetResource {
     String handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file) throws IOException {
 
-        Asset asset=new Asset(file.getInputStream(),file.getOriginalFilename());
-        return save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
+        Stopwatch sw=Stopwatch.createStarted();
+        final File tmp = multipartToFile(file);
+        try {
+            Asset asset=new Asset(tmp);
+            String result = save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
+            sw.stop();
+            log.debug("Import took " + sw.toString());
+            log.debug("Speed: {1} KB/s", new DecimalFormat("###.###").format(asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS)));
+            return result;
+        } finally {
+            FileUtils.deleteQuietly(tmp);
+        }
+    }
+
+    public File multipartToFile(MultipartFile multipart) throws IllegalStateException, IOException
+    {
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        File convFile = new File(tmpDir, multipart.getOriginalFilename());
+        multipart.transferTo(convFile);
+        return convFile;
     }
 
     /**
@@ -124,19 +146,17 @@ public class AssetResource {
     }
 
     public void fileImport(Exchange ex) {
+        Stopwatch sw=Stopwatch.createStarted();
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
         Asset asset=new Asset(file);
         save(asset);
+        sw.stop();
+        log.debug("Import took " + sw.toString());
+        log.debug("Speed:"  + asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS) + "KB/s");
     }
 
     Optional<GridFSFile> save(Asset asset) {
-        Optional<GridFSDBFile> existing = dao.findByHash(asset.checksum());
-        if (existing.isPresent()) {
-            log.debug("File already existing: " + asset.getFilename() + " HASH: " + asset.checksum());
-            return Optional.empty();
-        } else {
-            return Optional.of(dao.save(asset));
-        }
+        return Optional.of(dao.save(asset));
     }
 
 }

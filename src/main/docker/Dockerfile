@@ -1,9 +1,9 @@
-FROM dockerfile/java:oracle-java8
+FROM java:8
 
 VOLUME /tmp
-ADD assets-0.0.1-SNAPSHOT.jar /data/app.jar
-RUN bash -c 'touch /data/app.jar'
+ADD assets-0.0.1-SNAPSHOT.war /data/app.War
+RUN bash -c 'touch /data/app.war'
 
 EXPOSE 9091
 
-CMD java -Djava.security.egd=file:/dev/./urandom -jar /data/app.jar
+CMD java -Djava.security.egd=file:/dev/./urandom -jar /data/app.war
