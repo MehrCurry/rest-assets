@@ -17,13 +17,10 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
-public class AssetDao implements InitializingBean {
+public class AssetDao {
 
     @Autowired
     private GridFsTemplate template;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
     public GridFSFile save(Asset a) {
         return template.store(a.getAsStream(),a.getFilename(),a.getMimeType());
@@ -58,12 +55,6 @@ public class AssetDao implements InitializingBean {
     }
 
     public List<GridFSDBFile> findAll() { return template.find(null);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        mongoTemplate.indexOps("files").ensureIndex(new Index().on("md5", Sort.Direction.ASC).unique());
-        mongoTemplate.indexOps("files").ensureIndex(new Index().on("filename", Sort.Direction.ASC));
     }
 
     public boolean exists(String id) {
