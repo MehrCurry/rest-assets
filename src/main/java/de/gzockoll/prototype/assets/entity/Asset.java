@@ -1,11 +1,13 @@
 package de.gzockoll.prototype.assets.entity;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tika.Tika;
 import org.springframework.data.annotation.Transient;
 
@@ -61,16 +63,17 @@ public class Asset {
         return getSize()/1024.0;
     }
 
-    public String checksum() {
-        try {
-            return DigestUtils.md5Hex(getAsStream());
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public String getFilename() {
         checkState(file!=null);
         return file.getName();
+    }
+
+    public String checksum() throws IOException {
+        Stopwatch sw=Stopwatch.createStarted();
+        HashCode hash = Files.hash(file, Hashing.md5());
+        sw.stop();
+        log.debug("Hash took " + sw.toString());
+        log.debug("Hash for {} is {}", file.getName(), hash);
+        return hash.toString();
     }
 }

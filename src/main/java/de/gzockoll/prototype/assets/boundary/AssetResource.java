@@ -10,6 +10,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +55,7 @@ public class AssetResource {
             String result = save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
             sw.stop();
             log.debug("Import took " + sw.toString());
-            log.debug("Speed: {1} KB/s", new DecimalFormat("###.###").format(asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS)));
+            log.debug("Speed: {} KB/s", new DecimalFormat("###.###").format(asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS)));
             return result;
         } finally {
             FileUtils.deleteQuietly(tmp);
@@ -77,6 +79,7 @@ public class AssetResource {
      *
      * @return A list of document meta data
      */
+    @Cacheable("assets")
     @RequestMapping(method = RequestMethod.GET)
     public HttpEntity<List<String>> findAll() {
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -92,6 +95,7 @@ public class AssetResource {
      * @param id The UUID of a document
      * @return The document file
      */
+    @Cacheable("assets")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
@@ -100,6 +104,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
+    @Cacheable("assets")
     @RequestMapping(method = RequestMethod.GET, params = "filename")
     public HttpEntity<InputStreamResource> findByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
@@ -108,6 +113,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
+    @CacheEvict("assets")
     @RequestMapping(method = RequestMethod.DELETE, params = "filename")
     public HttpEntity<InputStreamResource> deleteByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
@@ -127,11 +133,19 @@ public class AssetResource {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @CacheEvict("assets")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {
         checkArgument(id != null);
         Optional<GridFSDBFile> found = dao.findByKeyValue("_id", id);
         return deleteIfPresent(found);
+    }
+
+    @CacheEvict("assets")
+    @RequestMapping(value = "/all", method = RequestMethod.DELETE)
+    public HttpEntity deleteAll() throws IOException {
+        dao.deleteAll();
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     private HttpEntity deleteIfPresent(Optional<GridFSDBFile> found) {
@@ -145,6 +159,7 @@ public class AssetResource {
         }
     }
 
+    @CacheEvict("assets")
     public void fileImport(Exchange ex) {
         Stopwatch sw=Stopwatch.createStarted();
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
@@ -152,7 +167,12 @@ public class AssetResource {
         save(asset);
         sw.stop();
         log.debug("Import took " + sw.toString());
-        log.debug("Speed:"  + asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS) + "KB/s");
+        log.debug("Speed: {} KB/s", new DecimalFormat("###.###").format(asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS)));
+        try {
+            asset.checksum();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     Optional<GridFSFile> save(Asset asset) {

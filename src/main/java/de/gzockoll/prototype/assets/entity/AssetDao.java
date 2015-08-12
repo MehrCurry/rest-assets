@@ -2,7 +2,11 @@ package de.gzockoll.prototype.assets.entity;
 
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +17,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Component
-public class AssetDao {
+public class AssetDao implements InitializingBean {
 
     @Autowired
     private GridFsTemplate template;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     public GridFSFile save(Asset a) {
         return template.store(a.getAsStream(),a.getFilename(),a.getMimeType());
@@ -51,5 +58,11 @@ public class AssetDao {
     }
 
     public List<GridFSDBFile> findAll() { return template.find(null);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        mongoTemplate.indexOps("files").ensureIndex(new Index().on("md5", Sort.Direction.ASC).unique());
+        mongoTemplate.indexOps("files").ensureIndex(new Index().on("filename", Sort.Direction.ASC));
     }
 }

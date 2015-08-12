@@ -3,6 +3,9 @@ package de.gzockoll.prototype.assets;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -10,6 +13,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import javax.servlet.MultipartConfigElement;
 
 @SpringBootApplication
+@EnableCaching
 public class AssetRepositoryApplication {
 
     public static void main(String[] args) {
@@ -32,5 +36,10 @@ public class AssetRepositoryApplication {
         factory.setMaxFileSize("5120MB");
         factory.setMaxRequestSize("5120MB");
         return factory.createMultipartConfig();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return new ConcurrentMapCacheManager("assets");
     }
 }
