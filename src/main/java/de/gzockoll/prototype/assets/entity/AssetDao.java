@@ -65,4 +65,8 @@ public class AssetDao implements InitializingBean {
         mongoTemplate.indexOps("files").ensureIndex(new Index().on("md5", Sort.Direction.ASC).unique());
         mongoTemplate.indexOps("files").ensureIndex(new Index().on("filename", Sort.Direction.ASC));
     }
+
+    public boolean exists(String id) {
+        return findById(id).isPresent();
+    }
 }

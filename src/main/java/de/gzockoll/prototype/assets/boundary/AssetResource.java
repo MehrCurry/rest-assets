@@ -43,6 +43,7 @@ public class AssetResource {
      * @param file A file posted in a multipart request
      * @return The meta data of the added document
      */
+    @CacheEvict(value = "assets",allEntries = true)
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
     String handleFileUpload(
@@ -95,7 +96,7 @@ public class AssetResource {
      * @param id The UUID of a document
      * @return The document file
      */
-    @Cacheable("assets")
+    @Cacheable(value = "assets",key = "#id")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
@@ -104,7 +105,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
-    @Cacheable("assets")
+    @Cacheable(value = "assets",key = "#filename")
     @RequestMapping(method = RequestMethod.GET, params = "filename")
     public HttpEntity<InputStreamResource> findByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
@@ -113,7 +114,7 @@ public class AssetResource {
         return streamResult(result);
     }
 
-    @CacheEvict("assets")
+    @CacheEvict(value = "assets",allEntries = true)
     @RequestMapping(method = RequestMethod.DELETE, params = "filename")
     public HttpEntity<InputStreamResource> deleteByFilename(@RequestParam(value = "filename") String filename) throws IOException {
         // send it back to the client
@@ -133,7 +134,7 @@ public class AssetResource {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @CacheEvict("assets")
+    @CacheEvict(value = "assets",allEntries = true)
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {
         checkArgument(id != null);
@@ -141,7 +142,7 @@ public class AssetResource {
         return deleteIfPresent(found);
     }
 
-    @CacheEvict("assets")
+    @CacheEvict(value = "assets",allEntries = true)
     @RequestMapping(value = "/all", method = RequestMethod.DELETE)
     public HttpEntity deleteAll() throws IOException {
         dao.deleteAll();
@@ -159,7 +160,7 @@ public class AssetResource {
         }
     }
 
-    @CacheEvict("assets")
+    @CacheEvict(value = "assets",allEntries = true)
     public void fileImport(Exchange ex) {
         Stopwatch sw=Stopwatch.createStarted();
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
