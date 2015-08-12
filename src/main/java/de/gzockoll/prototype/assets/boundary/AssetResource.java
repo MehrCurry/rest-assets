@@ -5,6 +5,8 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import de.gzockoll.prototype.assets.entity.Asset;
 import de.gzockoll.prototype.assets.entity.AssetDao;
+import de.gzockoll.prototype.assets.entity.Token;
+import de.gzockoll.prototype.assets.entity.TokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
@@ -34,6 +36,9 @@ public class AssetResource {
 
     @Autowired
     private AssetDao dao;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
     /**
      * Adds a document to the archive.
@@ -112,6 +117,17 @@ public class AssetResource {
         Optional<GridFSDBFile> result = dao.findByKeyValue("filename", filename);
 
         return streamResult(result);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, params = "token")
+    public HttpEntity<InputStreamResource> findByToken(@RequestParam(value = "token") String tokenId) throws IOException {
+        Token token=tokenRepository.findOne(tokenId);
+        if (token !=null) {
+            Optional<GridFSDBFile> result = dao.findById(token.getAssetId());
+
+            return streamResult(result);
+        } else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @CacheEvict(value = "assets",allEntries = true)

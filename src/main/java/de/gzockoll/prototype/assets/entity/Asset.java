@@ -1,5 +1,8 @@
 package de.gzockoll.prototype.assets.entity;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -39,10 +42,13 @@ public class Asset {
             this.file=input;
             Stopwatch t=Stopwatch.createStarted();
             this.mimeType = TIKA.detect(getAsStream());
+            Metadata data = ImageMetadataReader.readMetadata(input);
             t.stop();
             log.debug("Took " + t.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (ImageProcessingException e) {
+            log.debug(e.getLocalizedMessage());
         }
     }
 

@@ -8,7 +8,7 @@ public class MyRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         getContext().setTracing(true);
-        from("file:assets?delete=true$idempotent=true&readLock=rename&idempotentKey=${file:name}-${file:size}").to("bean:assetResource?method=fileImport");
+        from("file:assets?delete=true&idempotent=true&readLock=rename&idempotentKey=${file:name}-${file:size}").to("bean:assetResource?method=fileImport");
 
     }
 }
