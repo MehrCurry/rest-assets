@@ -2,11 +2,7 @@ package de.gzockoll.prototype.assets.entity;
 
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +19,7 @@ public class AssetDao {
     private GridFsTemplate template;
 
     public GridFSFile save(Asset a) {
-        return template.store(a.getAsStream(),a.getFilename(),a.getMimeType());
+        return template.store(a.getAsStream(),a.getFilename(),a.getMimeType(),a.getMetaData());
     }
 
     public Optional<GridFSDBFile> findById(String param) {

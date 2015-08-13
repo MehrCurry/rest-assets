@@ -2,7 +2,7 @@ package de.gzockoll.prototype.assets.entity;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -16,6 +16,10 @@ import org.springframework.data.annotation.Transient;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -30,6 +34,7 @@ public class Asset {
     @NotNull
     private String mimeType;
 
+    private Map<String,String> metaData= Collections.emptyMap();
 
     @Transient
     private File file;
@@ -42,13 +47,22 @@ public class Asset {
             this.file=input;
             Stopwatch t=Stopwatch.createStarted();
             this.mimeType = TIKA.detect(getAsStream());
-            Metadata data = ImageMetadataReader.readMetadata(input);
             t.stop();
             log.debug("Took " + t.toString());
+            metaData = extractMetaData(input);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (ImageProcessingException e) {
-            log.debug(e.getLocalizedMessage());
+        }
+    }
+
+    private Map<String, String> extractMetaData(File input) {
+        try {
+            return StreamSupport.stream(ImageMetadataReader.readMetadata(input).getDirectories().spliterator(), false)
+                    .flatMap(d -> d.getTags().stream())
+                    .collect(Collectors.toMap(t -> "[" + t.getDirectoryName() + "] " + t.getTagName() , Tag::getDescription));
+        } catch (IOException | ImageProcessingException e) {
+            log.debug("Error extracting Metadata " + e.getLocalizedMessage());
+            return Collections.EMPTY_MAP;
         }
     }
 
