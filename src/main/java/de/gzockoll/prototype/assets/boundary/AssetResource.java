@@ -7,6 +7,7 @@ import de.gzockoll.prototype.assets.entity.Asset;
 import de.gzockoll.prototype.assets.entity.AssetDao;
 import de.gzockoll.prototype.assets.entity.Token;
 import de.gzockoll.prototype.assets.entity.TokenRepository;
+import de.gzockoll.prototype.assets.services.MetaDataExtractorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
@@ -40,6 +41,9 @@ public class AssetResource {
     @Autowired
     private TokenRepository tokenRepository;
 
+    @Autowired
+    private MetaDataExtractorFactory factory;
+
     /**
      * Adds a document to the archive.
      *
@@ -57,7 +61,7 @@ public class AssetResource {
         Stopwatch sw=Stopwatch.createStarted();
         final File tmp = multipartToFile(file);
         try {
-            Asset asset=new Asset(tmp);
+            Asset asset=new Asset(tmp,factory);
             String result = save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
             sw.stop();
             log.debug("Import took " + sw.toString());
@@ -180,7 +184,7 @@ public class AssetResource {
     public void fileImport(Exchange ex) {
         Stopwatch sw=Stopwatch.createStarted();
         File file= (File) ex.getIn().getBody(GenericFile.class).getFile();
-        Asset asset=new Asset(file);
+        Asset asset=new Asset(file,factory);
         save(asset);
         sw.stop();
         log.debug("Import took " + sw.toString());

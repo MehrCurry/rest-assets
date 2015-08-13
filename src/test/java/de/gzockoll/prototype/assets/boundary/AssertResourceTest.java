@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.mongodb.gridfs.GridFSDBFile;
 import de.gzockoll.prototype.assets.AssetRepositoryApplication;
 import de.gzockoll.prototype.assets.entity.Asset;
+import de.gzockoll.prototype.assets.services.MetaDataExtractorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -32,6 +33,9 @@ public class AssertResourceTest {
     @Autowired
     private GridFsTemplate template;
 
+    @Autowired
+    private MetaDataExtractorFactory factory;
+
     @Test
     public void testSave() throws Exception {
         String data="bla";
@@ -40,7 +44,7 @@ public class AssertResourceTest {
         pw.write(data);
         pw.close();
         try {
-            Asset asset=new Asset(input);
+            Asset asset=new Asset(input,factory);
             resource.save(asset);
 
 
@@ -70,7 +74,7 @@ public class AssertResourceTest {
         pw.write(data);
         pw.close();
         try {
-            Asset asset=new Asset(input);
+            Asset asset=new Asset(input,factory);
             resource.save(asset);
 
             GridFSDBFile found = template.findOne(query(where("md5").is(asset.checksum().toLowerCase())));

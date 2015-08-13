@@ -1,35 +1,36 @@
 package de.gzockoll.prototype.assets.entity;
 
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Tag;
 import com.google.common.base.Stopwatch;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import de.gzockoll.prototype.assets.services.MetaDataExtractorFactory;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Transient;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
 
 @EqualsAndHashCode(callSuper = false)
-@ToString(exclude = "data")
+@ToString
 @Getter
 @Slf4j
 public class Asset {
     private static final Tika TIKA = new Tika();
+
+    @Autowired
+    private final MetaDataExtractorFactory factory;
 
     @NotNull
     private String mimeType;
@@ -39,30 +40,20 @@ public class Asset {
     @Transient
     private File file;
 
-    public Asset() {
-    }
-
-    public Asset(File input) {
+    public <U> Asset(File input,MetaDataExtractorFactory factory) {
         try {
             this.file=input;
+            this.factory=factory;
             Stopwatch t=Stopwatch.createStarted();
             this.mimeType = TIKA.detect(getAsStream());
             t.stop();
             log.debug("Took " + t.toString());
-            metaData = extractMetaData(input);
+            InputStream is=new FileInputStream(file);
+            Optional<MetaDataExtractor> ex = factory.extractorFor(mimeType);
+            Optional<Map<String, String>> result = ex.flatMap(e -> Optional.of(e.extractMetaData(is, mimeType)));
+            metaData=result.orElse(null);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private Map<String, String> extractMetaData(File input) {
-        try {
-            return StreamSupport.stream(ImageMetadataReader.readMetadata(input).getDirectories().spliterator(), false)
-                    .flatMap(d -> d.getTags().stream())
-                    .collect(Collectors.toMap(t -> "[" + t.getDirectoryName() + "] " + t.getTagName() , Tag::getDescription));
-        } catch (IOException | ImageProcessingException e) {
-            log.debug("Error extracting Metadata " + e.getLocalizedMessage());
-            return Collections.EMPTY_MAP;
         }
     }
 
