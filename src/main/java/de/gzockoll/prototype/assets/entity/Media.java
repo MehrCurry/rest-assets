@@ -47,7 +47,7 @@ public class Media {
     }
 
     public String generatePath(String name) {
-        String parts[] = name.split("(?<=\\G.{4})");
+        String parts[] = name.split("(?<=\\G.{9})");
         return Arrays.stream(parts).collect(Collectors.joining(File.separator));
     }
 

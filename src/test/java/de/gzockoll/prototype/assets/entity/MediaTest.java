@@ -2,11 +2,13 @@ package de.gzockoll.prototype.assets.entity;
 
 import com.google.common.base.Stopwatch;
 import de.gzockoll.prototype.assets.AssetRepositoryApplication;
+import de.gzockoll.prototype.assets.categories.SlowTest;
 import de.gzockoll.prototype.assets.services.TestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -35,6 +37,7 @@ public class MediaTest {
     }
 
     @Test
+    @Category(SlowTest.class)
     public void testHighVolume() {
         IntStream.range(0, 100).forEach(i -> service.massInsert(10000));
         Optional<Media> sample=repository.findByFilename("file#99").stream().findFirst();
