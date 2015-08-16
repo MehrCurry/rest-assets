@@ -11,7 +11,6 @@ import de.gzockoll.prototype.assets.services.MetaDataExtractorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.file.GenericFile;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -58,26 +57,13 @@ public class AssetResource {
     String handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file) throws IOException {
 
-        Stopwatch sw=Stopwatch.createStarted();
-        final File tmp = multipartToFile(file);
-        try {
-            Asset asset=new Asset(tmp,factory);
-            String result = save(asset).orElseThrow(() -> new IllegalArgumentException("Duplicate key")).toString();
-            sw.stop();
-            log.debug("Import took " + sw.toString());
-            log.debug("Speed: {} KB/s", new DecimalFormat("###.###").format(asset.sizeInKB() * 1000 / sw.elapsed(TimeUnit.MILLISECONDS)));
-            return result;
-        } finally {
-            FileUtils.deleteQuietly(tmp);
-        }
+        saveToInbox(file);
+        return "";
     }
 
-    public File multipartToFile(MultipartFile multipart) throws IllegalStateException, IOException
-    {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        File convFile = new File(tmpDir, multipart.getOriginalFilename());
+    private void saveToInbox(MultipartFile multipart) throws IOException {
+        File convFile = new File("assets/inbox", multipart.getOriginalFilename());
         multipart.transferTo(convFile);
-        return convFile;
     }
 
     /**

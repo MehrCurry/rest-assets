@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.assets;
 
+import com.google.common.eventbus.EventBus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
@@ -41,5 +42,10 @@ public class AssetRepositoryApplication {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager("assets");
+    }
+
+    @Bean
+    public EventBus eventBus() {
+        return new EventBus();
     }
 }
