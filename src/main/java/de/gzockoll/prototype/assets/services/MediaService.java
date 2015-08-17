@@ -2,8 +2,9 @@ package de.gzockoll.prototype.assets.services;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import de.gzockoll.prototype.assets.entity.AbstractEntity;
 import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.entity.MediaRepository;
+import de.gzockoll.prototype.assets.repository.MediaRepository;
 import de.gzockoll.prototype.assets.entity.VaultType;
 import de.gzockoll.prototype.assets.events.CopyFinishedEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +24,14 @@ public class MediaService {
     @Autowired
     private EventBus eventBus;
 
-    public Media createMediaInfo(Exchange ex) {
+    public AbstractEntity createMediaInfo(Exchange ex) {
         Media media=new Media(ex.getIn().getHeader("CamelFileName").toString());
         media.extractInfosFromFile(ex.getIn().getBody(File.class));
         repository.save(media);
         return media;
     }
 
-    public Media findMediaInfo(Exchange ex) {
+    public AbstractEntity findMediaInfo(Exchange ex) {
         return repository.findByFilename((String) ex.getIn().getHeader("CamelFileName")).stream().findFirst().get();
     }
 
@@ -49,7 +50,7 @@ public class MediaService {
     public void finished(CopyFinishedEvent event) {
             Media m=repository.findOne(event.getMedia().getId());
             m.setExistsInProduction(m.isExistsInProduction() | event.getType()==VaultType.PRODUCTION);
-            m.setExistsInArchive(m.isExistsInArchive() | event.getType()==VaultType.ARCHIVE);
+            m.setExistsInArchive(m.isExistsInArchive() | event.getType() == VaultType.ARCHIVE);
             repository.save(m);
     }
 

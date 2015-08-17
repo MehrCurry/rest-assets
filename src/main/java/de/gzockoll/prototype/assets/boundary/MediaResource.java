@@ -1,7 +1,7 @@
 package de.gzockoll.prototype.assets.boundary;
 
 import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.entity.MediaRepository;
+import de.gzockoll.prototype.assets.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -90,5 +90,4 @@ public class MediaResource {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
-
 }

@@ -2,7 +2,7 @@ package de.gzockoll.prototype.assets.services;
 
 import com.google.common.base.Stopwatch;
 import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.entity.MediaRepository;
+import de.gzockoll.prototype.assets.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -3,6 +3,7 @@ package de.gzockoll.prototype.assets.entity;
 import com.google.common.base.Stopwatch;
 import de.gzockoll.prototype.assets.AssetRepositoryApplication;
 import de.gzockoll.prototype.assets.categories.SlowTest;
+import de.gzockoll.prototype.assets.repository.MediaRepository;
 import de.gzockoll.prototype.assets.services.TestService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;

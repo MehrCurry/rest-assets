@@ -2,6 +2,7 @@ package de.gzockoll.prototype.assets.entity;
 
 import de.gzockoll.prototype.assets.util.MD5Helper;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 
@@ -20,17 +21,11 @@ import static com.google.common.base.Preconditions.checkState;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Slf4j
-public class Media {
+public class Media extends AbstractEntity {
     private static final Tika TIKA = new Tika();
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(updatable = false)
-    private Date createdAt=new Date();
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
 
