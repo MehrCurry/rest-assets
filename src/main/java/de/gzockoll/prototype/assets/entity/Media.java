@@ -7,8 +7,9 @@ import org.apache.tika.Tika;
 
 import javax.persistence.*;
 import java.io.*;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
@@ -110,22 +111,14 @@ public class Media {
     public void deletePath(String name) {
         Path directory = Paths.get(name);
         try {
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-
-            });
+            Files.deleteIfExists(directory);
+            while ((directory=directory.getParent())!=null) {
+                    File f=directory.toFile();
+                    if (f.isDirectory() && f.exists() && f.list().length==0)
+                        Files.delete(directory);
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
