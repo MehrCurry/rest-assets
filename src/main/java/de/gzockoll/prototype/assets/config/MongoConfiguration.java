@@ -1,4 +1,4 @@
-package de.gzockoll.prototype.assets;
+package de.gzockoll.prototype.assets.config;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.assets.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.gzockoll.prototype.assets.util.MD5Helper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,6 +24,7 @@ import static com.google.common.base.Preconditions.checkState;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
+@JsonIgnoreProperties("inputStream")
 public class Media extends AbstractEntity {
     private static final Tika TIKA = new Tika();
 
@@ -61,6 +63,7 @@ public class Media extends AbstractEntity {
         return generatePath(name) + File.separator + name;
     }
 
+    @Transient
     public InputStream getInputStream() {
         String prefix="assets" + File.separator + (existsInProduction ? "production" : "archive") + File.separator;
 
