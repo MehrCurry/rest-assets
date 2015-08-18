@@ -24,4 +24,8 @@ public class TokenController {
     public Optional<Token> getTokenFor(String id) {
         return Optional.ofNullable((Token)tokenMap.get(id));
     }
+
+    public Optional<String> resolve(String id) {
+        return getTokenFor(id).map(Token::getPayload);
+    }
 }

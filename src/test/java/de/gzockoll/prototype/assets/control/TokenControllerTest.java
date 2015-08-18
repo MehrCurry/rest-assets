@@ -2,8 +2,10 @@ package de.gzockoll.prototype.assets.control;
 
 import com.hazelcast.core.IMap;
 import de.gzockoll.prototype.assets.AssetRepositoryApplication;
+import de.gzockoll.prototype.assets.categories.SlowTest;
 import de.gzockoll.prototype.assets.pojo.Token;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -22,7 +24,8 @@ public class TokenControllerTest {
     private TokenController controller;
 
     @Test
-    public void testCreateToken() throws Exception {
+    @Category(SlowTest.class)
+    public void testExpireToken() throws Exception {
         Token t=controller.createToken("JUnit");
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
         Thread.sleep(8000);
@@ -31,6 +34,10 @@ public class TokenControllerTest {
 
     @Test
     public void testResolve() throws Exception {
+        Token t1=controller.createToken("JUnit");
+        Token t2=controller.createToken("Test");
+        assertThat(controller.resolve(t1.getId()).get()).isEqualTo("JUnit");
+        assertThat(controller.resolve(t2.getId()).get()).isEqualTo("Test");
 
     }
 }
