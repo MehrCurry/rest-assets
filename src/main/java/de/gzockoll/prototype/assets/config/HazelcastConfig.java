@@ -6,6 +6,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import de.gzockoll.prototype.assets.pojo.Token;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +15,7 @@ public class HazelcastConfig {
 
     @Bean
     public HazelcastInstance hazelcastInstance() {
-        return Hazelcast.newHazelcastInstance();
+        return Hazelcast.newHazelcastInstance(config());
     }
 
     @Bean
@@ -27,11 +28,11 @@ public class HazelcastConfig {
     public MapConfig mapConfig() {
         return new MapConfig()
                 .setName("tokens")
-                .setTimeToLiveSeconds(30);
+                .setTimeToLiveSeconds(5);
     }
 
-    @Bean
-    public IMap<String,Token> tokensMap() {
+    @Bean(name = "tokens")
+    public IMap tokensMap() {
         return hazelcastInstance().getMap("tokens");
     }
 }

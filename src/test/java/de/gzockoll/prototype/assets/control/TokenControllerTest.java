@@ -10,6 +10,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.annotation.Resource;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -19,14 +21,11 @@ public class TokenControllerTest {
     @Autowired
     private TokenController controller;
 
-    @Autowired
-    private IMap<String,Token> tokenMap;
-
     @Test
     public void testCreateToken() throws Exception {
         Token t=controller.createToken("JUnit");
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
-        Thread.sleep(6000);
+        Thread.sleep(8000);
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isFalse();
     }
 
