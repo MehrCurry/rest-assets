@@ -38,11 +38,9 @@ public class MediaResource {
         multipart.transferTo(convFile);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public HttpEntity<List<String>> findAll() {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        List<Media> results = repository.findAll();
-        return new ResponseEntity<>(results.stream().map(f -> f.toString()).collect(Collectors.toList()), httpHeaders, HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    public List<Media> findAll() {
+        return repository.findAll();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

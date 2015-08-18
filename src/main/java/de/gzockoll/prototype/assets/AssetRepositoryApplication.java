@@ -14,7 +14,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import javax.servlet.MultipartConfigElement;
 
 @SpringBootApplication
-@EnableCaching
 public class AssetRepositoryApplication {
 
     public static void main(String[] args) {
@@ -37,11 +36,6 @@ public class AssetRepositoryApplication {
         factory.setMaxFileSize("5120MB");
         factory.setMaxRequestSize("5120MB");
         return factory.createMultipartConfig();
-    }
-
-    @Bean
-    public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("assets");
     }
 
     @Bean

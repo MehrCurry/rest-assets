@@ -24,7 +24,7 @@
 		<java.version>1.8</java.version>
 		<camel.version>2.15.2</camel.version>
 		<docker.image.prefix>gzockoll</docker.image.prefix>
-        <mongo.db.uri>mongodb://admin:123456@docker:27017/admin</mongo.db.uri>
+        <mongo.db.uri>mongodb://admin:123456@192.168.99.100:27017/admin</mongo.db.uri>
 	    <docker.imageName>rest-assets</docker.imageName>
     </properties>
 
