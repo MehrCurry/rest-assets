@@ -38,6 +38,8 @@ public class Media extends AbstractEntity {
     private String originalFilename;
     private String contentType;
     private long length;
+    @Enumerated(EnumType.STRING)
+    private MirrorSystem system= MirrorSystem.LOCAL_FILE;
 
     private boolean existsInProduction=false;
     private boolean existsInArchive=false;
@@ -65,13 +67,7 @@ public class Media extends AbstractEntity {
 
     @Transient
     public InputStream getInputStream() {
-        String prefix="assets" + File.separator + (existsInProduction ? "production" : "archive") + File.separator;
-
-        try {
-            return new FileInputStream(new File(prefix+filename));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        return system.getStream(this);
     }
 
     public void extractInfosFromFile(File f) {

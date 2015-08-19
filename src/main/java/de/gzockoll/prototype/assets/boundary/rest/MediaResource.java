@@ -1,11 +1,14 @@
-package de.gzockoll.prototype.assets.boundary;
+package de.gzockoll.prototype.assets.boundary.rest;
 
+import de.gzockoll.prototype.assets.boundary.StreamHelper;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -48,20 +50,9 @@ public class MediaResource {
         // send it back to the client
         Optional<Media> result = repository.findByMediaId(id).stream().findFirst();
 
-        return streamResult(result);
+        return StreamHelper.streamResult(result);
     }
 
-    private HttpEntity<InputStreamResource> streamResult(Optional<Media> result) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        if (result.isPresent()) {
-            httpHeaders.setContentType(MediaType.valueOf(result.get().getContentType()));
-            httpHeaders.setContentDispositionFormData("attachment", result.get().getOriginalFilename());
-            httpHeaders.setContentLength(result.get().getLength());
-            return new ResponseEntity<>(new InputStreamResource(result.get().getInputStream()), httpHeaders, HttpStatus.OK);
-        }
-        else
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {

@@ -1,4 +1,4 @@
-package de.gzockoll.prototype.assets.boundary;
+package de.gzockoll.prototype.assets.boundary.rest;
 
 import de.gzockoll.prototype.assets.control.SnapshotController;
 import de.gzockoll.prototype.assets.entity.Snapshot;

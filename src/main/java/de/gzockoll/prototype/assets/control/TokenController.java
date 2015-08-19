@@ -2,17 +2,16 @@ package de.gzockoll.prototype.assets.control;
 
 import com.hazelcast.core.IMap;
 import de.gzockoll.prototype.assets.pojo.Token;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class TokenController {
     @Resource(name = "tokens")
+    @Setter
     private IMap<String,Token> tokenMap;
 
     public Token createToken(String payload) {
