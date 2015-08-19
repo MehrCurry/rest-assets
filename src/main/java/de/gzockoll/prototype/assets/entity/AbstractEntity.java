@@ -11,6 +11,7 @@ public class AbstractEntity {
     @GeneratedValue
     @Getter
     private Long id;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false)
     @Getter

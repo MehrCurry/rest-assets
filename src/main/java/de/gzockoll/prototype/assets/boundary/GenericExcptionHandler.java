@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.FileNotFoundException;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
@@ -18,10 +19,11 @@ public class GenericExcptionHandler {
         log.debug("Exception mapped to http error 422:" + e.toString());
         return e.getLocalizedMessage();
     }
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 401
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseBody String handleNoSuchElement(Exception e) {
-        log.debug("Exception mapped to http error 401:" + e.toString());
+
+    @ResponseStatus(HttpStatus.NOT_FOUND) // 404
+    @ExceptionHandler({NoSuchElementException.class, FileNotFoundException.class})
+    @ResponseBody String handleNotFound(Exception e) {
+        log.debug("Exception mapped to http error 404:" + e.toString());
         return e.getLocalizedMessage();
     }
 }

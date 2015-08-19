@@ -22,6 +22,12 @@ public class TokensResource {
     @Setter
     private TokenController controller;
 
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    public Token createToken(@RequestParam(value = "mediaId", required = true) String mediaId) {
+        return controller.createToken(mediaId);
+    }
+
+
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public Collection<Token> findAll() {
         return controller.findAll();

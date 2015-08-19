@@ -1,6 +1,7 @@
 package de.gzockoll.prototype.assets.boundary.rest;
 
 import de.gzockoll.prototype.assets.boundary.StreamHelper;
+import de.gzockoll.prototype.assets.control.MediaController;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -24,6 +27,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Slf4j
 public class MediaResource {
     @Autowired
+    private MediaController controller;
+
+    @Autowired
     private MediaRepository repository;
 
     @RequestMapping(method = RequestMethod.POST)
@@ -31,7 +37,7 @@ public class MediaResource {
     HttpEntity handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file) throws IOException {
 
-        saveToInbox(file);
+        controller.upload(file);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
@@ -50,7 +56,7 @@ public class MediaResource {
         // send it back to the client
         Optional<Media> result = repository.findByMediaId(id).stream().findFirst();
 
-        return StreamHelper.streamResult(result);
+        return StreamHelper.streamResult(result.orElseThrow(() -> new NoSuchElementException(id)));
     }
 
 

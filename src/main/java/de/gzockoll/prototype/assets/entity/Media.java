@@ -2,8 +2,7 @@ package de.gzockoll.prototype.assets.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.gzockoll.prototype.assets.util.MD5Helper;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 
@@ -25,6 +24,8 @@ import static com.google.common.base.Preconditions.checkState;
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
 @JsonIgnoreProperties("inputStream")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Media extends AbstractEntity implements Serializable {
     private static final Tika TIKA = new Tika();
 
@@ -50,12 +51,17 @@ public class Media extends AbstractEntity implements Serializable {
     private boolean existsInProduction=false;
     private boolean existsInArchive=false;
 
-    public Media() {
+    public Media(String originalFilename, String contentType, long length) {
+        this.originalFilename=originalFilename;
+        this.contentType=contentType;
+        this.length=length;
     }
 
-    public Media(String filename) {
-        this.originalFilename=filename;
-    }
+    @Builder
+    public static Media create(String originalFilename,String contentType,long length) {
+        return new Media(originalFilename,contentType,length);
+    };
+
 
     public String generateFilename() {
         return mediaId.replace("-", "");
@@ -72,12 +78,13 @@ public class Media extends AbstractEntity implements Serializable {
     }
 
     @Transient
-    public InputStream getInputStream() {
-        return system.getStream(this);
+    public InputStream getInputStream() throws FileNotFoundException {
+        checkState(existsInProduction);
+        return new FileInputStream(filename);
     }
 
     public void extractInfosFromFile(File f) {
-        checkArgument(f.length()>0);
+        checkArgument(f.length() > 0);
         this.length=f.length();
         this.hash= MD5Helper.checksum(f);
         try {

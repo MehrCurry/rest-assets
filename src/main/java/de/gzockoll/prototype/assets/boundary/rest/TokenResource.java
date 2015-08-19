@@ -23,11 +23,6 @@ public class TokenResource {
     @Setter
     private TokenController controller;
 
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    public Token createToken(@RequestParam(value = "mediaId", required = true) String mediaId) {
-        return controller.createToken(mediaId);
-    }
-
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
             return StreamHelper.streamResult(controller.resolve(id));
