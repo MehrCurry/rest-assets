@@ -27,15 +27,12 @@ public class TokenResourceTest {
         Media media=new Media("test.txt");
         media.setContentType("plain/text");
         String mediaId=media.getMediaId();
-        MediaRepository repository= mock(MediaRepository.class);
-        when(repository.findByMediaId(mediaId)).thenReturn(ImmutableList.of(media));
 
         IMap<String,Token> imap=mock(IMap.class);
         tokenController.setTokenMap(imap);
 
         TokenResource resource=new TokenResource();
         resource.setController(tokenController);
-        resource.setMediaRepository(repository);
 
         Token t=resource.createToken(media.getMediaId());
         when(imap.get(t.getId())).thenReturn(t);

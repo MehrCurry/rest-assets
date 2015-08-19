@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkState;
 @EqualsAndHashCode(callSuper = false)
 @Slf4j
 @JsonIgnoreProperties("inputStream")
-public class Media extends AbstractEntity {
+public class Media extends AbstractEntity implements Serializable {
     private static final Tika TIKA = new Tika();
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -34,10 +34,16 @@ public class Media extends AbstractEntity {
     @Column(unique=true)
     private String mediaId=UUID.randomUUID().toString();
     private String hash;
+
+    @Column(unique=true)
     private String filename=generateFullname();
+
     private String originalFilename;
+
     private String contentType;
+
     private long length;
+
     @Enumerated(EnumType.STRING)
     private MirrorSystem system= MirrorSystem.LOCAL_FILE;
 

@@ -28,7 +28,7 @@ public class HazelcastConfig {
     public MapConfig mapConfig() {
         return new MapConfig()
                 .setName("tokens")
-                .setTimeToLiveSeconds(5);
+                .setTimeToLiveSeconds(60);
     }
 
     @Bean(name = "tokens")

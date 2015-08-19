@@ -28,7 +28,7 @@ public class TokenControllerTest {
     public void testExpireToken() throws Exception {
         Token t=controller.createToken("JUnit");
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
-        Thread.sleep(8000);
+        Thread.sleep(65000);
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isFalse();
     }
 
