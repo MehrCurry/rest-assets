@@ -50,5 +50,4 @@ public class MediaTest {
             log.debug("Search took: " + sw.toString());
         }
     }
-
 }

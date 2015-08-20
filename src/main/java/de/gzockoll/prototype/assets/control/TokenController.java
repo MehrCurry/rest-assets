@@ -14,14 +14,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 @Service
 public class TokenController {
     @Resource(name = "tokens")
     @Setter
-    private IMap<String,Token> tokenMap;
+    private IMap<String, Token> tokenMap;
 
     @Autowired
     private MediaRepository repository;
@@ -33,12 +32,12 @@ public class TokenController {
         checkState(mediaList.size() == 1, "mediaId not unique:" + payload);
 
         Token token = new Token(mediaList.get(0));
-        tokenMap.put(token.getId(),token);
+        tokenMap.put(token.getId(), token);
         return token;
     }
 
     public Optional<Token> getTokenFor(String id) {
-        return Optional.ofNullable((Token)tokenMap.get(id));
+        return Optional.ofNullable((Token) tokenMap.get(id));
     }
 
     public Optional<Object> resolve(String id) {
