@@ -41,7 +41,10 @@ public class TokenController {
     }
 
     public Optional<Object> resolve(String id) {
-        return getTokenFor(id).map(Token::getPayload);
+
+        Optional<Object> opt = getTokenFor(id).map(Token::getPayload);
+        tokenMap.remove(id);
+        return opt;
     }
 
     public Collection<Token> findAll() {
