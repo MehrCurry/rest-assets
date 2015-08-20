@@ -2,10 +2,14 @@ package de.gzockoll.prototype.assets.camel;
 
 import de.gzockoll.prototype.assets.entity.VaultType;
 import de.gzockoll.prototype.assets.services.MediaService;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
 
 @Service
 public class MyRouteBuilder extends RouteBuilder {
@@ -17,6 +21,21 @@ public class MyRouteBuilder extends RouteBuilder {
         getContext().setTracing(true);
         errorHandler(deadLetterChannel("direct:failed")
                 .maximumRedeliveries(3).redeliveryDelay(2000));
+
+        from("file:assets/upload?delete=true&readLock=rename").routeId("Upload File")
+            .process(ex -> {
+                    File file=ex.getIn().getBody(File.class);
+                    String name= (String) ex.getIn().getHeader("CamelFileName");
+                    MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+                    entity.addBinaryBody("file",file);
+                    entity.addTextBody("name", name);
+                ex.getIn().setBody(entity);
+                })
+                .log("POST ${header.CamelFileName} to /upload")
+                .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
+                .to("http4://localhost:9091/media")
+                .routeId("HTTP response status: ${header.CamelHttpResponseCode}")
+                .log("HTTP response body:\n${body}");
 
         from("file:assets/inbox?delete=true&idempotent=true&readLock=rename&idempotentKey=${file:name}-${file:size}").routeId("Import File").to("direct:store");
         from("direct:store").routeId("Send out")
@@ -47,7 +66,8 @@ public class MyRouteBuilder extends RouteBuilder {
                 .bean(mediaService, "finished");
 
         from("direct:failed")
-                .setHeader("CamelFileName",simple("${header.media.originalFilename}"))
+                .to("log:bla?showAll=true&multiline=true")
+                .setHeader("CamelFileName", simple("${header.media.originalFilename}"))
                 .to("file:assets/failed");
         from("timer:dump?period=30000").bean(mediaService,"getAll")
                 .setHeader("CamelFileName",constant("info.json"))
