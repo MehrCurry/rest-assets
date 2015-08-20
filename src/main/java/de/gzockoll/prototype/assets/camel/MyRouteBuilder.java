@@ -34,10 +34,6 @@ public class MyRouteBuilder extends RouteBuilder {
                 .process(new ChecksumVerifier())
                 .bean(mediaService, "finished");
 
-        from("direct:gridfs").routeId("gridFS")
-                .setHeader("target", constant(VaultType.GRIDFS))
-                .to("bean:assetResource?method=fileImport")
-                .bean(mediaService, "finished");
         from("direct:s3").routeId("s3tmp")
                 .setHeader("CamelFileName", simple("${header.media.mediaId}"))
                 .to("file:assets/s3tmp");
