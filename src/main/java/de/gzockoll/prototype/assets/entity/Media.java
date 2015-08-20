@@ -27,6 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Media extends AbstractEntity implements Serializable {
+    private static final String PREFIX="assets" + File.separator + "production";
     private static final Tika TIKA = new Tika();
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -38,15 +39,14 @@ public class Media extends AbstractEntity implements Serializable {
 
     @Column(unique=true)
     private String filename=generateFullname();
+    private String nameSpace;
 
+    private String externalReference;
     private String originalFilename;
 
     private String contentType;
 
     private long length;
-
-    @Enumerated(EnumType.STRING)
-    private MirrorSystem system= MirrorSystem.LOCAL_FILE;
 
     private boolean existsInProduction=false;
     private boolean existsInArchive=false;
@@ -68,13 +68,13 @@ public class Media extends AbstractEntity implements Serializable {
     }
 
     public String generatePath(String name) {
-        String parts[] = name.substring(0,9).split("(?<=\\G.{3})");
+        String parts[] = name.substring(0,8).split("(?<=\\G.{2})");
         return Arrays.stream(parts).collect(Collectors.joining(File.separator));
     }
 
     public String generateFullname() {
         String name=generateFilename();
-        return generatePath(name) + File.separator + name;
+        return PREFIX + File.separator + (nameSpace!=null ? nameSpace : "public") + File.separator +  generatePath(name) + File.separator + name;
     }
 
     @Transient
@@ -99,20 +99,6 @@ public class Media extends AbstractEntity implements Serializable {
         String name="assets" + File.separator + "production" + File.separator + filename;
         deletePath(name);
         existsInProduction=false;
-    }
-
-    public void deleteFromArchive() {
-        checkState(existsInArchive);
-        String name="assets" + File.separator + "archive" + File.separator + filename;
-        deletePath(name);
-        existsInArchive=false;
-    }
-
-    public void deleteFiles() {
-        if (existsInProduction)
-            deleteFromProduction();
-        if (existsInArchive)
-            deleteFromArchive();
     }
 
     public void deletePath(String name) {

@@ -23,17 +23,21 @@ public class MediaController {
 
 
 
-    public void upload(MultipartFile multipart) throws IOException {
+    public void handleUpload(MultipartFile multipart, String ref, String nameSpace) throws IOException {
 
         Media media=Media.builder()
                 .length(multipart.getSize())
                 .contentType(multipart.getContentType())
                 .originalFilename(multipart.getOriginalFilename())
                 .build();
-        File convFile = new File("assets/production", media.generateFullname());
+        media.setExternalReference(ref);
+        if (nameSpace!=null)
+            media.setNameSpace(nameSpace);
+        File convFile = new File(media.generateFullname());
         convFile.getParentFile().mkdirs();
         multipart.transferTo(convFile.getAbsoluteFile());
         media.extractInfosFromFile(convFile);
+        media.setExistsInProduction(true);
         repository.save(media);
     }
 }

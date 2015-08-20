@@ -5,7 +5,6 @@ import com.google.common.eventbus.Subscribe;
 import de.gzockoll.prototype.assets.entity.AbstractEntity;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
-import de.gzockoll.prototype.assets.entity.VaultType;
 import de.gzockoll.prototype.assets.events.CopyFinishedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
@@ -38,7 +37,6 @@ public class MediaService {
     public void finished(Exchange ex) {
         eventBus.post(CopyFinishedEvent.builder()
                 .media((Media) ex.getIn().getHeader("media"))
-                .type((VaultType) ex.getIn().getHeader("target"))
                 .build());
     }
 
@@ -49,8 +47,6 @@ public class MediaService {
     @Subscribe
     public void finished(CopyFinishedEvent event) {
             Media m=repository.findOne(event.getMedia().getId());
-            m.setExistsInProduction(m.isExistsInProduction() | event.getType()==VaultType.PRODUCTION);
-            m.setExistsInArchive(m.isExistsInArchive() | event.getType() == VaultType.ARCHIVE);
             repository.save(m);
     }
 

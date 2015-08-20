@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -35,9 +34,12 @@ public class MediaResource {
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
     HttpEntity handleFileUpload(
-            @RequestParam(value = "file", required = true) MultipartFile file) throws IOException {
+            @RequestParam(value = "file", required = true) MultipartFile file,
+            @RequestParam(value = "key", required = false) String ref,
+            @RequestParam(value = "namespace", required = false) String nameSpace
+            ) throws IOException {
 
-        controller.upload(file);
+        controller.handleUpload(file, ref, nameSpace);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
@@ -69,7 +71,7 @@ public class MediaResource {
 
     @RequestMapping(value = "/all", method = RequestMethod.DELETE)
     public HttpEntity deleteAll() throws IOException {
-        repository.findAll().forEach(m -> m.deleteFiles());
+        repository.findAll().forEach(m -> m.deleteFromProduction());
         repository.deleteAll();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
