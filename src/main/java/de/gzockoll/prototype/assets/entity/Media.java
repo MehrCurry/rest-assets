@@ -79,7 +79,6 @@ public class Media extends AbstractEntity implements Serializable {
 
     @Transient
     public InputStream getInputStream() throws FileNotFoundException {
-        checkState(existsInProduction);
         return new FileInputStream(filename);
     }
 
@@ -95,9 +94,7 @@ public class Media extends AbstractEntity implements Serializable {
     }
 
     public void deleteFromProduction() {
-        checkState(existsInProduction);
-        String name="assets" + File.separator + "production" + File.separator + filename;
-        deletePath(name);
+        deletePath(filename);
         existsInProduction=false;
     }
 
