@@ -12,6 +12,8 @@ import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Service
 @Transactional
 public class MediaController {
@@ -24,16 +26,17 @@ public class MediaController {
 
 
     public void handleUpload(MultipartFile multipart, String ref, String nameSpace) throws IOException {
+        checkArgument(multipart!=null);
+        checkArgument(nameSpace!=null);
 
         Media media=Media.builder()
                 .length(multipart.getSize())
                 .contentType(multipart.getContentType())
+                .nameSpace(nameSpace)
                 .originalFilename(multipart.getOriginalFilename())
                 .build();
         media.setExternalReference(ref);
-        if (nameSpace!=null)
-            media.setNameSpace(nameSpace);
-        File convFile = new File(media.generateFullname());
+        File convFile = new File(media.getFullname());
         convFile.getParentFile().mkdirs();
         multipart.transferTo(convFile.getAbsoluteFile());
         media.extractInfosFromFile(convFile);

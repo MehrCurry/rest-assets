@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class CopyFinishedEvent {
+public class MediaEvent {
+    private final EventType eventType;
     private final Media media;
 }

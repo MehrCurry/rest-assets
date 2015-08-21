@@ -4,7 +4,6 @@ import de.gzockoll.prototype.assets.entity.Media;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,7 @@ public class StreamHelperTest {
                 .length(12345)
                 .build();
         media.setExistsInProduction(true);
-        File file=new File(media.getFilename());
+        File file=new File(media.getFullname());
         file.getParentFile().mkdirs();
         PrintWriter pw=new PrintWriter(file);
         pw.println("Data");

@@ -16,10 +16,11 @@ public class MyRouteBuilder extends RouteBuilder {
         getContext().setTracing(true);
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
+                .setHeader("namespace", constant("imported"))
                 .beanRef("multipartCreator")
                 .log("POST ${header.CamelFileName} to /upload")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
-                .to("http4://localhost:9091/media")
+                .to("http4://localhost:9091/assets")
                 .routeId("HTTP response status: ${header.CamelHttpResponseCode}")
                 .log("HTTP response body:\n${body}");
 

@@ -22,7 +22,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @RestController
-@RequestMapping("/media")
 @Slf4j
 public class MediaResource {
     @Autowired
@@ -31,12 +30,12 @@ public class MediaResource {
     @Autowired
     private MediaRepository repository;
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(value= "/assets", method = RequestMethod.POST)
     public @ResponseBody
     HttpEntity handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "key", required = false) String ref,
-            @RequestParam(value = "namespace", required = false) String nameSpace
+            @RequestParam(value = "namespace", required = true) String nameSpace
             ) throws IOException {
 
         controller.handleUpload(file, ref, nameSpace);
@@ -48,12 +47,12 @@ public class MediaResource {
         multipart.transferTo(convFile);
     }
 
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value= "/assets", method = RequestMethod.GET, produces = "application/json")
     public List<Media> findAll() {
         return repository.findAll();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/asset/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
         Optional<Media> result = repository.findByMediaId(id).stream().findFirst();
@@ -62,14 +61,14 @@ public class MediaResource {
     }
 
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/asset/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {
         checkArgument(id != null);
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         return deleteIfPresent(found);
     }
 
-    @RequestMapping(value = "/all", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/assets", method = RequestMethod.DELETE)
     public HttpEntity deleteAll() throws IOException {
         repository.findAll().forEach(m -> m.deleteFromProduction());
         repository.deleteAll();
@@ -81,7 +80,7 @@ public class MediaResource {
             Media m=found.get();
             m.deleteFromProduction();
             repository.save(m);
-            log.debug(found.get().getFilename() + " removed!");
+            log.debug(found.get().getFullname() + " removed!");
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity(HttpStatus.NOT_FOUND);

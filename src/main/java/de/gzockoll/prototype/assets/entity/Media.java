@@ -26,6 +26,7 @@ import static com.google.common.base.Preconditions.checkState;
 @JsonIgnoreProperties("inputStream")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Media extends AbstractEntity implements Serializable {
     private static final String PREFIX="assets" + File.separator + "production";
     private static final Tika TIKA = new Tika();
@@ -34,11 +35,12 @@ public class Media extends AbstractEntity implements Serializable {
     private Date deletedAt;
 
     @Column(unique=true)
-    private String mediaId=UUID.randomUUID().toString();
+    private final String mediaId=UUID.randomUUID().toString();
     private String hash;
 
     @Column(unique=true)
-    private String filename=generateFullname();
+    @Getter(AccessLevel.PACKAGE)
+    private String filename;
     private String nameSpace;
 
     private String externalReference;
@@ -51,18 +53,6 @@ public class Media extends AbstractEntity implements Serializable {
     private boolean existsInProduction=false;
     private boolean existsInArchive=false;
 
-    public Media(String originalFilename, String contentType, long length) {
-        this.originalFilename=originalFilename;
-        this.contentType=contentType;
-        this.length=length;
-    }
-
-    @Builder
-    public static Media create(String originalFilename,String contentType,long length) {
-        return new Media(originalFilename,contentType,length);
-    };
-
-
     public String generateFilename() {
         return mediaId.replace("-", "");
     }
@@ -72,7 +62,8 @@ public class Media extends AbstractEntity implements Serializable {
         return Arrays.stream(parts).collect(Collectors.joining(File.separator));
     }
 
-    public String generateFullname() {
+    @Transient
+    public String getFullname() {
         String name=generateFilename();
         return PREFIX + File.separator + (nameSpace!=null ? nameSpace : "public") + File.separator +  generatePath(name) + File.separator + name;
     }
@@ -111,4 +102,22 @@ public class Media extends AbstractEntity implements Serializable {
             throw new RuntimeException(e);
         }
     }
+
+    @PrePersist
+    @Transient
+    private void storeFilename() {
+        String filename= getFullname();
+        checkState(Files.exists(Paths.get(filename)),"Media file missing: ", filename);
+        this.filename=filename;
+    }
+
+    @PreRemove
+    private void deleteFile() {
+        try {
+            Files.delete(Paths.get(getFullname()));
+        } catch (IOException e) {
+            log.error("Delete failed: ", e);
+        }
+    }
+
 }
