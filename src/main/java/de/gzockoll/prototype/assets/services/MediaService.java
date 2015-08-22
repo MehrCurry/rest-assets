@@ -1,11 +1,9 @@
 package de.gzockoll.prototype.assets.services;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import de.gzockoll.prototype.assets.entity.AbstractEntity;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
-import de.gzockoll.prototype.assets.events.CopyFinishedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +32,7 @@ public class MediaService {
         return repository.findByFilename((String) ex.getIn().getHeader("CamelFileName")).stream().findFirst().get();
     }
 
-    public void finished(Exchange ex) {
-        eventBus.post(CopyFinishedEvent.builder()
-                .media((Media) ex.getIn().getHeader("media"))
-                .build());
-    }
-
     public List<Media> getAll() {
         return repository.findAll();
     }
-
-    @Subscribe
-    public void finished(CopyFinishedEvent event) {
-            Media m=repository.findOne(event.getMedia().getId());
-            repository.save(m);
-    }
-
-
 }

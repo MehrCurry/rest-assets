@@ -64,26 +64,13 @@ public class MediaResource {
     @RequestMapping(value = "/asset/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {
         checkArgument(id != null);
-        Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
-        return deleteIfPresent(found);
+        controller.delete(id);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/assets", method = RequestMethod.DELETE)
     public HttpEntity deleteAll() throws IOException {
-        repository.findAll().forEach(m -> m.deleteFromProduction());
-        repository.deleteAll();
+        controller.deleteAll();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
-    }
-
-    private HttpEntity deleteIfPresent(Optional<Media> found) {
-        if (found.isPresent()) {
-            Media m=found.get();
-            m.deleteFromProduction();
-            repository.save(m);
-            log.debug(found.get().getFullname() + " removed!");
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
     }
 }
