@@ -14,8 +14,10 @@ public class MyRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         getContext().setTracing(true);
+        errorHandler(loggingErrorHandler());
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
+                .errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3))
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key",simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
@@ -25,7 +27,8 @@ public class MyRouteBuilder extends RouteBuilder {
                 .routeId("HTTP response status: ${header.CamelHttpResponseCode}")
                 .log("HTTP response body:\n${body}");
 
-        from("direct:fileStore")
+        from("direct:fileStore").routeId("fileStore")
+                .errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3))
                 .to("file:assets?autoCreate=true")
                 .to("log:bla?showAll=true&multiline=true");
 

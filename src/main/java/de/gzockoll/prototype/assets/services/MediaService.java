@@ -21,13 +21,6 @@ public class MediaService {
     @Autowired
     private EventBus eventBus;
 
-    public AbstractEntity createMediaInfo(Exchange ex) {
-        Media media=Media.builder().originalFilename(ex.getIn().getHeader("CamelFileName").toString()).build();
-        media.extractInfosFromFile(ex.getIn().getBody(File.class));
-        repository.save(media);
-        return media;
-    }
-
     public List<Media> getAll() {
         return repository.findAll();
     }

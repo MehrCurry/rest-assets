@@ -3,22 +3,27 @@ package de.gzockoll.prototype.assets.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.gzockoll.prototype.assets.services.FileStore;
 import de.gzockoll.prototype.assets.util.MD5Helper;
+import de.gzockoll.prototype.assets.util.ValidateableObject;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.tika.Tika;
 
-import javax.persistence.Entity;
-import javax.persistence.PrePersist;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.*;
 
 @Entity
 @Data
@@ -37,19 +42,26 @@ public class Media extends AbstractEntity implements Serializable {
 
     private String hash;
 
+    @NotNull
     private String nameSpace;
+    @NotNull
+    @Size(min=8)
     private String externalReference;
+    @NotNull
     private String originalFilename;
 
+    @NotNull
     private String contentType;
 
     private long length;
 
     private boolean existsInProduction=false;
     private boolean existsInArchive=false;
+    @NotNull
+    @Column(unique = true)
     private String mediaId;
 
-    public void extractInfosFromFile(File f) {
+    public void extrxactInfosFromFile(File f) {
         checkArgument(f.length() > 0);
         this.length=f.length();
         this.hash= MD5Helper.checksum(f);
@@ -71,6 +83,6 @@ public class Media extends AbstractEntity implements Serializable {
 
     @PrePersist
     public void prePersist() {
-        this.mediaId=createMediaId();
+        this.mediaId= DigestUtils.sha256Hex(createMediaId());
     }
 }

@@ -6,7 +6,7 @@ import java.io.InputStream;
  * Created by guido on 22.08.15.
  */
 public interface FileStore {
-    void save(String namespace, String key, InputStream stream);
+    void save(String namespace, String key, InputStream stream, boolean overwrite);
 
     InputStream getStream(String namespace, String key);
 

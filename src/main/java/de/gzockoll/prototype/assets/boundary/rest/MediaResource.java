@@ -41,7 +41,7 @@ public class MediaResource {
             @RequestParam(value = "namespace", required = true) String nameSpace
             ) throws IOException {
 
-        controller.handleUpload(file, ref, nameSpace);
+        controller.handleUpload(file, ref, nameSpace, false);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
@@ -55,14 +55,13 @@ public class MediaResource {
         return repository.findAll();
     }
 
-    @RequestMapping(value = "/asset/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/asset/{id}/{token}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
         // send it back to the client
         Optional<Media> result = repository.findByMediaId(id).stream().findFirst();
 
         return streamHelper.streamResult(result.orElseThrow(() -> new NoSuchElementException(id)));
     }
-
 
     @RequestMapping(value = "/asset/{id}", method = RequestMethod.DELETE)
     public HttpEntity deleteDocument(@PathVariable String id) throws IOException {

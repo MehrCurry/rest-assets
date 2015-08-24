@@ -1,12 +1,13 @@
 package de.gzockoll.prototype.assets.entity;
 
+import de.gzockoll.prototype.assets.util.ValidateableObject;
 import lombok.Getter;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @MappedSuperclass
-public class AbstractEntity {
+public class AbstractEntity extends ValidateableObject {
     @Id
     @GeneratedValue
     @Getter

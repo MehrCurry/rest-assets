@@ -32,12 +32,12 @@ public class MediaController {
     @Autowired
     private FileStore fileStore;
 
-    public void handleUpload(MultipartFile multipart, String ref, String nameSpace) throws IOException {
+    public void handleUpload(MultipartFile multipart, String ref, String nameSpace, boolean overwrite) throws IOException {
         checkNotNull(multipart);
         checkNotNull(nameSpace);
         checkNotNull(ref);
 
-        fileStore.save(nameSpace, ref, multipart.getInputStream());
+        fileStore.save(nameSpace, ref, multipart.getInputStream(),overwrite);
         String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
         Media media=Media.builder()
                 .length(multipart.getSize())

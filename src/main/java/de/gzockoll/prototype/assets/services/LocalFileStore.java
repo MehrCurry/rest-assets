@@ -31,18 +31,19 @@ public class LocalFileStore implements FileStore {
     @Override
     public void save(@NotNull String nameSpace,
                      @NotNull String key,
-                     @NotNull InputStream stream) {
+                     @NotNull InputStream stream,
+                     boolean overwrite) {
         checkNotNull(nameSpace);
         checkNotNull(key != null);
         checkNotNull(stream != null);
-        checkState(!exists(nameSpace,key),"File already existing");
+        checkState(overwrite || !exists(nameSpace,key),"File already existing");
 
         String filename=createFileNameFromID(nameSpace, key);
         template.sendBodyAndHeader(stream,"CamelFileName",filename.replaceFirst(CAMLE_BASE,""));
     }
 
     String createFileNameFromID(String nameSpace,String key) {
-        checkArgument(key.length()>=8,"Key to short");
+        checkArgument(key.length()>=8,"Key too short");
         String hash= DigestUtils.sha256Hex(key);
         String parts[] = hash.substring(0,8).split("(?<=\\G.{2})");
         return basePath + File.separator + nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + hash;

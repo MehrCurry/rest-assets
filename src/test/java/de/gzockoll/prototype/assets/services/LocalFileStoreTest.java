@@ -53,7 +53,7 @@ public class LocalFileStoreTest {
 
     @Test
     public void testSave() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f));
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f),false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         fileStore.delete(NAME_SPACE, FILE_KEY);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isFalse();
@@ -61,15 +61,15 @@ public class LocalFileStoreTest {
 
     @Test
     public void testDuplicateFile() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f));
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f),false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         thrown.expect(IllegalStateException.class);
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f));
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f),false);
     }
 
     @Test
     public void testGetStream() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f));
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f),false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         InputStream is = fileStore.getStream(NAME_SPACE, FILE_KEY);
         assertThat(is).isNotNull();
