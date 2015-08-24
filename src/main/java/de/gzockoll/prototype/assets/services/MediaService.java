@@ -28,10 +28,6 @@ public class MediaService {
         return media;
     }
 
-    public AbstractEntity findMediaInfo(Exchange ex) {
-        return repository.findByFilename((String) ex.getIn().getHeader("CamelFileName")).stream().findFirst().get();
-    }
-
     public List<Media> getAll() {
         return repository.findAll();
     }

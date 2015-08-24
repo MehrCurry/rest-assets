@@ -2,21 +2,22 @@ package de.gzockoll.prototype.assets.control;
 
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
+import de.gzockoll.prototype.assets.services.FileStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 @Transactional
@@ -28,24 +29,27 @@ public class MediaController {
     @EndpointInject(uri="direct:production")
     private ProducerTemplate producerTemplate;
 
-
+    @Autowired
+    private FileStore fileStore;
 
     public void handleUpload(MultipartFile multipart, String ref, String nameSpace) throws IOException {
-        checkArgument(multipart!=null);
-        checkArgument(nameSpace!=null);
+        checkNotNull(multipart);
+        checkNotNull(nameSpace);
+        checkNotNull(ref);
 
+        fileStore.save(nameSpace, ref, multipart.getInputStream());
+        String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
         Media media=Media.builder()
                 .length(multipart.getSize())
                 .contentType(multipart.getContentType())
                 .nameSpace(nameSpace)
                 .originalFilename(multipart.getOriginalFilename())
+                .contentType(contentType)
+                .length(multipart.getSize())
+                .externalReference(ref)
+                .hash(fileStore.getHash(nameSpace,ref))
+                .existsInProduction(true)
                 .build();
-        media.setExternalReference(ref);
-        File convFile = new File(media.getFullname());
-        convFile.getParentFile().mkdirs();
-        multipart.transferTo(convFile.getAbsoluteFile());
-        media.extractInfosFromFile(convFile);
-        media.setExistsInProduction(true);
         repository.save(media);
     }
 
@@ -75,7 +79,11 @@ public class MediaController {
         });
     }
 
+    @Async
     public void deleteAll() {
+        repository.findAll().forEach(m -> {
+            fileStore.delete(m.getNameSpace(),m.getExternalReference());
+        });
         repository.deleteAll();
         try {
             deleteEmptyDirectories();

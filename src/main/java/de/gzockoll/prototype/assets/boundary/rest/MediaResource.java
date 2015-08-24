@@ -30,11 +30,14 @@ public class MediaResource {
     @Autowired
     private MediaRepository repository;
 
+    @Autowired
+    private StreamHelper streamHelper;
+
     @RequestMapping(value= "/assets", method = RequestMethod.POST)
     public @ResponseBody
     HttpEntity handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file,
-            @RequestParam(value = "key", required = false) String ref,
+            @RequestParam(value = "key", required = true) String ref,
             @RequestParam(value = "namespace", required = true) String nameSpace
             ) throws IOException {
 
@@ -57,7 +60,7 @@ public class MediaResource {
         // send it back to the client
         Optional<Media> result = repository.findByMediaId(id).stream().findFirst();
 
-        return StreamHelper.streamResult(result.orElseThrow(() -> new NoSuchElementException(id)));
+        return streamHelper.streamResult(result.orElseThrow(() -> new NoSuchElementException(id)));
     }
 
 

@@ -20,16 +20,18 @@ public class TokenResource {
     @Setter
     private TokenController controller;
 
+    @Autowired
+    private StreamHelper streamHelper;
+
     @RequestMapping(value = "/token/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
-            return StreamHelper.streamResult(controller.resolve(id));
+            return streamHelper.streamResult(controller.resolve(id));
     }
 
     @RequestMapping(value= "/tokens", method = RequestMethod.POST, produces = "application/json")
     public Token createToken(@RequestParam(value = "mediaId", required = true) String mediaId) {
         return controller.createToken(mediaId);
     }
-
 
     @RequestMapping(value = "/tokens" , method = RequestMethod.GET, produces = "application/json")
     public Collection<Token> findAll() {

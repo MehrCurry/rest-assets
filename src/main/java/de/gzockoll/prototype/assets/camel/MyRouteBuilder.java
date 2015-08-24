@@ -17,12 +17,17 @@ public class MyRouteBuilder extends RouteBuilder {
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
                 .setHeader("namespace", constant("imported"))
+                .setHeader("key",simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
                 .log("POST ${header.CamelFileName} to /upload")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
                 .to("http4://localhost:9091/assets")
                 .routeId("HTTP response status: ${header.CamelHttpResponseCode}")
                 .log("HTTP response body:\n${body}");
+
+        from("direct:fileStore")
+                .to("file:assets?autoCreate=true")
+                .to("log:bla?showAll=true&multiline=true");
 
         from("direct:failed").routeId("failed")
                 .to("log:bla?showAll=true&multiline=true");
