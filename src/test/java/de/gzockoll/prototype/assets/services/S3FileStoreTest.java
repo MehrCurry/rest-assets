@@ -13,6 +13,7 @@ import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -59,6 +60,7 @@ public class S3FileStoreTest {
     }
 
     @Test
+    @Ignore
     public void withTransferManager() throws InterruptedException, IOException {
         File file = new File("duke.txt");
         TransferManager transferManager = new TransferManager(this.amazonS3);
@@ -75,7 +77,7 @@ public class S3FileStoreTest {
                 S3Constants.KEY, file.getName(),
                 S3Constants.CONTENT_LENGTH, file.length(),
                 S3Constants.CONTENT_MD5, Base64.encode(DigestUtils.md5(new FileInputStream(file))));
-        template.sendBodyAndHeaders(file, headers);
+        template.sendBody(file);
     }
 
 

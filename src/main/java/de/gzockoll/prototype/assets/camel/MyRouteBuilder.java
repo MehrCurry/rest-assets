@@ -32,7 +32,15 @@ public class MyRouteBuilder extends RouteBuilder {
                 .errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3))
                 .to("file:assets?autoCreate=true")
                 .to("log:bla?showAll=true&multiline=true");
+
+
         from("direct:s3Upload").routeId("toS3")
+                .to("file:assets/s3tmp");
+
+        from("file:assets/s3tmp?delete=true").routeId("s3tmp")
+                .setHeader(S3Constants.KEY,simple("${file.name}"))
+                .setHeader(S3Constants.CONTENT_LENGTH,simple("${file.length}"))
+                .setHeader(S3Constants.CONTENT_MD5,method(new MD5Helper()))
                 .loadBalance().circuitBreaker(2,1000L,Exception.class)
                 .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&delay=5000&maxMessagesPerPoll=5&region=eu-central-1");
 
