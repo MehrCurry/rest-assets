@@ -59,7 +59,7 @@ public class MediaController {
         Files.walkFileTree(p, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                if (Files.list(dir).count() == 0)
+                if (isDirEmpty(dir))
                     Files.delete(dir);
                 return FileVisitResult.CONTINUE;
             }
@@ -70,6 +70,7 @@ public class MediaController {
     public void delete(String id) {
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
+            fileStore.delete(m.getNameSpace(),m.getExternalReference());
             repository.delete(m);
             try {
                 deleteEmptyDirectories();
@@ -89,6 +90,12 @@ public class MediaController {
             deleteEmptyDirectories();
         } catch (IOException e) {
             log.warn("Delete Directories: ", e);
+        }
+    }
+
+    private static boolean isDirEmpty(final Path directory) throws IOException {
+        try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
         }
     }
 }

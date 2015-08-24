@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.assets.util;
 
+import javax.persistence.Transient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
@@ -13,6 +14,8 @@ public abstract class ValidateableObject {
         return VALIDATOR.validate(this);
     }
 
+    @Transient
+    @org.springframework.data.annotation.Transient
     public boolean isValid() {
         return validationErrors().size()==0;
     }
