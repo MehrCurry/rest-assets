@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: Asset Repository
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: gzockoll
+Implementation-Vendor-Id: de.gzockoll.prototype
+Build-Jdk: 1.8.0_51
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+Main-Class: com.vjoon.se.core.AssetRepositoryApplication
+
