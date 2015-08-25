@@ -20,7 +20,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<start-class>de.gzockoll.prototype.assets.AssetRepositoryApplication</start-class>
+		<start-class>com.vjoon.se.core.AssetRepositoryApplication</start-class>
 		<java.version>1.8</java.version>
 		<camel.version>2.15.2</camel.version>
 		<docker.image.prefix>gzockoll</docker.image.prefix>
