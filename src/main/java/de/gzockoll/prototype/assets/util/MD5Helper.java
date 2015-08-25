@@ -4,9 +4,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+import com.hazelcast.util.Base64;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Slf4j
@@ -28,4 +31,9 @@ public class MD5Helper {
     public static String checksum(String filename) {
         return checksum(new File(filename));
     }
+
+    public byte[] calculateS3Hash(File file) throws IOException {
+        return Base64.encode(DigestUtils.md5(new FileInputStream(file)));
+    }
+
 }

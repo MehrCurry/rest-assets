@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
 import de.gzockoll.prototype.assets.services.FileStore;
-import de.gzockoll.prototype.assets.services.S3FileStore;
+import de.gzockoll.prototype.assets.services.FileStoreException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
@@ -60,10 +60,10 @@ public class MediaController {
     @Async
     public void sendToS3(Media media) {
         Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName",media.getMediaId(),
-                "CamelAwsS3Headers",ImmutableMap.of("originalFilename",media.getOriginalFilename())
+                "CamelFileName", media.getMediaId(),
+                "CamelAwsS3Headers", ImmutableMap.of("originalFilename", media.getOriginalFilename())
         );
-        producerTemplate.sendBodyAndHeaders(fileStore.getStream(media.getNameSpace(),media.getExternalReference()),headers);
+        producerTemplate.sendBodyAndHeaders(fileStore.getStream(media.getNameSpace(), media.getExternalReference()), headers);
     }
 
     @Async
@@ -83,7 +83,7 @@ public class MediaController {
     public void delete(String id) {
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
-            fileStore.delete(m.getNameSpace(),m.getExternalReference());
+            fileStore.delete(m.getNameSpace(), m.getExternalReference());
             repository.delete(m);
             try {
                 deleteEmptyDirectories();
@@ -96,7 +96,11 @@ public class MediaController {
     @Async
     public void deleteAll() {
         repository.findAll().forEach(m -> {
-            fileStore.delete(m.getNameSpace(),m.getExternalReference());
+            try {
+                fileStore.delete(m.getNameSpace(),m.getExternalReference());
+            } catch (FileStoreException e) {
+                log.warn("Problems deleting file",e);
+            }
         });
         repository.deleteAll();
         try {
