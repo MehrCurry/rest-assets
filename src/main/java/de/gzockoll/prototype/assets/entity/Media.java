@@ -3,6 +3,7 @@ package de.gzockoll.prototype.assets.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.gzockoll.prototype.assets.services.FileStore;
 import de.gzockoll.prototype.assets.util.MD5Helper;
+import de.gzockoll.prototype.assets.util.MediaIDGenerator;
 import de.gzockoll.prototype.assets.util.ValidateableObject;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -77,12 +78,8 @@ public class Media extends AbstractEntity implements Serializable {
         return fileStore.getStream(nameSpace,externalReference);
     }
 
-    public String createMediaId() {
-        return nameSpace + File.separator + externalReference;
-    }
-
     @PrePersist
     public void prePersist() {
-        this.mediaId= DigestUtils.sha256Hex(createMediaId());
+        this.mediaId= MediaIDGenerator.generateID(nameSpace,externalReference);
     }
 }

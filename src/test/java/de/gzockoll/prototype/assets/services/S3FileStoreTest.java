@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +52,7 @@ public class S3FileStoreTest {
 
     @Before
     public void setUp() throws IOException {
-        Files.write(Paths.get("duke.txt"), "Test".getBytes());
+        Files.write(Paths.get("duke.txt"), LocalTime.now().toString().getBytes());
     }
 
     @After
@@ -71,13 +72,14 @@ public class S3FileStoreTest {
     }
 
     @Test
-    public void testCamelUpload() throws IOException {
+    public void testCamelUpload() throws IOException, InterruptedException {
         File file = new File("duke.txt");
         Map headers= ImmutableMap.of(
                 S3Constants.KEY, file.getName(),
                 S3Constants.CONTENT_LENGTH, file.length(),
                 S3Constants.CONTENT_MD5, Base64.encode(DigestUtils.md5(new FileInputStream(file))));
         template.sendBody(file);
+        Thread.sleep(5000);
     }
 
 

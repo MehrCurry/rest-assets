@@ -1,8 +1,10 @@
 package de.gzockoll.prototype.assets.control;
 
+import com.google.common.collect.ImmutableMap;
 import de.gzockoll.prototype.assets.entity.Media;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
 import de.gzockoll.prototype.assets.services.FileStore;
+import de.gzockoll.prototype.assets.services.S3FileStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,7 +29,7 @@ public class MediaController {
     @Autowired
     private MediaRepository repository;
 
-    @EndpointInject(uri="direct:production")
+    @EndpointInject(uri="direct:s3tmp")
     private ProducerTemplate producerTemplate;
 
     @Autowired
@@ -37,7 +40,7 @@ public class MediaController {
         checkNotNull(nameSpace);
         checkNotNull(ref);
 
-        fileStore.save(nameSpace, ref, multipart.getInputStream(),overwrite);
+        fileStore.save(nameSpace, ref, multipart.getInputStream(), overwrite);
         String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
         Media media=Media.builder()
                 .length(multipart.getSize())
@@ -51,6 +54,16 @@ public class MediaController {
                 .existsInProduction(true)
                 .build();
         repository.save(media);
+        sendToS3(media);
+    }
+
+    @Async
+    public void sendToS3(Media media) {
+        Map<String,Object> headers= ImmutableMap.of(
+                "CamelFileName",media.getMediaId(),
+                "CamelAwsS3Headers",ImmutableMap.of("originalFilename",media.getOriginalFilename())
+        );
+        producerTemplate.sendBodyAndHeaders(fileStore.getStream(media.getNameSpace(),media.getExternalReference()),headers);
     }
 
     @Async

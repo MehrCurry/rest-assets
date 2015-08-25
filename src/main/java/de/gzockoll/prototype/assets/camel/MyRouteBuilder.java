@@ -33,16 +33,16 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("file:assets?autoCreate=true")
                 .to("log:bla?showAll=true&multiline=true");
 
+        from("direct:s3tmp")
+                .to("file:assets/s3tmp?flatten=true");
 
-        from("direct:s3Upload").routeId("toS3")
-                .to("file:assets/s3tmp");
-
-        from("file:assets/s3tmp?delete=true").routeId("s3tmp")
-                .setHeader(S3Constants.KEY,simple("${file.name}"))
-                .setHeader(S3Constants.CONTENT_LENGTH,simple("${file.length}"))
-                .setHeader(S3Constants.CONTENT_MD5,method(new MD5Helper()))
-                .loadBalance().circuitBreaker(2,1000L,Exception.class)
-                .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&delay=5000&maxMessagesPerPoll=5&region=eu-central-1");
+        from("file:assets/s3tmp?recursive=true&delete=true&readLock=changed").routeId("toS3")
+                .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper()))
+                .setHeader(S3Constants.KEY, simple("${file:name}"))
+                .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
+                .to("log:bla?showAll=true&multiline=true")
+                .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&delay=5000&maxMessagesPerPoll=5&region=eu-central-1")
+                .to("log:bla?showAll=true&multiline=true");
 
         from("direct:failed").routeId("failed")
                 .to("log:bla?showAll=true&multiline=true");

@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.assets.services;
 
+import de.gzockoll.prototype.assets.util.MediaIDGenerator;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
@@ -44,9 +45,9 @@ public class LocalFileStore implements FileStore {
 
     String createFileNameFromID(String nameSpace,String key) {
         checkArgument(key.length()>=8,"Key too short");
-        String hash= DigestUtils.sha256Hex(key);
-        String parts[] = hash.substring(0,8).split("(?<=\\G.{2})");
-        return basePath + File.separator + nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + hash;
+        String mediaID=MediaIDGenerator.generateID(nameSpace,key);
+        String parts[] = mediaID.substring(0,8).split("(?<=\\G.{2})");
+        return basePath + File.separator + nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }
 
     @Override
