@@ -1,20 +1,18 @@
 package com.vjoon.se.core.camel;
 
-import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.util.MD5Helper;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.Exchange;
+import org.apache.camel.Header;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Slf4j public class ChecksumVerifier implements org.apache.camel.Processor {
-
-    @Override public void process(Exchange exchange) throws Exception {
-        String filename = exchange.getIn().getHeader("CamelFileNameProduced").toString();
-        Media media = (Media) exchange.getIn().getHeader("media");
-        if (!media.getHash().equals(MD5Helper.checksum(filename))) {
+@Slf4j
+@Service
+public class ChecksumVerifier {
+    public void verify(@Header("CamelFileNameProduced") String fileName, @Header("Checksum") String checksum) throws IOException {
+        if (!checksum.equalsIgnoreCase(MD5Helper.checksum(fileName))) {
             throw new IOException("Checksum mismatch");
-
         }
     }
 }
