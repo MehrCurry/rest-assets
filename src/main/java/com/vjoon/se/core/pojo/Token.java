@@ -10,4 +10,5 @@ import java.util.UUID;
 
     @NotNull private final String id = UUID.randomUUID().toString();
     @NotNull private final Object payload;
+    private final TokenType tokenType;
 }

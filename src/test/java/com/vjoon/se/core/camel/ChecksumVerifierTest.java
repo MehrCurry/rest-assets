@@ -40,5 +40,4 @@ public class ChecksumVerifierTest {
         thrown.expect(IOException.class);
         verifier.verify(testPath.normalize().toString(),"junit");
     }
-
 }
