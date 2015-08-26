@@ -19,8 +19,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.validation.ConstraintViolationException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @RunWith(SpringJUnit4ClassRunner.class) @SpringApplicationConfiguration(classes = AssetRepositoryApplication.class)
 @WebAppConfiguration @IntegrationTest("server.port:0") @ActiveProfiles("test") @Category(IntegrationTest.class)
 public class MediaTest {

@@ -7,6 +7,9 @@
         http://www.springframework.org/schema/cloud/aws/context/spring-cloud-aws-context.xsd">
 
     <aws-context:context-credentials>
-        <aws-context:simple-credentials access-key="AKIAJYCTHK5TTAZOJX3A" secret-key="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" />
+        <aws-context:instance-profile-credentials/>
+        <aws-context:simple-credentials
+                access-key="AKIAJYCTHK5TTAZOJX3A"
+                secret-key="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" />
     </aws-context:context-credentials>
 </beans>
