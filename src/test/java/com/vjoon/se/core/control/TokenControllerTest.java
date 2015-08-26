@@ -1,10 +1,10 @@
 package com.vjoon.se.core.control;
 
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.pojo.Token;
-import com.vjoon.se.core.AssetRepositoryApplication;
-import com.vjoon.se.core.categories.SlowTest;
-import com.vjoon.se.core.repository.MediaRepository;
+import de.gzockoll.prototype.assets.AssetRepositoryApplication;
+import de.gzockoll.prototype.assets.categories.SlowTest;
+import de.gzockoll.prototype.assets.entity.Media;
+import de.gzockoll.prototype.assets.pojo.Token;
+import de.gzockoll.prototype.assets.repository.MediaRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,16 +19,22 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class) @SpringApplicationConfiguration(classes = AssetRepositoryApplication.class)
-@WebAppConfiguration @IntegrationTest("server.port:0") @ActiveProfiles("test") @Category(IntegrationTest.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = AssetRepositoryApplication.class)
+@WebAppConfiguration
+@IntegrationTest("server.port:0")
+@ActiveProfiles("test")
+@Category(IntegrationTest.class)
 public class TokenControllerTest {
+    @Autowired
+    private TokenController controller;
 
-    @Autowired private TokenController controller;
-
-    @Autowired private MediaRepository repository;
+    @Autowired
+    private MediaRepository repository;
     private Media media;
 
-    @Before public void setUp() {
+    @Before
+    public void setUp() {
         media = Media.builder()
                 .nameSpace("junit")
                 .externalReference("12345678")
@@ -38,12 +44,15 @@ public class TokenControllerTest {
         repository.save(media);
     }
 
-    @After public void teadDown() {
+    @After
+    public void teadDown() {
         repository.delete(media);
     }
 
-    @Test @Category(SlowTest.class) public void testExpireToken() throws Exception {
-        Token t = controller.createToken(media.getMediaId());
+    @Test
+    @Category(SlowTest.class)
+    public void testExpireToken() throws Exception {
+        Token t=controller.createToken(media.getMediaId());
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
         Thread.sleep(65000);
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isFalse();

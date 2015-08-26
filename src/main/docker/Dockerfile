@@ -1,7 +1,7 @@
 FROM java:8
 
 VOLUME /tmp
-ADD assets-0.0.1-SNAPSHOT.war /data/app.War
+ADD assets-0.0.1-SNAPSHOT.war /data/app.war
 RUN bash -c 'touch /data/app.war'
 
 EXPOSE 9091
