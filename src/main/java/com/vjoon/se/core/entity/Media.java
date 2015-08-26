@@ -1,5 +1,7 @@
 package com.vjoon.se.core.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vjoon.se.core.services.FileStore;
 import com.vjoon.se.core.util.MD5Helper;
 import com.vjoon.se.core.util.MediaIDGenerator;
@@ -15,13 +17,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = false,exclude = "snapshots")
+@ToString(exclude = "snapshots")
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,6 +39,10 @@ public class Media extends AbstractEntity implements Serializable {
 
     private String hash;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonBackReference
+    private Set<Snapshot> snapshots;
+
     @NotNull private String nameSpace;
     @NotNull @Size(min = 8) private String externalReference;
     @NotNull private String originalFilename;
@@ -44,20 +52,10 @@ public class Media extends AbstractEntity implements Serializable {
     private long length;
 
     private boolean existsInProduction = false;
-    private boolean existsInArchive = false;
+
     @NotNull @Column(unique = true) private String mediaId;
 
-    public void extrxactInfosFromFile(File f) {
-        checkArgument(f.length() > 0);
-        this.length = f.length();
-        this.hash = MD5Helper.checksum(f);
-        try {
-            this.contentType = TIKA.detect(f);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    @JsonIgnore
     public InputStream getStream(FileStore fileStore) {
         checkState(fileStore.exists(nameSpace, externalReference));
         return fileStore.getStream(nameSpace, externalReference);
@@ -65,5 +63,14 @@ public class Media extends AbstractEntity implements Serializable {
 
     @PrePersist public void prePersist() {
         this.mediaId = MediaIDGenerator.generateID(nameSpace, externalReference);
+    }
+
+    public void addSnapshot(Snapshot snapshot) {
+        snapshots.add(snapshot);
+    }
+
+    public void remove(Snapshot s) {
+        checkState(snapshots.contains(s));
+        snapshots.remove(s);
     }
 }

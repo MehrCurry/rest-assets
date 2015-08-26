@@ -26,4 +26,14 @@ import java.util.List;
     public List<Snapshot> findAll() {
         return repository.findAll();
     }
+
+    public void deleteAll() {
+        repository.deleteAll();
+    }
+
+    public void delete(Long id) {
+        Snapshot s=repository.findOne(id);
+        s.getIncluded().forEach(m -> m.remove(s));
+        repository.delete(s);
+    }
 }
