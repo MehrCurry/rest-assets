@@ -58,4 +58,8 @@ import static com.google.common.base.Preconditions.checkState;
     public Collection<Token> findAll() {
         return tokenMap.values();
     }
+
+    public Optional<Token> getTokenFor(String id, TokenType type) {
+        return Optional.ofNullable(tokenMap.get(id)).filter(t -> t.getTokenType()==type);
+    }
 }
