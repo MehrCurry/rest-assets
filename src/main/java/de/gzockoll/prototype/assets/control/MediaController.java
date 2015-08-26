@@ -29,7 +29,7 @@ public class MediaController {
     @Autowired
     private MediaRepository repository;
 
-    @EndpointInject(uri="direct:s3tmp")
+    @EndpointInject
     private ProducerTemplate producerTemplate;
 
     @Autowired
@@ -54,16 +54,18 @@ public class MediaController {
                 .existsInProduction(true)
                 .build();
         repository.save(media);
-        sendToS3(media);
+        sendTo("direct:s3tmp", media);
+        sendTo("direct:mirror",media);
     }
 
     @Async
-    public void sendToS3(Media media) {
+    public void sendTo(String target,Media media) {
         Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName", media.getMediaId(),
+                "CamelFileName", fileStore.createFileNameFromID(media.getNameSpace(), media.getExternalReference()),
+                "Checksum", media.getHash(),
                 "CamelAwsS3Headers", ImmutableMap.of("originalFilename", media.getOriginalFilename())
         );
-        producerTemplate.sendBodyAndHeaders(fileStore.getStream(media.getNameSpace(), media.getExternalReference()), headers);
+        producerTemplate.sendBodyAndHeaders(target,fileStore.getStream(media.getNameSpace(), media.getExternalReference()), headers);
     }
 
     @Async

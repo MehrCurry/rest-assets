@@ -8,6 +8,8 @@ import java.io.InputStream;
 public interface FileStore {
     void save(String namespace, String key, InputStream stream, boolean overwrite);
 
+    String createFileNameFromID(String nameSpace, String key);
+
     InputStream getStream(String namespace, String key);
 
     boolean exists(String nameSpace, String key);

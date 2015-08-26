@@ -39,21 +39,26 @@ public class LocalFileStore implements FileStore {
         checkNotNull(stream != null);
         checkState(overwrite || !exists(nameSpace,key),"File already existing");
 
-        String filename=createFileNameFromID(nameSpace, key);
-        template.sendBodyAndHeader(stream,"CamelFileName",filename.replaceFirst(CAMLE_BASE,""));
+        String filename=createFullNameFromID(nameSpace, key).replaceFirst(CAMLE_BASE,"");
+        template.sendBodyAndHeader(stream,"CamelFileName",filename);
     }
 
-    String createFileNameFromID(String nameSpace,String key) {
-        checkArgument(key.length()>=8,"Key too short");
+    @Override
+    public String createFileNameFromID(String nameSpace, String key) {
+        checkArgument(key.length() >= 8, "Key too short");
         String mediaID=MediaIDGenerator.generateID(nameSpace,key);
         String parts[] = mediaID.substring(0,8).split("(?<=\\G.{2})");
-        return basePath + File.separator + nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
+        return nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
+    }
+
+    public String createFullNameFromID(String nameSpace, String key) {
+        return basePath + File.separator + createFileNameFromID(nameSpace,key);
     }
 
     @Override
     public InputStream getStream(String nameSpace, String key) {
         try {
-            return new FileInputStream(createFileNameFromID(nameSpace,key));
+            return new FileInputStream(createFullNameFromID(nameSpace,key));
         } catch (FileNotFoundException e) {
             throw new FileStoreException(e);
         }
@@ -61,13 +66,13 @@ public class LocalFileStore implements FileStore {
 
     @Override
     public boolean exists(String nameSpace, String key) {
-        return Files.exists(Paths.get(createFileNameFromID(nameSpace,key)));
+        return Files.exists(Paths.get(createFullNameFromID(nameSpace,key)));
     }
 
     @Override
     public void delete(String nameSpace, String key) {
         try {
-            Files.delete(Paths.get(createFileNameFromID(nameSpace, key)));
+            Files.delete(Paths.get(createFullNameFromID(nameSpace, key)));
         } catch (IOException e) {
             throw new FileStoreException(e);
         }
