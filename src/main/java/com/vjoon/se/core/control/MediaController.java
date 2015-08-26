@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -72,26 +73,27 @@ public class MediaController {
     public void delete(String id) {
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
-            fileStore.delete(m.getNameSpace(), m.getExternalReference());
             repository.delete(m);
             try {
+                fileStore.delete(m.getNameSpace(), m.getExternalReference());
                 deleteEmptyDirectories();
             } catch (IOException e) {
-                log.warn("Delete Directories: ", e);
+                log.warn("Problems on deleting {}", id, e);
             }
         });
     }
 
     @Async
     public void deleteAll() {
-        repository.findAll().forEach(m -> {
+        List<Media> assets = repository.findAll();
+        repository.deleteAll();
+        assets.forEach(m -> {
             try {
-                fileStore.delete(m.getNameSpace(),m.getExternalReference());
+                fileStore.delete(m.getNameSpace(), m.getExternalReference());
             } catch (FileStoreException e) {
-                log.warn("Problems deleting file",e);
+                log.warn("Problems deleting file", e);
             }
         });
-        repository.deleteAll();
         try {
             deleteEmptyDirectories();
         } catch (IOException e) {

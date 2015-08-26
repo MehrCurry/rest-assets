@@ -19,10 +19,9 @@ public class MyRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         getContext().setTracing(true);
-        errorHandler(loggingErrorHandler());
+        errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
-                .errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3))
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
@@ -31,13 +30,11 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("http4://localhost:9091/assets");
 
         from("direct:fileStore").routeId("fileStore")
-                .errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3))
                 .to("file:assets?autoCreate=true")
                 .to("log:bla?showAll=true&multiline=true");
 
         from("direct:s3tmp").routeId("s3tmp")
-                .to("file:assets/s3tmp?flatten=true")
-                .bean(verifier);
+                .to("file:assets/s3tmp?flatten=true").bean(verifier);
 
         from("direct:mirror").routeId("mirror")
                 .to("file:assets/mirror?autoCreate=true")
@@ -50,7 +47,8 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&multiPartUpload=true&storageClass=REDUCED_REDUNDANCY&region=eu-central-1");
 
         from("direct:failed").routeId("failed")
-                .to("log:bla?showAll=true&multiline=true");
+                .to("log:failed?showAll=true&multiline=true")
+                .to("file:assets/failed");
 
         from("timer:dump?period=300000").routeId("dump")
                 .bean(mediaService, "getAll")
