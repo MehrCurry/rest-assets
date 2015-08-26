@@ -1,6 +1,5 @@
 package com.vjoon.se.core.camel;
 
-import com.vjoon.se.core.camel.ChecksumVerifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

@@ -2,9 +2,9 @@ package com.vjoon.se.core.control;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
-import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.event.MediaCreatedEvent;
-import de.gzockoll.prototype.assets.services.FileStore;
+import com.vjoon.se.core.entity.Media;
+import com.vjoon.se.core.event.MediaCreatedEvent;
+import com.vjoon.se.core.services.FileStore;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;

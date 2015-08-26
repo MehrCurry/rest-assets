@@ -1,6 +1,6 @@
 package com.vjoon.se.core.services;
 
-import de.gzockoll.prototype.assets.util.MediaIDGenerator;
+import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.file.*;
-import java.nio.file.FileStore;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -47,7 +46,7 @@ public class LocalFileStore implements FileStore {
     @Override
     public String createFileNameFromID(String nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
-        String mediaID=MediaIDGenerator.generateID(nameSpace,key);
+        String mediaID= MediaIDGenerator.generateID(nameSpace, key);
         String parts[] = mediaID.substring(0,8).split("(?<=\\G.{2})");
         return nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }

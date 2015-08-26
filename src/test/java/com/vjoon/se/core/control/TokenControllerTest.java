@@ -1,10 +1,10 @@
 package com.vjoon.se.core.control;
 
-import de.gzockoll.prototype.assets.AssetRepositoryApplication;
-import de.gzockoll.prototype.assets.categories.SlowTest;
-import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.pojo.Token;
-import de.gzockoll.prototype.assets.repository.MediaRepository;
+import com.vjoon.se.core.categories.SlowTest;
+import com.vjoon.se.core.entity.Media;
+import com.vjoon.se.core.pojo.Token;
+import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.AssetRepositoryApplication;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +16,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 

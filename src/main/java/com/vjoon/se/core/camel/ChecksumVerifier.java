@@ -1,6 +1,6 @@
 package com.vjoon.se.core.camel;
 
-import de.gzockoll.prototype.assets.util.MD5Helper;
+import com.vjoon.se.core.util.MD5Helper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Header;
 import org.springframework.stereotype.Service;

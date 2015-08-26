@@ -1,11 +1,11 @@
-package de.gzockoll.prototype.assets.control;
+package com.vjoon.se.core.control;
 
 import com.google.common.eventbus.EventBus;
-import de.gzockoll.prototype.assets.entity.Media;
-import de.gzockoll.prototype.assets.event.MediaCreatedEvent;
-import de.gzockoll.prototype.assets.repository.MediaRepository;
-import de.gzockoll.prototype.assets.services.FileStore;
-import de.gzockoll.prototype.assets.services.FileStoreException;
+import com.vjoon.se.core.entity.Media;
+import com.vjoon.se.core.event.MediaCreatedEvent;
+import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.services.FileStore;
+import com.vjoon.se.core.services.FileStoreException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class MediaController {
 
         fileStore.save(nameSpace, ref, multipart.getInputStream(), overwrite);
         String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
-        Media media=Media.builder()
+        Media media= Media.builder()
                 .length(multipart.getSize())
                 .contentType(multipart.getContentType())
                 .nameSpace(nameSpace)
@@ -59,8 +59,8 @@ public class MediaController {
     public void deleteEmptyDirectories() throws IOException {
         Path p= Paths.get("assets/production");
         Files.walkFileTree(p, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+
+            @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 if (isDirEmpty(dir))
                     Files.delete(dir);
                 return FileVisitResult.CONTINUE;

@@ -1,7 +1,7 @@
 package com.vjoon.se.core.camel;
 
-import de.gzockoll.prototype.assets.services.MediaService;
-import de.gzockoll.prototype.assets.util.MD5Helper;
+import com.vjoon.se.core.services.MediaService;
+import com.vjoon.se.core.util.MD5Helper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;

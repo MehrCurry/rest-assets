@@ -1,4 +1,4 @@
-package de.gzockoll.prototype.assets;
+package com.vjoon.se.core;
 
 import com.google.common.eventbus.EventBus;
 import org.springframework.boot.SpringApplication;

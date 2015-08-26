@@ -1,6 +1,6 @@
 package com.vjoon.se.core.event;
 
-import de.gzockoll.prototype.assets.entity.Media;
+import com.vjoon.se.core.entity.Media;
 import lombok.Data;
 
 @Data

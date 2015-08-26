@@ -13,8 +13,6 @@ import java.util.List;
 
     @Autowired private MediaRepository repository;
 
-    @Autowired private EventBus eventBus;
-
     public List<Media> getAll() {
         return repository.findAll();
     }
