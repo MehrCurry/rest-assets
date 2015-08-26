@@ -35,7 +35,12 @@ public class TokenControllerTest {
 
     @Before
     public void setUp() {
-        media = new Media();
+        media = Media.builder()
+                .nameSpace("junit")
+                .externalReference("12345678")
+                .contentType("text/plain")
+                .originalFilename("junit.txt")
+                .build();
         repository.save(media);
     }
 
