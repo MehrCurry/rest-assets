@@ -1,13 +1,12 @@
 package de.gzockoll.prototype.assets.control;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.eventbus.EventBus;
 import de.gzockoll.prototype.assets.entity.Media;
+import de.gzockoll.prototype.assets.event.MediaCreatedEvent;
 import de.gzockoll.prototype.assets.repository.MediaRepository;
 import de.gzockoll.prototype.assets.services.FileStore;
 import de.gzockoll.prototype.assets.services.FileStoreException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.ProducerTemplate;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -17,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,8 +27,8 @@ public class MediaController {
     @Autowired
     private MediaRepository repository;
 
-    @EndpointInject
-    private ProducerTemplate producerTemplate;
+    @Autowired
+    private EventBus eventBus;
 
     @Autowired
     private FileStore fileStore;
@@ -54,18 +52,7 @@ public class MediaController {
                 .existsInProduction(true)
                 .build();
         repository.save(media);
-        sendTo("direct:s3tmp", media);
-        sendTo("direct:mirror",media);
-    }
-
-    @Async
-    public void sendTo(String target,Media media) {
-        Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName", fileStore.createFileNameFromID(media.getNameSpace(), media.getExternalReference()),
-                "Checksum", media.getHash(),
-                "CamelAwsS3Headers", ImmutableMap.of("originalFilename", media.getOriginalFilename())
-        );
-        producerTemplate.sendBodyAndHeaders(target,fileStore.getStream(media.getNameSpace(), media.getExternalReference()), headers);
+        eventBus.post(new MediaCreatedEvent(media));
     }
 
     @Async
