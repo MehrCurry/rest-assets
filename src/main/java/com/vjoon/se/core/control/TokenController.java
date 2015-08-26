@@ -3,32 +3,40 @@ package com.vjoon.se.core.control;
 import com.hazelcast.core.IMap;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.pojo.Token;
+import com.vjoon.se.core.pojo.TokenType;
 import com.vjoon.se.core.repository.MediaRepository;
+import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Service public class TokenController {
 
-    @Resource(name = "tokens") @Setter private IMap<String, Token> tokenMap;
+    @Resource(name = "tokens")
+    @Setter(AccessLevel.PACKAGE)
+    private Map<String, Token> tokenMap;
 
-    @Autowired private MediaRepository repository;
+    @Autowired
+    @Setter(AccessLevel.PACKAGE)
+    private MediaRepository repository;
 
-    public Token createToken(String payload) {
+    public Token createToken(String payload, String type) {
+        checkArgument(TokenType.valueOf(type)!=null);
+
         List<Media> mediaList = repository.findByMediaId(payload);
         if (mediaList.isEmpty())
             throw new NoSuchElementException("No media found:" + payload);
         checkState(mediaList.size() == 1, "mediaId not unique:" + payload);
 
-        Token token = new Token(mediaList.get(0));
+        Token token = new Token(mediaList.get(0), TokenType.valueOf(type.toUpperCase()));
         tokenMap.put(token.getId(), token);
         return token;
     }
@@ -37,10 +45,13 @@ import static com.google.common.base.Preconditions.checkState;
         return Optional.ofNullable((Token) tokenMap.get(id));
     }
 
-    public Optional<Object> resolve(String id) {
+    public Optional<Object> resolve(@NotNull String id,@NotNull TokenType tokenType) {
+        checkNotNull(id);
+        checkNotNull(tokenType);
 
-        Optional<Object> opt = getTokenFor(id).map(Token::getPayload);
-        tokenMap.remove(id);
+        Optional<Object> opt = getTokenFor(id).filter(t -> t.getTokenType() == tokenType).map(Token::getPayload);
+        if (opt.isPresent())
+            tokenMap.remove(id);
         return opt;
     }
 

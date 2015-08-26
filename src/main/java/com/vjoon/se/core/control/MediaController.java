@@ -3,6 +3,7 @@ package com.vjoon.se.core.control;
 import com.google.common.eventbus.EventBus;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.event.MediaCreatedEvent;
+import com.vjoon.se.core.event.MediaDeletedEvent;
 import com.vjoon.se.core.repository.MediaRepository;
 import com.vjoon.se.core.services.FileStore;
 import com.vjoon.se.core.services.FileStoreException;
@@ -80,6 +81,8 @@ public class MediaController {
             } catch (IOException e) {
                 log.warn("Problems on deleting {}", id, e);
             }
+            eventBus.post(new MediaDeletedEvent(m));
+
         });
     }
 
