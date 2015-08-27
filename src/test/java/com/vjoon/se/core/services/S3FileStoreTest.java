@@ -61,15 +61,30 @@ public class S3FileStoreTest {
 
     @After
     public void tearDown() throws Exception {
-        amazonS3.deleteObject(BUCKET_NAME,ID);
+        amazonS3.deleteObject(BUCKET_NAME, ID);
     }
 
     @Test
-    // @Ignore
     public void testS3Stream() throws IOException {
         InputStream stream = fileStore.getStream("junit", "12345678");
         assertThat(stream).isNotNull();
         String readMessage= IOUtils.toString(stream, "UTF-8");
         assertThat(readMessage).isEqualTo(MESSAGE);
+    }
+
+    @Test
+    public void testExists() {
+        assertThat(fileStore.exists("junit", "12345678")).isTrue();
+    }
+
+    @Test
+    public void testNotExists() {
+        assertThat(fileStore.exists("junit", "xxx12345678")).isFalse();
+    }
+
+    @Test
+    public void testHash() {
+        String hash=fileStore.getHash("junit", "12345678");
+        assertThat(hash).isEqualTo("098f6bcd4621d373cade4e832627b4f6");
     }
 }
