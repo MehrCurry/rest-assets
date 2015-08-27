@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -46,7 +45,7 @@ public class S3FileStore implements FileStore {
     public String createFileNameFromID(String nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
         String mediaID= MediaIDGenerator.generateID(nameSpace, key);
-        return nameSpace + File.separator  + mediaID;
+        return mediaID;
     }
 
     @Override
