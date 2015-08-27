@@ -111,3 +111,42 @@ Zu schwergewichtig.
 Ich habe mich für den Guava EventBus entschieden.
 
 Die Entscheidung ist vorläufig. gzo, 2015-08-27
+
+=== Zeitliche begrenztes Speichern von Tokens
+
+==== Fragestellung
+Für alles Interaktionen mit dem BLOBs in der vjoon StorageEngine sollen zeitlich begrenzte Zugriffsschlüssel (sog. Tokens)
+verwendet werden.
+
+==== Rahmenbedingungen
+Tokens sollen nur eine begrenzte Zeit gültig sein und dann automatisch verfallen. Ebenfalls sollen sie nach einmaliger
+Verwendung ungültig werden.
+
+==== Annahmen
+
+* Tokens müssen nicht über den Neustart der vjoon StorageEngine gültig bleiben.
+* Im Clusterbetrieb müssen Tokens auf allen Clusterknoten gültig sein.
+
+==== Entscheidungskriterien
+
+* Einfach
+* Clusterfähigkeit
+* Wird es im System eine Datenbank geben?
+
+==== Betrachtete Alternativen
+
+===== Speichern in einer Datenbank
+Man könnte die Tokens in einer Datenbank speichern und regelmässig abgelaufenen Tokens durch einen Cron Job entfernen.
+
+===== Hazelcast
+Hazelcast ist ein Distribute Shared Memory System. Hazelcast stellt einen clusterfähigen Key-Value Store zur Verfügung.
+Im konkreten Fall passt die Möglichkeit für Einträge eine Time-To-Live zu konfigureren sehr gut zum Anwendungsfall.
+
+===== Java HashMap mit Timestamp im Objekt
+Nicht clusterfähig.
+
+==== Entscheidung
+
+Ich habe mich für Hazelcast entschieden.
+
+Die Entscheidung ist vorläufig. gzo, 2015-08-27
