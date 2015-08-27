@@ -72,5 +72,3 @@ Datei heruntergeladen werden `http://localhost:9091/token/993824ur923ur9jd29dj92
 
 Dies sind die Snapshots gemäß der Spezifikation.  Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural
 nach gängigen REST Prinzipien.
-
-
