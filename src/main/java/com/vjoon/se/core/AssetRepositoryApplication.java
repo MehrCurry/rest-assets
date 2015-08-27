@@ -37,7 +37,7 @@ public class AssetRepositoryApplication {
 
     @Bean
     public EventBus eventBus() {
-        Executor executor= Executors.newFixedThreadPool(10);
+        Executor executor= Executors.newFixedThreadPool(30);
         return new AsyncEventBus(executor);
     }
 

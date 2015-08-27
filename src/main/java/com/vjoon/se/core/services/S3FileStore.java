@@ -8,12 +8,10 @@ import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
-import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -46,7 +44,7 @@ public class S3FileStore implements FileStore {
 
         Map<String,Object> headers= ImmutableMap.of(
                 "CamelFileName", createFileNameFromID(nameSpace, key),
-                "Checksum", checksum
+                "Checksum", checksum.get()
         );
         producerTemplate.sendBodyAndHeaders("direct:s3tmp", stream, headers);
     }
