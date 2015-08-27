@@ -5,6 +5,7 @@ import com.vjoon.se.core.util.MD5Helper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,13 +48,14 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&multiPartUpload=true&storageClass=REDUCED_REDUNDANCY&region=eu-central-1");
 
         from("direct:failed").routeId("failed")
-                .to("log:failed?showAll=true&multiline=true")
-                .to("file:assets/failed");
+            .errorHandler(defaultErrorHandler())
+            .to("log:failed?showAll=true&multiline=true")
+            .to("file:assets/failed?autoCreate=true");
 
         from("timer:dump?period=300000").routeId("dump")
-                .bean(mediaService, "getAll")
-                .setHeader("CamelFileName",constant("info.json"))
-                .marshal().json().to("file:assets");
+                .errorHandler(defaultErrorHandler())
+                .bean(mediaService, "getAll").setHeader("CamelFileName",constant("info.json")).marshal().json(
+                JsonLibrary.Jackson).to("file:assets");
 
     }
 }

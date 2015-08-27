@@ -74,7 +74,8 @@ public class MediaController {
     public void delete(String id) {
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
-            repository.delete(m);
+            m.setExistsInProduction(false);
+            repository.save(m);
             try {
                 fileStore.delete(m.getNameSpace(), m.getExternalReference());
                 deleteEmptyDirectories();
@@ -89,13 +90,9 @@ public class MediaController {
     @Async
     public void deleteAll() {
         List<Media> assets = repository.findAll();
-        repository.deleteAll();
         assets.forEach(m -> {
-            try {
-                fileStore.delete(m.getNameSpace(), m.getExternalReference());
-            } catch (FileStoreException e) {
-                log.warn("Problems deleting file", e);
-            }
+            repository.delete(m);
+            fileStore.delete(m.getNameSpace(), m.getExternalReference());
         });
         try {
             deleteEmptyDirectories();
