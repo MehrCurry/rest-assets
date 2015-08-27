@@ -3,6 +3,7 @@ package com.vjoon.se.core.services;
 import com.amazonaws.services.s3.AmazonS3;
 import com.vjoon.se.core.AssetRepositoryApplication;
 import com.vjoon.se.core.util.MediaIDGenerator;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @IntegrationTest("server.port:0") @ActiveProfiles("test") @Category(IntegrationTest.class)
 @ImportResource("classpath:applicationContext.xml")
 public class S3FileStoreTest {
+
     private static final String BUCKET_NAME="gzbundles";
+    public static final String MESSAGE = "test";
 
     @Autowired
     private AmazonS3 amazonS3;
@@ -47,7 +50,7 @@ public class S3FileStoreTest {
 
         WritableResource writableResource = (WritableResource) resource;
         try (OutputStream outputStream = writableResource.getOutputStream()) {
-            outputStream.write("test".getBytes());
+            outputStream.write(MESSAGE.getBytes());
         }
     }
 
@@ -62,9 +65,11 @@ public class S3FileStoreTest {
     }
 
     @Test
-    @Ignore
-    public void testS3Stream() {
+    // @Ignore
+    public void testS3Stream() throws IOException {
         InputStream stream = fileStore.getStream("junit", "12345678");
         assertThat(stream).isNotNull();
+        String readMessage= IOUtils.toString(stream, "UTF-8");
+        assertThat(readMessage).isEqualTo(MESSAGE);
     }
 }
