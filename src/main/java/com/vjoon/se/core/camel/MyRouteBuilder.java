@@ -30,16 +30,17 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
                 .to("http4://localhost:9091/assets");
 
-        from("direct:fileStore").routeId("fileStore")
+        from("direct:production").routeId("production")
                 .to("file:assets?autoCreate=true")
                 .to("log:bla?showAll=true&multiline=true");
 
+        from("direct:mirror").routeId("mirror")
+                .to("file:assets?autoCreate=true")
+                .to("log:bla?showAll=true&multiline=true")
+                .bean(verifier);
+
         from("direct:s3tmp").routeId("s3tmp")
                 .to("file:assets/s3tmp?flatten=true").bean(verifier);
-
-        from("direct:mirror").routeId("mirror")
-                .to("file:assets/mirror?autoCreate=true")
-                .bean(verifier);
 
         from("file:assets/s3tmp?recursive=true&delete=true&readLock=changed").routeId("toS3")
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
