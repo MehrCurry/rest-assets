@@ -1,0 +1,113 @@
+[[section-design-decisions]]
+
+== Entwurfsentscheidungen
+
+
+[role="arc42help"]
+****
+.Inhalt
+Dokumentieren Sie hier alle wesentlichen Entwurfsentscheidungen und deren Gründe!
+
+.Motivation
+Es ist wünschenswert, alle wichtigen Entwurfsentscheidungen geschlossen nachlesen zu können. Wägen Sie ab, inwiefern Entwurfsentscheidungen hier zentral dokumentiert werden sollen oder wo eine lokale Beschreibung (z.B. in der Whitebox-Sicht von Bausteinen) sinnvoller ist. Vermeiden Sie aber redundante Texte. Verweisen Sie evtl. auf Kap. 4 zurück, wo schon zentrale Architekturstrategien motiviert wurden.
+
+.Form
+informelle Liste, möglichst nach Wichtigkeit und Tragweite der Entscheidungen für den Leser aufgebaut.
+
+Alternativ auch ausführlicher in Form von einzelnen Unterkapiteln je Entscheidung. Die folgende Mindmap
+(Quelle: Kolumne „Architekturen dokumentieren“ von S. Zörner im Java Magazin 3/2009) soll Sie dabei unterstützen,
+wichtige Entscheidungen zu treffen und festzuhalten. Die Hauptäste stellen dabei die wesentlichen Schritte dar.
+Sie können auch als Überschriften innerhalb eines Unterkapitels dienen (siehe Beispiel unten).
+
+image:entwurfsentscheidungen.png["Entwurfsentscheidungen",title="Entwurfsentscheidungen", align="center", width=500]
+
+
+Die Fragen sind nicht sklavisch der Reihe nach zu beantworten. Sie sollen Sie lediglich leiten. In der Vorlage löschen Sie diese heraus, und lassen nur die Inhalte/Antworten stehen.
+****
+
+=== Mechanismus zum Speichern der BLOBs
+
+==== Fragestellung
+Die BLOBs sollen u.a. im File System gespeichert werden. Dazu stehen verschiedene Möglichkeiten zur Verfügung.
+
+==== Rahmenbedingungen
+Da beim Speichen einige Probleme auftreten können, sollen gute Monitoring Möglichkeiten und wie Retry-Mechanismen
+vorhanden sein.
+
+Die vjoon StorageEngine soll neben ihren inhaltlichen Zielen auch Technologie Test-Plattform für spätere Entwicklungen sein.
+
+==== Annahmen
+
+Mit welchen Risiken müssen Sie rechnen?
+
+* Volle Festplatte
+* Manipulationen an den Dateien durch Anwender
+
+==== Entscheidungskriterien
+* Monitoring
+* Fehlerbehandlung
+* Technologie Träger
+* Vorhandenes Know-How
+
+==== Betrachtete Alternativen
+
+===== Java File oder Java NIO API
+Die einfachste Möglichkeit ist die Verwendung von einfachen Java APIs. Hier bestehen aber out-of-the-box keine Monitoring
+Möglichkeiten und Fehlerbehandlung müsste auch selber implementiert werden.
+
+===== Apache Camel
+Apache Camel ist eine Implementierung der Enterprise Integration Patterns aus dem gleichnamigen Buch von Gregor Hohpe et. al.
+Apache Camel bietet ein sehr gutes Monitoring über JMX und beinhaltet weitreichende Möglichkeiten zur Verfügung.
+
+Apache Camel beinhaltet eine gute Integration mit Spring Boot.
+
+===== Spring Integration
+Spring Integration ist eine alternative Implementerung der EAI Patterns. Da hier kein Know-How vorhanden ist, wurde diese
+Alternative bis auf weiteres nicht betrachtet.
+
+==== Entscheidung
+
+Wir verwenden soweit möglich Apache Camel als zentrales EAI Framework.
+
+Die Entscheidung ist vorläufig. gzo, 2015-08-27
+
+=== Kommunikation zwischen den einzelnen Bausteinen der vjoon Storage Engine
+
+==== Fragestellung
+Die vjoon StorageEngine besteht aus zwei weitgehend unabhängigen Teile:
+
+* Speichern und Verwalten der Produktionsdaten
+* Spechern und Verwalten der gespiegelten Produktionsdaten
+
+==== Rahmenbedingungen
+Die Verwaltung der Produktionsdaten ist zeitkritisch, da der Anwender Verzögerungen direkt bemerken würde. Die Teile
+sollten auf Quellcode Ebene gut entkoppelt sein, da zum Speichern der gespiegelten Daten unterschiedle Technologien in
+Frage kommen können.
+
+Die vjoon StorageEngine soll neben ihren inhaltlichen Zielen auch Technologie Test-Plattform für spätere Entwicklungen sein.
+
+==== Annahmen
+
+
+==== Entscheidungskriterien
+
+* Gute Entkopplung der Anwendungsbereiche
+
+==== Betrachtete Alternativen
+
+===== Direkte synchrone Aufrufe der Teile untereinander
+Die Kommponenten könnten per `@Autowire` injiziert werden und dann zu Laufzeit direkt über Methoden Aufrufe miteinander
+kommunizieren.
+
+===== Guava Eventbus
+Der Guava Eventbus stellt eine leicht gewichtige Messaging Infrastruktur bereit, die zum Versenden von wesentlichen
+Events (Datei erzeugt, Datei gelöscht, Download abgeschlossen, ...) verwendet werden kann.
+
+===== Active MQ
+Zu schwergewichtig.
+
+==== Entscheidung
+
+Ich habe mich für den Guava EventBus entschieden.
+
+Die Entscheidung ist vorläufig. gzo, 2015-08-27
