@@ -1,4 +1,4 @@
-FROM java:8
+FROM java:8u45
 
 VOLUME /tmp
 ADD assets-0.0.1-SNAPSHOT.war /data/app.war
