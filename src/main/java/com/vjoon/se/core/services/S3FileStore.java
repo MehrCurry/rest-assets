@@ -1,7 +1,11 @@
 package com.vjoon.se.core.services;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.common.collect.ImmutableMap;
 import com.vjoon.se.core.util.MediaIDGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.hibernate.cfg.NotYetImplementedException;
@@ -9,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -17,11 +22,16 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.*;
 
 @Service("s3")
+@Slf4j
 public class S3FileStore implements FileStore {
     private static final String BUCKET_NAME="gzbundles";
 
     @Autowired
     private ResourceLoader resourceLoader;
+
+    @Autowired
+    private AmazonS3 amazonS3;
+
 
     @EndpointInject
     private ProducerTemplate producerTemplate;
@@ -64,22 +74,31 @@ public class S3FileStore implements FileStore {
 
     @Override
     public boolean exists(String nameSpace, String key) {
-        return false;
+        return getMetaData(nameSpace,key).isPresent();
+    }
+
+    private Optional<ObjectMetadata> getMetaData(String nameSpace, String key) {
+        try {
+            return Optional.of(amazonS3.getObjectMetadata(BUCKET_NAME,createFileNameFromID(nameSpace,key)));
+        } catch (AmazonClientException e) {
+            log.debug("getMetaData", e);
+            return Optional.empty();
+        }
     }
 
     @Override
     public void delete(String nameSpace, String key) {
-        throw new NotYetImplementedException();
-
+        amazonS3.deleteObject(BUCKET_NAME,createFileNameFromID(nameSpace,key));
     }
 
     @Override
     public void deleteAll() {
-        throw new NotYetImplementedException();
+        amazonS3.deleteObject(BUCKET_NAME,"*");
     }
 
     @Override
     public String getHash(String nameSpace, String key) {
-        throw new NotYetImplementedException();
+        return getMetaData(nameSpace,key)
+                .orElseThrow(() -> new FileStoreException("Could not find s3 Object")).getETag();
     }
 }
