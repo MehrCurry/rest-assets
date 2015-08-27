@@ -9,6 +9,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,14 +33,17 @@ public class LocalFileStoreTest {
 
     private static final String FILE_KEY = "12345678";
 
-    @Autowired private LocalFileStore fileStore;
+    @Autowired
+    @Qualifier("production")
+    private LocalFileStore fileStore;
     private static final String NAME_SPACE = "junit";
     private Path f;
 
     @Before public void setUp() throws Exception {
-        fileStore.setBasePath("assets/test");
+        fileStore.setBasePath("test");
         f = Files.createTempFile("junit", ".txt");
         Files.write(f, "bla".getBytes());
+        fileStore.delete(NAME_SPACE, FILE_KEY);
     }
 
     @After public void tearDown() throws Exception {
