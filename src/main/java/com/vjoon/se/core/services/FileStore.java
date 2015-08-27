@@ -11,6 +11,8 @@ public interface FileStore {
 
     String createFileNameFromID(String nameSpace, String key);
 
+    String createFullNameFromID(String nameSpace, String key);
+
     InputStream getStream(String namespace, String key);
 
     boolean exists(String nameSpace, String key);

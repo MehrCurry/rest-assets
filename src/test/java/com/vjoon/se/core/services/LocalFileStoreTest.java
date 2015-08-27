@@ -15,9 +15,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,5 +65,13 @@ public class LocalFileStoreTest {
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         InputStream is = fileStore.getStream(NAME_SPACE, FILE_KEY);
         assertThat(is).isNotNull();
+    }
+
+    @Test public void testDeleteEmptyParentDirectories() throws IOException {
+        Path p=Files.createTempDirectory("junit");
+        Path testPath=Paths.get(p.toString(), "1/2/3/4/5");
+        Files.createDirectories(testPath);
+        fileStore.deleteEmptyParentDirectories(testPath);
+
     }
 }

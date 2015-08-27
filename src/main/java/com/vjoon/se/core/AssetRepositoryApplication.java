@@ -7,12 +7,14 @@ import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.servlet.MultipartConfigElement;
 
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 @ImportResource("classpath:applicationContext.xml")
 public class AssetRepositoryApplication {
 

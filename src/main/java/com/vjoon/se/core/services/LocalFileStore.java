@@ -52,7 +52,7 @@ public class LocalFileStore implements FileStore {
         return nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }
 
-    public String createFullNameFromID(String nameSpace, String key) {
+    @Override public String createFullNameFromID(String nameSpace, String key) {
         return basePath + File.separator + createFileNameFromID(nameSpace, key);
     }
 
@@ -85,11 +85,14 @@ public class LocalFileStore implements FileStore {
         }
     }
 
-    private void deleteEmptyParentDirectories(Path path) throws IOException {
+    void deleteEmptyParentDirectories(Path path) throws IOException {
         while ((path=path.getParent())!=null) {
             if (Files.isDirectory(path) && directoryIsEmpty(path)) {
                 Files.deleteIfExists(path);
+            } else {
+                break;
             }
+
         }
     }
 
