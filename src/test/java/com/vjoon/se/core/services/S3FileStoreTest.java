@@ -5,13 +5,13 @@ import com.vjoon.se.core.AssetRepositoryApplication;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class) @SpringApplicationConfiguration(classes = AssetRepositoryApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0") @ActiveProfiles("test") @Category(IntegrationTest.class)
+@ImportResource("classpath:applicationContext.xml")
 public class S3FileStoreTest {
     private static final String BUCKET_NAME="gzbundles";
 
@@ -39,7 +40,7 @@ public class S3FileStoreTest {
 
     @Autowired
     private S3FileStore fileStore;
-    private static final String ID = MediaIDGenerator.generateID("junit", "test");
+    private static final String ID = MediaIDGenerator.generateID("junit", "12345678");
 
     public void writeResource() throws IOException {
         Resource resource = this.resourceLoader.getResource("s3://" + BUCKET_NAME + "/" + ID);
@@ -63,7 +64,7 @@ public class S3FileStoreTest {
     @Test
     @Ignore
     public void testS3Stream() {
-        InputStream stream = fileStore.getStream("junit", "test");
+        InputStream stream = fileStore.getStream("junit", "12345678");
         assertThat(stream).isNotNull();
     }
 }
