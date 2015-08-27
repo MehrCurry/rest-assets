@@ -1,6 +1,5 @@
 package com.vjoon.se.core.control;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.event.MediaCreatedEvent;
@@ -8,15 +7,19 @@ import com.vjoon.se.core.services.FileStore;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class MirrorController {
     @Autowired
-    private FileStore fileStore;
+    @Qualifier("production")
+    private FileStore productionFileStore;
+
+    @Autowired
+    @Qualifier("mirror")
+    private FileStore mirrorFileStore;
 
     @EndpointInject
     private ProducerTemplate producerTemplate;
@@ -24,15 +27,11 @@ public class MirrorController {
 
     @Subscribe
     public void mediaCreated(MediaCreatedEvent event) {
-        sendTo("direct:mirror",event.getMedia());
+        mirror(event.getMedia());
     }
 
     @Async
-    public void sendTo(String target,Media media) {
-        Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName", fileStore.createFileNameFromID(media.getNameSpace(), media.getExternalReference()),
-                "Checksum", media.getHash()
-        );
-        producerTemplate.sendBodyAndHeaders(target, fileStore.getStream(media.getNameSpace(), media.getExternalReference()), headers);
+    private void mirror(Media media) {
+        media.copy(productionFileStore, mirrorFileStore);
     }
 }

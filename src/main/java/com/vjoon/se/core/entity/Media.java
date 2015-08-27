@@ -3,7 +3,6 @@ package com.vjoon.se.core.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vjoon.se.core.services.FileStore;
-import com.vjoon.se.core.util.MD5Helper;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +12,12 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 @Entity
@@ -72,5 +70,9 @@ public class Media extends AbstractEntity implements Serializable {
     public void remove(Snapshot s) {
         checkState(snapshots.contains(s));
         snapshots.remove(s);
+    }
+
+    public void copy(@NotNull FileStore from, @NotNull FileStore to) {
+        to.save(nameSpace,externalReference,getStream(from), Optional.of(hash),false);
     }
 }

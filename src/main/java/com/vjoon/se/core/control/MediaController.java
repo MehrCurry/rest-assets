@@ -6,10 +6,10 @@ import com.vjoon.se.core.event.MediaCreatedEvent;
 import com.vjoon.se.core.event.MediaDeletedEvent;
 import com.vjoon.se.core.repository.MediaRepository;
 import com.vjoon.se.core.services.FileStore;
-import com.vjoon.se.core.services.FileStoreException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +33,7 @@ public class MediaController {
     private EventBus eventBus;
 
     @Autowired
+    @Qualifier("production")
     private FileStore fileStore;
 
     public void handleUpload(MultipartFile multipart, String ref, String nameSpace, boolean overwrite) throws IOException {
@@ -40,7 +41,7 @@ public class MediaController {
         checkNotNull(nameSpace);
         checkNotNull(ref);
 
-        fileStore.save(nameSpace, ref, multipart.getInputStream(), overwrite);
+        fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
         String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
         Media media= Media.builder()
                 .length(multipart.getSize())

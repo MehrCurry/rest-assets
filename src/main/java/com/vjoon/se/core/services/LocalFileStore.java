@@ -1,39 +1,42 @@
 package com.vjoon.se.core.services;
 
+import com.google.common.collect.ImmutableMap;
 import com.vjoon.se.core.util.MediaIDGenerator;
+import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
 
-@Service
 @Slf4j
 public class LocalFileStore implements FileStore {
     private static final String CAMLE_BASE="assets/";
-    @Value("${base.path}")
-    @Setter
+    @Setter(AccessLevel.PACKAGE)
     private String basePath;
 
-    @EndpointInject(uri="direct:fileStore")
     private ProducerTemplate template;
+
+    public LocalFileStore(String basePath, ProducerTemplate producerTemplate) {
+        this.basePath=basePath;
+        this.template=producerTemplate;
+    }
 
     @Override
     public void save(@NotNull String nameSpace,
                      @NotNull String key,
                      @NotNull InputStream stream,
+                     Optional<String> checksum,
                      boolean overwrite) {
         checkNotNull(nameSpace);
         checkNotNull(key != null);
@@ -41,7 +44,11 @@ public class LocalFileStore implements FileStore {
         checkState(overwrite || !exists(nameSpace,key),"File already existing");
 
         String filename=createFullNameFromID(nameSpace, key).replaceFirst(CAMLE_BASE, "");
-        template.sendBodyAndHeader(stream,"CamelFileName",filename);
+        Map<String,Object> headers= ImmutableMap.of(
+                "CamelFileName",filename,
+                "Checksum",checksum.orElse(""));
+
+        template.sendBodyAndHeaders("direct:" + basePath,stream,headers);
     }
 
     @Override
@@ -59,7 +66,7 @@ public class LocalFileStore implements FileStore {
     @Override
     public InputStream getStream(String nameSpace, String key) {
         try {
-            return new FileInputStream(createFullNameFromID(nameSpace,key));
+            return new FileInputStream(CAMLE_BASE + createFullNameFromID(nameSpace,key));
         } catch (FileNotFoundException e) {
             throw new FileStoreException(e);
         }
@@ -67,12 +74,12 @@ public class LocalFileStore implements FileStore {
 
     @Override
     public boolean exists(String nameSpace, String key) {
-        return Files.exists(Paths.get(createFullNameFromID(nameSpace,key)));
+        return Files.exists(Paths.get(CAMLE_BASE + createFullNameFromID(nameSpace,key)));
     }
 
     @Override
     public void delete(String nameSpace, String key) {
-        Path path = Paths.get(createFullNameFromID(nameSpace, key));
+        Path path = Paths.get(CAMLE_BASE + createFullNameFromID(nameSpace, key));
         try {
             Files.delete(path);
         } catch (IOException e) {

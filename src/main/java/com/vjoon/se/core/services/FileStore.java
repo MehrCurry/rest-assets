@@ -1,13 +1,14 @@
 package com.vjoon.se.core.services;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * Created by guido on 22.08.15.
  */
 public interface FileStore {
 
-    void save(String namespace, String key, InputStream stream, boolean overwrite);
+    void save(String namespace, String key, InputStream stream, Optional<String> checksum, boolean overwrite);
 
     String createFileNameFromID(String nameSpace, String key);
 
