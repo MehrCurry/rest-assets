@@ -72,11 +72,11 @@ Wir verwenden soweit möglich Apache Camel als zentrales EAI Framework.
 Die Entscheidung ist vorläufig. gzo, 2015-08-27
 
 ===== Details
-Apache Camel stellt über JMX ausführliche statistische Daten zur Laufzeit zur Verfügung. Über https://jolokia.org/[Jolokia]
+http://camel.apache.org[Apache Camel] stellt über JMX ausführliche statistische Daten zur Laufzeit zur Verfügung. Über https://jolokia.org/[Jolokia]
 werden die JMX Daten über eine Json Schnittstelle bereitgestellt. Dies ermöglicht es, mit einer externen Managment Console
 den Status der JVM zu überwachen.
 
-http://hawtio.org[HawtIO] ist eine solche Management Console, die eine UI zur Verfügung stellt. Über die Json Schnittstelle ist dabei auch
+http://hawt.io[HawtIO] ist eine solche Management Console, die eine UI zur Verfügung stellt. Über die Json Schnittstelle ist dabei auch
 die Remote Überwachung möglich.
 
 image::hawtio-remote.png[Remote Verbindung]

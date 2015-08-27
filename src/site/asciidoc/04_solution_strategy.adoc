@@ -49,6 +49,12 @@ erstellen.
 
 Folgende Resourcen stehen zur Verfügung
 
+[plantuml,Domain Classes]
+....
+Asset "*" -- "*" Snapshot
+Token -- "1" Asset
+....
+
 ==== Assets
 
 Die sind die MetaDaten zu den Blobs. Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural nach gängigen
@@ -66,3 +72,5 @@ Datei heruntergeladen werden `http://localhost:9091/token/993824ur923ur9jd29dj92
 
 Dies sind die Snapshots gemäß der Spezifikation.  Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural
 nach gängigen REST Prinzipien.
+
+
