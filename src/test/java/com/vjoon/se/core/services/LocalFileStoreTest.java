@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,21 +48,21 @@ public class LocalFileStoreTest {
     }
 
     @Test public void testSave() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), false);
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         fileStore.delete(NAME_SPACE, FILE_KEY);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isFalse();
     }
 
     @Test public void testDuplicateFile() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), false);
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         thrown.expect(IllegalStateException.class);
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), false);
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
     }
 
     @Test public void testGetStream() throws Exception {
-        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), false);
+        fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
         InputStream is = fileStore.getStream(NAME_SPACE, FILE_KEY);
         assertThat(is).isNotNull();
@@ -72,6 +73,5 @@ public class LocalFileStoreTest {
         Path testPath=Paths.get(p.toString(), "1/2/3/4/5");
         Files.createDirectories(testPath);
         fileStore.deleteEmptyParentDirectories(testPath);
-
     }
 }

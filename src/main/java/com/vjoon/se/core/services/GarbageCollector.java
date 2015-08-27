@@ -4,6 +4,7 @@ import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.repository.MediaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class GarbageCollector {
     private MediaRepository repository;
 
     @Autowired
+    @Qualifier("production")
     private FileStore fileStore;
 
     @Scheduled(fixedRate = 10000)

@@ -4,9 +4,11 @@ import com.vjoon.se.core.boundary.StreamHelper;
 import com.vjoon.se.core.control.TokenController;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
+import com.vjoon.se.core.services.FileStore;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +22,13 @@ import java.util.Collection;
 
     @Autowired private StreamHelper streamHelper;
 
+    @Autowired
+    @Qualifier("production")
+    private FileStore fileStore;
+
     @RequestMapping(value = "/token/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocument(@PathVariable String id) throws IOException {
-        return streamHelper.streamResult(controller.resolve(id, TokenType.DOWNLOAD));
+        return streamHelper.streamResult(fileStore,controller.resolve(id, TokenType.DOWNLOAD));
     }
 
     @RequestMapping(value = "/token?type={type}", method = RequestMethod.POST, produces = "application/json")
