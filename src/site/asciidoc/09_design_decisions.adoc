@@ -71,6 +71,27 @@ Wir verwenden soweit möglich Apache Camel als zentrales EAI Framework.
 
 Die Entscheidung ist vorläufig. gzo, 2015-08-27
 
+===== Details
+Apache Camel stellt über JMX ausführliche statistische Daten zur Laufzeit zur Verfügung. Über https://jolokia.org/[Jolokia]
+werden die JMX Daten über eine Json Schnittstelle bereitgestellt. Dies ermöglicht es, mit einer externen Managment Console
+den Status der JVM zu überwachen.
+
+http://hawtio.org[HawtIO] ist eine solche Management Console, die eine UI zur Verfügung stellt. Über die Json Schnittstelle ist dabei auch
+die Remote Überwachung möglich.
+
+image::hawtio-remote.png[Remote Verbindung]
+
+HawtIO wurde von den Machern von Apache Camel entwickelt und bietet eine sehr gute Unterstützung für Apache Camel. Dazu
+gehört die grafische Darstellung von Camel Routen inkl. dem Live-Update der Performance Zähler.
+
+image::route-diagram.png[Grafische Darstellung der Route]
+
+Daneben werden auch ausführliche Performance Daten zur Verfügung gestellt.
+
+image::route-details.png[Statistische Daten]
+
+
+
 === Kommunikation zwischen den einzelnen Bausteinen der vjoon Storage Engine
 
 ==== Fragestellung
@@ -148,5 +169,35 @@ Nicht clusterfähig.
 ==== Entscheidung
 
 Ich habe mich für Hazelcast entschieden.
+
+Die Entscheidung ist vorläufig. gzo, 2015-08-27
+
+=== Verwendung einer Datenbank
+
+==== Fragestellung
+Innerhalb der vjoon storageEngine müssen einige Entitäten gespeichert werden.
+
+==== Rahmenbedingungen
+Die Daten müssen sich auch von Administratoren mit wenige Know-How einfach sicher lassen.
+
+==== Annahmen
+
+==== Entscheidungskriterien
+
+* Schnelligkeit bei der Entwicklung
+
+==== Betrachtete Alternativen
+
+===== Speichern in einer embedded Datenbank
+Die Entitäten werden mittels JPA in einer relationalen, eingebetteten Datenbank gespeichert.
+
+===== Speichern als Flat-Files
+Die Entitäten werden im Dateisystem gespeichert. Das Konzept dazu muss noch entwickelt werden.
+
+==== Entscheidung
+
+Ich habe mich für eine Embedded Derby DB entschieden um schnellst möglich die wirklich kritischen Teile des Konzepts
+testen zu können. Sobald ein Konzept zur Speicherung der notwendigen Informationen in Flat-Files vorliegt, kann diese
+Entscheidung revidiert werden.
 
 Die Entscheidung ist vorläufig. gzo, 2015-08-27

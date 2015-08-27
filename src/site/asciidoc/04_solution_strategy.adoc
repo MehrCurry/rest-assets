@@ -34,3 +34,35 @@ Lebenszyklus der Anwendung potenziell geändert werden.
 |===
 
 ****
+
+Das System ist als MicroService entworfen. D.h. es sollte eigenständig läuffähig sein und der Außenwelt REST Services
+zur Verfügung stellen.
+
+Durch die Verwendung von Spring Boot sind bzgl. des Deploments verschiedene Einsatz-Szenarien denkbar:
+
+* als Standalone Applikation mit einem Embedded Tomcat: `java -jar xxx.war`
+* als WAR in einem bestehenden Tomcat
+* als Docker Container - mittels `mvn package docker:build` lässt sich auf einer entsprechenden Umgebung ein Docker Image
+erstellen.
+
+=== Resourcen
+
+Folgende Resourcen stehen zur Verfügung
+
+==== Assets
+
+Die sind die MetaDaten zu den Blobs. Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural nach gängigen
+REST Prinzipien.
+
+==== Tokens
+
+Die sind die MetaDaten zu den Blobs. Unterstützt weden GET, POST - jeweils Singular und Plural nach gängigen
+REST Prinzipien.
+
+Beim Erzeugen eines Tokens mittels POST muss eine `MediaID` mitgegeben werden. Mit diesem Token kann dann die entsprechende
+Datei heruntergeladen werden `http://localhost:9091/token/993824ur923ur9jd29dj923jd`.
+
+==== Snapshots
+
+Dies sind die Snapshots gemäß der Spezifikation.  Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural
+nach gängigen REST Prinzipien.
