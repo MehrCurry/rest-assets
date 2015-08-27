@@ -73,6 +73,10 @@ public class Media extends AbstractEntity implements Serializable {
     }
 
     public void copy(@NotNull FileStore from, @NotNull FileStore to) {
-        to.save(nameSpace,externalReference,getStream(from), Optional.of(hash),false);
+        to.save(nameSpace, externalReference, getStream(from), Optional.of(hash), false);
+    }
+
+    public void delete(FileStore fileStore) {
+        fileStore.delete(nameSpace,externalReference);
     }
 }
