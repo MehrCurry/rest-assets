@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.*;
 @Slf4j
 public class LocalFileStore implements FileStore {
     private static final String CAMLE_BASE="assets/";
+
     @Setter(AccessLevel.PACKAGE)
     private String basePath;
 
