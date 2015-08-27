@@ -1,5 +1,6 @@
 package com.vjoon.se.core;
 
+import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.servlet.MultipartConfigElement;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 @EnableAsync
@@ -34,7 +37,8 @@ public class AssetRepositoryApplication {
 
     @Bean
     public EventBus eventBus() {
-        return new EventBus();
+        Executor executor= Executors.newFixedThreadPool(10);
+        return new AsyncEventBus(executor);
     }
 
 }
