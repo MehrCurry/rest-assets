@@ -71,13 +71,6 @@
             <artifactId>camel-spring-boot</artifactId>
             <version>${camel.version}</version>
         </dependency>
-        <
-        <
-        <
-        <
-        <
-        <
-        < HEAD
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jackson</artifactId>
@@ -97,7 +90,6 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
         </dependency>
-        =======
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jackson</artifactId>
@@ -117,7 +109,6 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
         </dependency>
-        >>>>>>> dupe dep removed
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
@@ -141,7 +132,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5</version>
-            <!--$NO-MVN-MAN-VER$ -->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -186,7 +176,6 @@
             <artifactId>hazelcast-spring</artifactId>
             <version>${hazelcast.version}</version>
         </dependency>
-<<<<<<< HEAD
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -202,7 +191,7 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <vmvn ersion>2.2.2</vmvnersion>
+            <version>2.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml</groupId>
