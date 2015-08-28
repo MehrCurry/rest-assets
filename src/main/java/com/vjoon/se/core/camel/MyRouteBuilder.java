@@ -8,7 +8,6 @@ import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class MyRouteBuilder extends RouteBuilder {
@@ -51,8 +50,8 @@ public class MyRouteBuilder extends RouteBuilder {
 
         from("direct:failed").routeId("failed")
             .errorHandler(defaultErrorHandler())
-            .to("log:failed?showAll=true&multiline=true")
-            .to("file:assets/failed?autoCreate=true");
+            .to("log:failed?showAll=true&multiline=true");
+            // .to("file:assets/failed?autoCreate=true");
 
         from("timer:dump?period=300000").routeId("dump")
                 .errorHandler(defaultErrorHandler())
