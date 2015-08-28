@@ -43,7 +43,7 @@ public class MyRouteBuilder extends RouteBuilder {
         from("direct:s3queue").routeId("s3queue")
                 .to("file:assets/s3queue?flatten=true").bean(verifier);
 
-        from("file:assets/s3tmp?recursive=true&delete=true&readLock=changed").routeId("toS3")
+        from("file:assets/s3queue?recursive=true&delete=true&readLock=changed").routeId("toS3")
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))

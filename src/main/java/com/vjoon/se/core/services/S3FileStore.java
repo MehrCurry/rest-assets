@@ -47,7 +47,7 @@ public class S3FileStore implements FileStore {
                 "CamelFileName", createFileNameFromID(nameSpace, key),
                 "Checksum", checksum.get()
         );
-        producerTemplate.sendBodyAndHeaders("direct:s3tmp", stream, headers);
+        producerTemplate.sendBodyAndHeaders("direct:s3queue", stream, headers);
     }
 
     @Override
