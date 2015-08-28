@@ -334,6 +334,10 @@
                     <outputDirectory>target/docs</outputDirectory>
                     <backend>html</backend>
                     <doctype>book</doctype>
+					<gemPath>${project.build.directory}/gems-provided</gemPath>
+					<requires>
+						<require>asciidoctor-diagram</require>
+					</requires>
                 </configuration>
             </plugin>
             <plugin>
