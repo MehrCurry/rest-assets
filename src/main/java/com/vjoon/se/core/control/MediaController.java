@@ -92,7 +92,8 @@ public class MediaController {
     public void deleteAll() {
         List<Media> assets = repository.findAll();
         assets.forEach(m -> {
-            repository.delete(m);
+            m.setExistsInProduction(false);
+            repository.save(m);
             fileStore.delete(m.getNameSpace(), m.getExternalReference());
         });
         try {

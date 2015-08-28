@@ -3,6 +3,7 @@ package com.vjoon.se.core.control;
 import com.google.common.eventbus.Subscribe;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.event.MediaCreatedEvent;
+import com.vjoon.se.core.event.MediaDeletedEvent;
 import com.vjoon.se.core.services.FileStore;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
@@ -29,8 +30,14 @@ public class S3Controller {
     public void mediaCreated(MediaCreatedEvent event) {
         sendToS3(event.getMedia());
     }
+
+    @Subscribe
+    public void mediaDeleted(MediaDeletedEvent event) {
+        event.getMedia().delete(s3FileStore);
+    }
+
     @Async
     public void sendToS3(Media media) {
-        media.copy(productionFileStore,s3FileStore);
+        media.copy(productionFileStore, s3FileStore);
     }
 }
