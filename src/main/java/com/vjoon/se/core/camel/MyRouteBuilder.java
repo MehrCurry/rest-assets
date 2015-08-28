@@ -1,6 +1,7 @@
 package com.vjoon.se.core.camel;
 
 import com.vjoon.se.core.services.MediaService;
+import com.vjoon.se.core.services.S3FileStore;
 import com.vjoon.se.core.util.MD5Helper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MyRouteBuilder extends RouteBuilder {
+
     @Autowired
     private MediaService mediaService;
 
@@ -27,23 +29,20 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
-                .log("POST ${header.CamelFileName} to /upload")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
                 .to("http4://localhost:9091/assets");
 
         from("direct:production").routeId("production")
-                .to("file:assets?autoCreate=true")
-                .to("log:bla?showAll=true&multiline=true");
+                .to("file:assets?autoCreate=true");
 
         from("direct:mirror").routeId("mirror")
                 .to("file:assets?autoCreate=true")
-                .to("log:bla?showAll=true&multiline=true")
                 .bean(verifier);
 
-        from("direct:s3queue").routeId("s3queue")
-                .to("file:assets/s3queue?flatten=true").bean(verifier);
+        from("direct:" + S3FileStore.S3_QUEUE).routeId(S3FileStore.S3_QUEUE)
+                .to("file:assets/" + S3FileStore.S3_QUEUE + "?flatten=true").bean(verifier);
 
-        from("file:assets/s3queue?recursive=true&delete=true&readLock=changed").routeId("toS3")
+        from("file:assets/" + S3FileStore.S3_QUEUE + "?recursive=true&delete=true&readLock=changed").routeId("toS3")
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
