@@ -40,8 +40,8 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("log:bla?showAll=true&multiline=true")
                 .bean(verifier);
 
-        from("direct:s3tmp").routeId("s3tmp")
-                .to("file:assets/s3tmp?flatten=true").bean(verifier);
+        from("direct:s3queue").routeId("s3queue")
+                .to("file:assets/s3queue?flatten=true").bean(verifier);
 
         from("file:assets/s3tmp?recursive=true&delete=true&readLock=changed").routeId("toS3")
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))

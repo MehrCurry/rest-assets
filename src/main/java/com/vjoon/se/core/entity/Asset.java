@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkState;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Media extends AbstractEntity implements Serializable {
+public class Asset extends AbstractEntity implements Serializable {
 
     private static final String PREFIX = "assets" + File.separator + "production";
     private static final Tika TIKA = new Tika();

@@ -1,7 +1,7 @@
 package com.vjoon.se.core.services;
 
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.repository.AssetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +13,9 @@ import java.util.List;
 
 public class MediaService {
 
-    @Autowired private MediaRepository repository;
+    @Autowired private AssetRepository repository;
 
-    public List<Media> getAll() {
+    public List<Asset> getAll() {
         return repository.findAll();
     }
 }

@@ -1,9 +1,9 @@
 package com.vjoon.se.core.control;
 
 import com.google.common.eventbus.Subscribe;
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.event.MediaCreatedEvent;
-import com.vjoon.se.core.event.MediaDeletedEvent;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.event.AssetCreatedEvent;
+import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.services.FileStore;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
@@ -29,17 +29,17 @@ public class MirrorController {
 
 
     @Subscribe
-    public void mediaCreated(MediaCreatedEvent event) {
+    public void mediaCreated(AssetCreatedEvent event) {
         mirror(event.getMedia());
     }
 
     @Subscribe
-    public void mediaDeleted(MediaDeletedEvent event) {
+    public void mediaDeleted(AssetDeletedEvent event) {
         event.getMedia().delete(mirrorFileStore);
     }
 
     @Async
-    private void mirror(Media media) {
+    private void mirror(Asset media) {
         media.copy(productionFileStore, mirrorFileStore);
     }
 }

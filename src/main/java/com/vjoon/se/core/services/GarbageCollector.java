@@ -1,9 +1,9 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.eventbus.EventBus;
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.event.MediaDeletedEvent;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.event.AssetDeletedEvent;
+import com.vjoon.se.core.repository.AssetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +18,7 @@ import java.util.List;
 @Transactional
 public class GarbageCollector {
     @Autowired
-    private MediaRepository repository;
+    private AssetRepository repository;
 
     @Autowired
     private EventBus eventBus;
@@ -29,11 +29,11 @@ public class GarbageCollector {
 
     @Scheduled(fixedRate = 60000)
     public void deleteOrphanedAssets() {
-        List<Media> result = repository.findByNotExistsInProductionAndSnapshotsIsEmpty();
+        List<Asset> result = repository.findByNotExistsInProductionAndSnapshotsIsEmpty();
         result.forEach(m -> {
             log.debug("Orphaned media: {}", m);
             repository.delete(m);
-            eventBus.post(new MediaDeletedEvent(m));
+            eventBus.post(new AssetDeletedEvent(m));
         });
     }
 }

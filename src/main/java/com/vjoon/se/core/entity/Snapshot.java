@@ -16,12 +16,12 @@ import java.util.List;
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JsonManagedReference
-    List<Media> included = new ArrayList<>();
+    List<Asset> included = new ArrayList<>();
 
     public Snapshot() {
     }
 
-    public Snapshot(List<Media> included) {
+    public Snapshot(List<Asset> included) {
         this.included = included;
         included.forEach(m -> m.addSnapshot(this));
     }

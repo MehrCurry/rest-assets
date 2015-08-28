@@ -2,10 +2,10 @@ package com.vjoon.se.core.control;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.event.MediaCreatedEvent;
-import com.vjoon.se.core.event.MediaDeletedEvent;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.event.AssetCreatedEvent;
+import com.vjoon.se.core.event.AssetDeletedEvent;
+import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.services.FileStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Slf4j
 public class MediaController {
     @Autowired
-    private MediaRepository repository;
+    private AssetRepository repository;
 
     @Autowired
     private EventBus eventBus;
@@ -43,7 +43,7 @@ public class MediaController {
 
         fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
         String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
-        Media media= Media.builder()
+        Asset media= Asset.builder()
                 .length(multipart.getSize())
                 .contentType(multipart.getContentType())
                 .nameSpace(nameSpace)
@@ -55,17 +55,17 @@ public class MediaController {
                 .existsInProduction(true)
                 .build();
         repository.save(media);
-        eventBus.post(new MediaCreatedEvent(media));
+        eventBus.post(new AssetCreatedEvent(media));
     }
 
     public void delete(String id) {
-        Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
+        Optional<Asset> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
             deleteFromProduction(m);
         });
     }
 
-    private void deleteFromProduction(Media m) {
+    private void deleteFromProduction(Asset m) {
         m.setExistsInProduction(false);
         repository.save(m);
         m.delete(fileStore);
@@ -73,14 +73,14 @@ public class MediaController {
 
     @Async
     public void deleteAll() {
-        List<Media> assets = repository.findAll();
+        List<Asset> assets = repository.findAll();
         assets.forEach(m -> {
             deleteFromProduction(m);
         });
     }
 
     @Subscribe
-    public void mediaDeleted(MediaDeletedEvent event) {
+    public void mediaDeleted(AssetDeletedEvent event) {
         event.getMedia().delete(fileStore);
     }
 }

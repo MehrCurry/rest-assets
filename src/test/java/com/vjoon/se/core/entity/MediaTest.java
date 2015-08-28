@@ -1,7 +1,7 @@
 package com.vjoon.se.core.entity;
 
 import com.vjoon.se.core.AssetRepositoryApplication;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.repository.AssetRepository;
 import org.assertj.core.api.StrictAssertions;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class MediaTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
-    @Autowired private MediaRepository mediaRepository;
+    @Autowired private AssetRepository assetRepository;
 
     @Before public void setUp() throws Exception {
 
@@ -36,14 +36,14 @@ public class MediaTest {
     }
 
     @Test public void testValidation() {
-        Media media = new Media();
+        Asset media = new Asset();
         StrictAssertions.assertThat(media.isValid()).isFalse();
         StrictAssertions.assertThat(media.validationErrors().size()).isEqualTo(5);
     }
 
     @Test public void testValidateBeforeSave() {
-        Media media = new Media();
+        Asset media = new Asset();
         thrown.expect(ConstraintViolationException.class);
-        mediaRepository.save(media);
+        assetRepository.save(media);
     }
 }

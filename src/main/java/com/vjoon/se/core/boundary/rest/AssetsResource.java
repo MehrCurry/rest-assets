@@ -1,8 +1,8 @@
 package com.vjoon.se.core.boundary.rest;
 
 import com.vjoon.se.core.control.MediaController;
-import com.vjoon.se.core.entity.Media;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.repository.AssetRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,7 +23,7 @@ import java.util.List;
 
     @Autowired private MediaController controller;
 
-    @Autowired private MediaRepository repository;
+    @Autowired private AssetRepository repository;
 
     @ApiOperation(value = "Creates an Asset from an multipart file upload",
             notes = "The database entry will only be set to existsInProduction=false")
@@ -43,7 +43,7 @@ import java.util.List;
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "A list of all assets") })
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    public List<Media> findAll() {
+    public List<Asset> findAll() {
         return repository.findAll();
     }
 

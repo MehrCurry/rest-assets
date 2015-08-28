@@ -34,7 +34,7 @@ import java.util.List;
 
     @ApiOperation(value = "creates a token for the given mediaID", notes = "mediaID will be checked.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST)
-    public Token createToken(@RequestParam(value = "mediaId") @ApiParam(value = "Media Id to get a Token for",
+    public Token createToken(@RequestParam(value = "mediaId") @ApiParam(value = "Asset Id to get a Token for",
             name = "mediaId", required = true) String mediaId, @RequestParam(value = "type") @ApiParam(name = "Type",
             value = "[download|upload]") String type) {
         return controller.createToken(mediaId, type);

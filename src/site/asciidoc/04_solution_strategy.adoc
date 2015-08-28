@@ -77,13 +77,36 @@ nach gängigen REST Prinzipien.
 
 ==== Bisher umgesetzte Anwendungsfälle
 
-[plantuml,Domain Classes]
+[plantuml,Use Cases]
 ....
 :K4: <<system>> -- (Upload Asset)
-K4 -- (Download Asset)
-K4 -- (Snapshot anlegen)
-K4 -- (Snapshot löschen)
+K4 -- (Asset herunterladen mittels Token)
 K4 -- (Asset löschen)
 K4 -- (Alle Assets löschen)
+K4 -- (Snapshot anlegen)
+K4 -- (Snapshot löschen)
 K4 -- (Token erzeugen)
+K4 -- (Alle Token anzeigen)
 ....
+
+==== Messaging
+
+Statt direkte Abhängigkeiten zwischen Produktion und Spiegelbereich zu pflegen, kommunizieren die Teile über einen
+asynchronen Message Bus (siehe <<Kommunikation zwischen den einzelnen Bausteinen der vjoon Storage Engine>>). Der EventBus
+verwendet eine bestimmte Anzahl an Threads um die Teile auch zeitlich zu entkoppeln.
+
+[plantuml,EventBus]
+....
+EventBus <.up. Production
+EventBus <.up. Mirror
+EventBus <.up. S3
+AssetCreatedEvent <.down. Production
+AssetCreatedEvent <.down. Mirror
+AssetCreatedEvent <.down. S3
+AssetDeletedEvent <.down. Production
+AssetDeletedEvent <.down. Mirror
+AssetDeletedEvent <.down. S3
+....
+
+
+

@@ -1,9 +1,9 @@
 package com.vjoon.se.core.control;
 
-import com.vjoon.se.core.entity.Media;
+import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.repository.AssetRepository;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +23,12 @@ import static com.google.common.base.Preconditions.*;
 
     @Autowired
     @Setter(AccessLevel.PACKAGE)
-    private MediaRepository repository;
+    private AssetRepository repository;
 
     public Token createToken(String payload, String type) {
         checkArgument(TokenType.valueOf(type)!=null);
 
-        List<Media> mediaList = repository.findByMediaId(payload);
+        List<Asset> mediaList = repository.findByMediaId(payload);
         if (mediaList.isEmpty())
             throw new NoSuchElementException("No media found:" + payload);
         checkState(mediaList.size() == 1, "mediaId not unique:" + payload);

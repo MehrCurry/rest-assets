@@ -4,15 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.vjoon.se.core.categories.SlowTest;
-import com.vjoon.se.core.entity.Media;
+import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
-import com.vjoon.se.core.repository.MediaRepository;
+import com.vjoon.se.core.repository.AssetRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -25,8 +23,8 @@ public class TokenControllerTest {
     public static final int TIME_TO_LIVE_SECONDS = 1;
     private TokenController controller;
 
-    private MediaRepository repository;
-    private Media media;
+    private AssetRepository repository;
+    private Asset media;
 
     @Before public void setUp() {
         Config config =
@@ -39,10 +37,10 @@ public class TokenControllerTest {
         HazelcastInstance instance = Hazelcast.newHazelcastInstance(config);
 
         controller = new TokenController();
-        repository = mock(MediaRepository.class);
+        repository = mock(AssetRepository.class);
         controller.setRepository(repository);
 
-        media = Media.builder().nameSpace("junit").externalReference("12345678").contentType("text/plain")
+        media = Asset.builder().nameSpace("junit").externalReference("12345678").contentType("text/plain")
                 .originalFilename("junit.txt").build();
         when(repository.findByMediaId(anyString())).thenReturn(ImmutableList.of(media));
         controller.setTokenMap(instance.getMap(TEST_MAP));
