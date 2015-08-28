@@ -1,10 +1,7 @@
 package com.vjoon.se.core;
 
 import com.google.common.eventbus.AsyncEventBus;
-import javax.servlet.MultipartConfigElement;
-
 import com.google.common.eventbus.EventBus;
-import com.mangofactory.swagger.plugin.EnableSwagger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
@@ -20,6 +17,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.servlet.MultipartConfigElement;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 

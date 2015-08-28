@@ -21,7 +21,6 @@ public class FileStoreConfig {
     }
 
     @Bean(name = "mirror")
-    @Profile("localMirror")
     public FileStore mirrorFileStore() {
         return new LocalFileStore("mirror",producerTemplate);
     }

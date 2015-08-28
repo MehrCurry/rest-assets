@@ -21,7 +21,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.*;
 
 @Service("s3")
-@Profile("s3Mirror")
 @Slf4j
 public class S3FileStore implements FileStore {
     private static final String BUCKET_NAME="gzbundles";
