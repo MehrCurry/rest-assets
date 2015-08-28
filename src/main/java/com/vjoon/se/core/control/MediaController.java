@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +68,7 @@ public class MediaController {
 
     private void deleteFromProduction(Asset m) {
         m.setExistsInProduction(false);
+        m.setDeletedAt(new Date());
         repository.save(m);
         m.delete(fileStore);
     }
