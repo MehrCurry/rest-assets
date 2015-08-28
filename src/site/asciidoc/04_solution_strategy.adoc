@@ -49,7 +49,6 @@ erstellen.
 
 Folgende Resourcen stehen zur Verfügung
 
-<<<<<<< HEAD
 [plantuml,Domain Classes]
 ....
 Asset "*" -- "*" Snapshot
