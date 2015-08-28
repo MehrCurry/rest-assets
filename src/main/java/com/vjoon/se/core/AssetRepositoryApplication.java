@@ -4,6 +4,7 @@ import com.google.common.eventbus.AsyncEventBus;
 import javax.servlet.MultipartConfigElement;
 
 import com.google.common.eventbus.EventBus;
+import com.mangofactory.swagger.plugin.EnableSwagger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;

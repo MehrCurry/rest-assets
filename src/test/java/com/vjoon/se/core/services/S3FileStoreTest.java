@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.WritableResource;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 @IntegrationTest("server.port:0") @ActiveProfiles("test") @Category(IntegrationTest.class)
 @ImportResource("classpath:applicationContext.xml")
+@Profile("s3Mirror")
 public class S3FileStoreTest {
 
     private static final String BUCKET_NAME="gzbundles";

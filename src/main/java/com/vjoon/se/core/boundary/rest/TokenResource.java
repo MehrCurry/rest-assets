@@ -26,10 +26,8 @@ import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
 import com.vjoon.se.core.services.FileStore;
 
-@RestController
-@Slf4j
-@Api(value = "Token")
-public class TokenResource {
+@Api(basePath = "/token", value = "Token", description = "Operations with a single Token", produces = "application/json")
+@RestController @Slf4j @RequestMapping(value = "/token") public class TokenResource {
 
     @Autowired
     @Setter
@@ -42,18 +40,17 @@ public class TokenResource {
     @Qualifier("production")
     private FileStore fileStore;
 
-    @ApiOperation(value = "Create a Tokens", produces = "application/json")
-    @RequestMapping(value = "/token?type={type}", method = RequestMethod.POST, produces = "application/json")
+    @ApiOperation(value = "sends the asset belonging to this token as a byte stream",
+            notes = "Original filetype and size will be set to support direct download with a web browser")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "a byte stream") })
+    @RequestMapping(method = RequestMethod.GET)
+        return streamHelper.streamResult(fileStore, controller.resolve(id, TokenType.DOWNLOAD));
     public Token createToken(@RequestParam(value = "mediaId") @ApiParam(value = "Media Id to get a Token for",
             name = "mediaId", required = true) String mediaId, @RequestParam(value = "type") @ApiParam(name = "Type",
             value = "Mediatype to get a koten for") String type) {
         return controller.createToken(mediaId, type);
-    }
-
     @ApiOperation(value = "Get all Tokens", produces = "application/json")
-    @RequestMapping(value = "/tokens", method = RequestMethod.GET, produces = "application/json")
-    public Collection<Token> findAll() {
-        return controller.findAll();
     }
 
     @ApiOperation(value = "Download the Document with the given Id")
@@ -61,6 +58,4 @@ public class TokenResource {
     public HttpEntity<InputStreamResource> getDocument(@ApiParam(name = "id", value = "Id of the Document",
             required = true) @PathVariable String id) throws IOException {
         return streamHelper.streamResult(fileStore, controller.resolve(id, TokenType.DOWNLOAD));
-    }
-
 }

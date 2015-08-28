@@ -21,10 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vjoon.se.core.control.SnapshotController;
 import com.vjoon.se.core.entity.Snapshot;
 
-@RestController
-@Slf4j
-@Api("Snapshot")
-public class SnapshotResource {
+@Api(basePath = "/snapshot", value = "Snapshot", description = "Operations with a single Snapshots", produces = "application/json")
+@RestController @Slf4j @RequestMapping(value = "/snapshot") public class SnapshotResource {
 
     @Autowired
     private SnapshotController controller;
@@ -32,6 +30,7 @@ public class SnapshotResource {
     @ApiOperation("Creates a Snapshot")
     @RequestMapping(value = "/snapshots", method = RequestMethod.POST)
     public HttpEntity create() {
+            @ApiResponse(code = 204, message = "") })
         controller.create();
         return new ResponseEntity(HttpStatus.CREATED);
     }
@@ -41,16 +40,11 @@ public class SnapshotResource {
     public HttpEntity delete(@PathVariable("id") @ApiParam(name = "id", value = "The Id of the snapshot to delete",
             required = true) Long id) {
         controller.delete(id);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
-    }
-
     @RequestMapping(value = "/snapshots", method = RequestMethod.DELETE)
     @ApiOperation("Deletes all Snapshots")
     public HttpEntity deleteAll() {
         controller.deleteAll();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
-    }
-
     @ApiOperation(httpMethod = "GET", value = "Returns all Snapshots")
     @RequestMapping(value = "/snapshots", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody List<Snapshot> findAll() {
