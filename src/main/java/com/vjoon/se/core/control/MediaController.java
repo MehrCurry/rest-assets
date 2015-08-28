@@ -1,0 +1,86 @@
+package com.vjoon.se.core.control;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.event.AssetCreatedEvent;
+import com.vjoon.se.core.event.AssetDeletedEvent;
+import com.vjoon.se.core.repository.AssetRepository;
+import com.vjoon.se.core.services.FileStore;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Service
+@Transactional
+@Slf4j
+public class MediaController {
+    @Autowired
+    private AssetRepository repository;
+
+    @Autowired
+    private EventBus eventBus;
+
+    @Autowired
+    @Qualifier("production")
+    private FileStore fileStore;
+
+    public void handleUpload(MultipartFile multipart, String ref, String nameSpace, boolean overwrite) throws IOException {
+        checkNotNull(multipart);
+        checkNotNull(nameSpace);
+        checkNotNull(ref);
+
+        fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
+        String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
+        Asset media= Asset.builder()
+                .length(multipart.getSize())
+                .contentType(multipart.getContentType())
+                .nameSpace(nameSpace)
+                .originalFilename(multipart.getOriginalFilename())
+                .contentType(contentType)
+                .length(multipart.getSize())
+                .externalReference(ref)
+                .hash(fileStore.getHash(nameSpace,ref))
+                .existsInProduction(true)
+                .build();
+        repository.save(media);
+        eventBus.post(new AssetCreatedEvent(media));
+    }
+
+    public void delete(String id) {
+        Optional<Asset> found = repository.findByMediaId(id).stream().findFirst();
+        found.ifPresent(m -> {
+            deleteFromProduction(m);
+        });
+    }
+
+    private void deleteFromProduction(Asset m) {
+        m.setExistsInProduction(false);
+        repository.save(m);
+        m.delete(fileStore);
+    }
+
+    @Async
+    public void deleteAll() {
+        List<Asset> assets = repository.findAll();
+        assets.forEach(m -> {
+            deleteFromProduction(m);
+        });
+    }
+
+    @Subscribe
+    public void mediaDeleted(AssetDeletedEvent event) {
+        event.getMedia().delete(fileStore);
+    }
+}
