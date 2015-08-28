@@ -19,7 +19,7 @@ public class MyRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        getContext().setTracing(true);
+        getContext().setTracing(false);
         errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
