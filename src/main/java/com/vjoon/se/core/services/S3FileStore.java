@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.*;
 
 @Service("s3")
+@Profile("s3Mirror")
 @Slf4j
 public class S3FileStore implements FileStore {
     private static final String BUCKET_NAME="gzbundles";

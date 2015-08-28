@@ -6,6 +6,7 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,7 @@ public class FileStoreConfig {
     }
 
     @Bean(name = "mirror")
+    @Profile("localMirror")
     public FileStore mirrorFileStore() {
         return new LocalFileStore("mirror",producerTemplate);
     }
