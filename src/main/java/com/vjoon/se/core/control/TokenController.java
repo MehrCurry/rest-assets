@@ -1,6 +1,5 @@
 package com.vjoon.se.core.control;
 
-import com.hazelcast.core.IMap;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
@@ -14,9 +13,7 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 @Service public class TokenController {
 
