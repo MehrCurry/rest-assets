@@ -238,6 +238,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Swagger -->
+        <dependency>
+            <groupId>com.mangofactory</groupId>
+            <artifactId>swagger-springmvc</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
