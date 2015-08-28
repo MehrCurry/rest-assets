@@ -1,6 +1,7 @@
 package com.vjoon.se.core.control;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.vjoon.se.core.entity.Media;
 import com.vjoon.se.core.event.MediaCreatedEvent;
 import com.vjoon.se.core.event.MediaDeletedEvent;
@@ -16,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,54 +58,29 @@ public class MediaController {
         eventBus.post(new MediaCreatedEvent(media));
     }
 
-    @Async
-    public void deleteEmptyDirectories() throws IOException {
-        Path p= Paths.get("assets/production");
-        Files.walkFileTree(p, new SimpleFileVisitor<Path>() {
-
-            @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                if (isDirEmpty(dir))
-                    Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-
-        });
-    }
-
     public void delete(String id) {
         Optional<Media> found = repository.findByMediaId(id).stream().findFirst();
         found.ifPresent(m -> {
-            m.setExistsInProduction(false);
-            repository.save(m);
-            try {
-                fileStore.delete(m.getNameSpace(), m.getExternalReference());
-                deleteEmptyDirectories();
-            } catch (IOException e) {
-                log.warn("Problems on deleting {}", id, e);
-            }
-            eventBus.post(new MediaDeletedEvent(m));
-
+            deleteFromProduction(m);
         });
+    }
+
+    private void deleteFromProduction(Media m) {
+        m.setExistsInProduction(false);
+        repository.save(m);
+        m.delete(fileStore);
     }
 
     @Async
     public void deleteAll() {
         List<Media> assets = repository.findAll();
         assets.forEach(m -> {
-            m.setExistsInProduction(false);
-            repository.save(m);
-            fileStore.delete(m.getNameSpace(), m.getExternalReference());
+            deleteFromProduction(m);
         });
-        try {
-            deleteEmptyDirectories();
-        } catch (IOException e) {
-            log.warn("Delete Directories: ", e);
-        }
     }
 
-    private static boolean isDirEmpty(final Path directory) throws IOException {
-        try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
-        }
+    @Subscribe
+    public void mediaDeleted(MediaDeletedEvent event) {
+        event.getMedia().delete(fileStore);
     }
 }
