@@ -73,3 +73,15 @@ Datei heruntergeladen werden `http://localhost:9091/token/993824ur923ur9jd29dj92
 Dies sind die Snapshots gemäß der Spezifikation.  Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural
 nach gängigen REST Prinzipien.
 
+==== Bisher umgesetzte Anwendungsfälle
+
+[plantuml,Domain Classes]
+....
+:K4: <<system>> -- (Upload Asset)
+K4 -- (Download Asset)
+K4 -- (Snapshot anlegen)
+K4 -- (Snapshot löschen)
+K4 -- (Asset löschen)
+K4 -- (Alle Assets löschen)
+K4 -- (Token erzeugen)
+....

@@ -5,6 +5,7 @@ import com.vjoon.se.core.util.MD5Helper;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
+import org.apache.camel.impl.ThrottlingInflightRoutePolicy;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,10 +20,14 @@ public class MyRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
+        ThrottlingInflightRoutePolicy policy=new ThrottlingInflightRoutePolicy();
+        policy.setMaxInflightExchanges(2);
+
         getContext().setTracing(true);
         errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
 
         from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
+                .threads(5)
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
@@ -43,6 +48,8 @@ public class MyRouteBuilder extends RouteBuilder {
                 .to("file:assets/s3tmp?flatten=true").bean(verifier);
 
         from("file:assets/s3tmp?recursive=true&delete=true&readLock=changed").routeId("toS3")
+                .routePolicy(policy)
+                .threads(2)
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
@@ -50,7 +57,7 @@ public class MyRouteBuilder extends RouteBuilder {
 
         from("direct:failed").routeId("failed")
             .errorHandler(defaultErrorHandler())
-            .to("log:failed?showAll=true&multiline=true");
+                .to("log:failed?showAll=true&multiline=true");
             // .to("file:assets/failed?autoCreate=true");
 
         from("timer:dump?period=300000").routeId("dump")
