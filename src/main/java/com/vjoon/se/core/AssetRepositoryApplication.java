@@ -27,28 +27,12 @@ import static springfox.documentation.builders.PathSelectors.regex;
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
-@EnableSwagger2
 public class AssetRepositoryApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AssetRepositoryApplication.class, args);
     }
 
-    @Bean
-    public Docket createDocket() {
-        return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).select().paths(paths()).apis(
-                RequestHandlerSelectors.any()).build();
-    }
-
-    private Predicate<String> paths() {
-        return or(
-                regex("/asset.*"),
-                regex("/assets.*"),
-                regex("/snapshot.*"),
-                regex("/snapshots.*"),
-                regex("/token.*"),
-                regex("/tokens.*"));
-    }
     @Bean
     public EventBus eventBus() {
         Executor executor= Executors.newFixedThreadPool(30);
@@ -66,11 +50,5 @@ public class AssetRepositoryApplication {
         factory.setMaxFileSize("5120MB");
         factory.setMaxRequestSize("5120MB");
         return factory.createMultipartConfig();
-    }
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder().title("StorageEngine API").description("API to store and download assets")
-                .termsOfServiceUrl("Dead Link").contact("www.vjoon.com").license("Apache License Version 2.0")
-                .version("2.0").build();
     }
 }
