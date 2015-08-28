@@ -57,7 +57,7 @@ public class AssetRepositoryApplication {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("StorageEngine API").description("API to store and download assets")
-                .termsOfServiceUrl("Dead Link").contact("www.vjoon.com").license("Apache License Version 2.0")
-                .version("2.0").build();
+                .termsOfServiceUrl("Dead Link").contact("www.vjoon.com").license("All rights reserved")
+                .build();
     }
 }
