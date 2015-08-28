@@ -34,7 +34,7 @@ import java.io.IOException;
             notes = "Original filetype and size will be set to support direct download with a web browser")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "a byte stream") })
-    @RequestMapping(value = "/token/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public HttpEntity<InputStreamResource> getDocumentWithToken(
             @ApiParam(name = "id", value = "Id of the token",
             required = true)

@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-@Api(basePath = "/tokens", value = "Token", description = "Operations with Tokens", produces = "application/json")
-@RestController @Slf4j @RequestMapping(value = "/token") public class TokensResource {
+@Api(basePath = "/tokens", value = "Tokens", description = "Operations with tokens", produces = "application/json")
+@RestController @Slf4j @RequestMapping(value = "/tokens") public class TokensResource {
 
     @Autowired
     @Setter
@@ -32,11 +32,11 @@ import java.util.List;
     @Qualifier("production")
     private FileStore fileStore;
 
-    @ApiOperation(value = "creates a token for the given mediaID", notes = "mediaID will be checked", produces = "application/json")
+    @ApiOperation(value = "creates a token for the given mediaID", notes = "mediaID will be checked.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST)
     public Token createToken(@RequestParam(value = "mediaId") @ApiParam(value = "Media Id to get a Token for",
             name = "mediaId", required = true) String mediaId, @RequestParam(value = "type") @ApiParam(name = "Type",
-            value = "Mediatype to get a koten for") String type) {
+            value = "[download|upload]") String type) {
         return controller.createToken(mediaId, type);
     }
 

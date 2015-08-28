@@ -27,7 +27,7 @@ public class GarbageCollector {
     @Qualifier("production")
     private FileStore fileStore;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 60000)
     public void deleteOrphanedAssets() {
         List<Media> result = repository.findByNotExistsInProductionAndSnapshotsIsEmpty();
         result.forEach(m -> {

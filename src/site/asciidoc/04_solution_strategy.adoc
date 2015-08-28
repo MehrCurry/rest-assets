@@ -55,6 +55,8 @@ Asset "*" -- "*" Snapshot
 Token -- "1" Asset
 ....
 
+Details dazu auch in der http://localhost:9091/swagger-ui.html[Swagger API Dokumentation].
+
 ==== Assets
 
 Die sind die MetaDaten zu den Blobs. Unterstützt weden GET, POST und DELETE - jeweils Singular und Plural nach gängigen
