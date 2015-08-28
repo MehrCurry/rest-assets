@@ -23,6 +23,8 @@ import static com.google.common.base.Preconditions.*;
 @Service("s3")
 @Slf4j
 public class S3FileStore implements FileStore {
+
+    public static final String S3_QUEUE = "s3queue";
     private static final String BUCKET_NAME="gzbundles";
 
     @Autowired
@@ -53,8 +55,7 @@ public class S3FileStore implements FileStore {
     @Override
     public String createFileNameFromID(String nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
-        String mediaID= MediaIDGenerator.generateID(nameSpace, key);
-        return mediaID;
+        return MediaIDGenerator.generateID(nameSpace, key);
     }
 
     @Override
