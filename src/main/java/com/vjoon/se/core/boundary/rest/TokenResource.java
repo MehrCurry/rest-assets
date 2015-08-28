@@ -30,21 +30,15 @@ import java.io.IOException;
     @Qualifier("production")
     private FileStore fileStore;
 
-    @ApiOperation(value = "Get all Tokens", produces = "application/json")
-    @RequestMapping(method = RequestMethod.GET)
-    public Token createToken(@RequestParam(value = "mediaId") @ApiParam(value = "Media Id to get a Token for",
-            name = "mediaId", required = true) String mediaId, @RequestParam(value = "type") @ApiParam(name = "Type",
-            value = "Mediatype to get a koten for") String type) {
-        return controller.createToken(mediaId, type);
-    }
-
     @ApiOperation(value = "sends the asset belonging to this token as a byte stream",
             notes = "Original filetype and size will be set to support direct download with a web browser")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "a byte stream") })
     @RequestMapping(value = "/token/{id}", method = RequestMethod.GET)
-    public HttpEntity<InputStreamResource> getDocument(@ApiParam(name = "id", value = "Id of the Document",
-            required = true) @PathVariable String id) throws IOException {
+    public HttpEntity<InputStreamResource> getDocumentWithToken(
+            @ApiParam(name = "id", value = "Id of the token",
+            required = true)
+            @PathVariable String id) throws IOException {
         return streamHelper.streamResult(fileStore, controller.resolve(id, TokenType.DOWNLOAD));
     }
 }
