@@ -1,5 +1,6 @@
 package com.vjoon.se.core.camel;
 
+import com.vjoon.se.core.control.MediaController;
 import com.vjoon.se.core.services.MediaService;
 import com.vjoon.se.core.services.S3FileStore;
 import com.vjoon.se.core.util.MD5Helper;
@@ -18,6 +19,9 @@ public class MyRouteBuilder extends RouteBuilder {
 
     @Autowired
     private ChecksumVerifier verifier;
+
+    @Autowired
+    private MediaController mediaController;
 
     @Override
     public void configure() throws Exception {
@@ -47,6 +51,7 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
                 .threads(2).maxPoolSize(4).maxQueueSize(10000)
+                .filter().method(mediaController, "assetExists(${file:name})")
                 .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&multiPartUpload=true&storageClass=REDUCED_REDUNDANCY&region=eu-central-1");
 
         from("direct:failed").routeId("failed")
