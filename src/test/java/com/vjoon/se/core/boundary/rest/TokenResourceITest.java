@@ -1,19 +1,14 @@
 package com.vjoon.se.core.boundary.rest;
 
 import com.hazelcast.core.IMap;
-import com.jayway.restassured.RestAssured;
 import com.vjoon.se.core.AssetRepositoryApplication;
 import com.vjoon.se.core.categories.SlowTest;
-import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.pojo.Token;
-import com.vjoon.se.core.repository.AssetRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.ImportResource;
@@ -32,32 +27,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @Category(IntegrationTest.class)
 @ImportResource("classpath:applicationContext.xml")
-public class TokenResourceITest {
-    @Value("${local.server.port}")
-    private int port;
-
-    @Autowired
-    private AssetRepository assetRepository;
-    private Asset asset;
+public class TokenResourceITest extends AbstracAssetResourceITest {
 
     @Resource(name = "tokens")
     private IMap<String, Token> tokenMap;
 
     @Before
     public void setUp() {
-        RestAssured.port=port;
-        this.asset= Asset.builder()
-                .originalFilename("junit.test")
-                .contentType("text/plain")
-                .externalReference("12345678")
-                .nameSpace("test").build();
-        assetRepository.save(asset);
+        super.setUp();
         tokenMap.clear();
     }
 
     @After
-    public void teadDown() {
-        assetRepository.deleteAll();
+    public void tearDown() {
+        super.tearDown();;
         tokenMap.clear();
     }
 

@@ -19,6 +19,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,9 +62,8 @@ public class MediaController {
 
     public void delete(String id) {
         Optional<Asset> found = repository.findByMediaId(id).stream().findFirst();
-        found.ifPresent(m -> {
-            deleteFromProduction(m);
-        });
+        Asset m=found.orElseThrow(() -> new NoSuchElementException(id));
+        deleteFromProduction(m);
     }
 
     private void deleteFromProduction(Asset m) {
