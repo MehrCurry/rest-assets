@@ -3,9 +3,11 @@ package com.vjoon.se.core.boundary.rest;
 import com.hazelcast.core.IMap;
 import com.jayway.restassured.RestAssured;
 import com.vjoon.se.core.AssetRepositoryApplication;
+import com.vjoon.se.core.categories.SlowTest;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.repository.AssetRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,10 +52,17 @@ public class TokenResourceITest {
                 .externalReference("12345678")
                 .nameSpace("test").build();
         assetRepository.save(asset);
+        tokenMap.clear();
+    }
+
+    @After
+    public void teadDown() {
+        assetRepository.deleteAll();
+        tokenMap.clear();
     }
 
     @Test
-    public void testThereAreNoAssets() {
+    public void testCreateToken() {
         assertThat(tokenMap).hasSize(0);
         given().
                 queryParam("mediaId",asset.getMediaId()).
@@ -64,5 +73,46 @@ public class TokenResourceITest {
                 statusCode(200);
         assertThat(tokenMap).hasSize(1);
         assertThat(tokenMap.values().stream().findFirst().get().getPayload()).isEqualTo(asset);
+    }
+
+    @Test
+    @Category(SlowTest.class)
+    public void testCreateTokenWithTTL() throws InterruptedException {
+        assertThat(tokenMap).hasSize(0);
+        given().
+                queryParam("mediaId",asset.getMediaId()).
+                queryParam("type","download").
+                queryParam("ttl",5).
+                when().
+                post("/tokens").
+                then().
+                statusCode(200);
+        assertThat(tokenMap).hasSize(1);
+        Thread.sleep(6000);
+        assertThat(tokenMap).hasSize(0);
+    }
+
+    @Test
+    public void testCreateTokenWithInvalidMediaID() {
+        assertThat(tokenMap).hasSize(0);
+        given().
+                queryParam("mediaId","Not Existing").
+                queryParam("type","download").
+                when().
+                post("/tokens").
+                then().
+                statusCode(404);
+    }
+
+    @Test
+    public void testCreateTokenWithInvalidType() {
+        assertThat(tokenMap).hasSize(0);
+        given().
+                queryParam("mediaId",asset.getMediaId()).
+                queryParam("type","not valid").
+                when().
+                post("/tokens").
+                then().
+                statusCode(422);
     }
 }
