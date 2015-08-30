@@ -55,7 +55,6 @@ import static com.google.common.base.Preconditions.checkState;
         Snapshot snapshot=repository.findOne(id);
         checkState(snapshot != null);
         if (restoreSnapshot) {
-            create();
             assetController.deleteAll();
 
             snapshot.getIncluded().forEach(a -> {

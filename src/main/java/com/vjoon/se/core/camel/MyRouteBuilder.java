@@ -9,11 +9,13 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MyRouteBuilder extends RouteBuilder {
-
+    @Value("${server.port}")
+    private int port;
     @Autowired
     private MediaService mediaService;
 
@@ -34,7 +36,7 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
-                .to("http4://localhost:9091/assets");
+                .to("http4://localhost:" + port +"/assets");
 
         from("direct:production").routeId("production")
                 .to("file:assets?autoCreate=true");

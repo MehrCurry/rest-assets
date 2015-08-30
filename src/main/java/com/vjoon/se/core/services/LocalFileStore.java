@@ -1,6 +1,7 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.collect.ImmutableMap;
+import com.vjoon.se.core.util.MD5Helper;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -133,9 +134,9 @@ public class LocalFileStore implements FileStore {
 
     @Override
     public String getHash(String nameSpace, String key) {
-        checkState(exists(nameSpace,key));
-        try {
-            return DigestUtils.md5Hex(getStream(nameSpace,key));
+        checkState(exists(nameSpace, key));
+        try (InputStream stream = getStream(nameSpace, key)){
+            return DigestUtils.md5Hex(stream);
         } catch (IOException e) {
             throw new FileStoreException(e);
         }

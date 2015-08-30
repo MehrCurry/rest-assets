@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,20 +45,23 @@ public class AssetController {
         checkNotNull(ref);
 
         fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
-        String contentType = new Tika().detect(fileStore.getStream(nameSpace, ref));
-        Asset media= Asset.builder()
-                .length(multipart.getSize())
-                .contentType(multipart.getContentType())
-                .nameSpace(nameSpace)
-                .originalFilename(multipart.getOriginalFilename())
-                .contentType(contentType)
-                .length(multipart.getSize())
-                .externalReference(ref)
-                .hash(fileStore.getHash(nameSpace,ref))
-                .existsInProduction(true)
-                .build();
-        repository.save(media);
-        eventBus.post(new AssetCreatedEvent(media));
+        multipart.getInputStream().close();
+        try (InputStream stream = fileStore.getStream(nameSpace, ref)) {
+            String contentType = new Tika().detect(stream);
+            Asset media= Asset.builder()
+                    .length(multipart.getSize())
+                    .contentType(multipart.getContentType())
+                    .nameSpace(nameSpace)
+                    .originalFilename(multipart.getOriginalFilename())
+                    .contentType(contentType)
+                    .length(multipart.getSize())
+                    .externalReference(ref)
+                    .hash(fileStore.getHash(nameSpace,ref))
+                    .existsInProduction(true)
+                    .build();
+            repository.save(media);
+            eventBus.post(new AssetCreatedEvent(media));
+        }
     }
 
     public void delete(String id) {
