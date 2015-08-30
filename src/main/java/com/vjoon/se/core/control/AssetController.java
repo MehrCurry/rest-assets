@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Service
 @Transactional
 @Slf4j
-public class MediaController {
+public class AssetController {
     @Autowired
     private AssetRepository repository;
 

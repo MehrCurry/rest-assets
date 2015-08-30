@@ -1,6 +1,6 @@
 package com.vjoon.se.core.boundary.rest;
 
-import com.vjoon.se.core.control.MediaController;
+import com.vjoon.se.core.control.AssetController;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.repository.AssetRepository;
 import io.swagger.annotations.Api;
@@ -21,7 +21,7 @@ import java.util.List;
 @Api(basePath = "/assets", value = "Assets", description = "Operations with Assets", produces = "application/json")
 @RestController @Slf4j @RequestMapping(value = "/assets")public class AssetsResource {
 
-    @Autowired private MediaController controller;
+    @Autowired private AssetController controller;
 
     @Autowired private AssetRepository repository;
 
