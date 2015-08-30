@@ -79,7 +79,6 @@ public class AssetController {
             m.setDeletedAt(new Date());
             repository.save(m);
         }
-        m.delete(fileStore);
     }
 
     @Async

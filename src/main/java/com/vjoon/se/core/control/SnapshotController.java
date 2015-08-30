@@ -42,7 +42,13 @@ import static com.google.common.base.Preconditions.checkState;
     }
 
     public void deleteAll() {
-        repository.deleteAll();
+        repository.findAll().forEach(s -> {
+            s.getIncluded().forEach(a -> {
+                a.remove(s);
+                assetRepository.save(a);
+            });
+            repository.delete(s);
+        });
     }
 
     public void delete(Long id) {

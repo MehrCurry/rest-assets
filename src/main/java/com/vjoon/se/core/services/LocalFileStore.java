@@ -1,7 +1,6 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.collect.ImmutableMap;
-import com.vjoon.se.core.util.MD5Helper;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -22,7 +21,7 @@ import static com.google.common.base.Preconditions.*;
 
 @Slf4j
 public class LocalFileStore implements FileStore {
-    private static final String CAMLE_BASE="assets/";
+    private static final String CAMEL_BASE ="assets/";
 
     @Setter(AccessLevel.PACKAGE)
     private String basePath;
@@ -45,7 +44,7 @@ public class LocalFileStore implements FileStore {
         checkNotNull(stream != null);
         checkState(overwrite || !exists(nameSpace,key),"File already existing");
 
-        String filename=createFullNameFromID(nameSpace, key).replaceFirst(CAMLE_BASE, "");
+        String filename=createFullNameFromID(nameSpace, key).replaceFirst(CAMEL_BASE, "");
         Map<String,Object> headers= ImmutableMap.of(
                 "CamelFileName",filename,
                 "Checksum",checksum.orElse(""));
@@ -68,7 +67,7 @@ public class LocalFileStore implements FileStore {
     @Override
     public InputStream getStream(String nameSpace, String key) {
         try {
-            return new FileInputStream(CAMLE_BASE + createFullNameFromID(nameSpace,key));
+            return new FileInputStream(CAMEL_BASE + createFullNameFromID(nameSpace,key));
         } catch (FileNotFoundException e) {
             throw new FileStoreException(e);
         }
@@ -76,12 +75,12 @@ public class LocalFileStore implements FileStore {
 
     @Override
     public boolean exists(String nameSpace, String key) {
-        return Files.exists(Paths.get(CAMLE_BASE + createFullNameFromID(nameSpace,key)));
+        return Files.exists(Paths.get(CAMEL_BASE + createFullNameFromID(nameSpace,key)));
     }
 
     @Override
     public void delete(String nameSpace, String key) {
-        Path path = Paths.get(CAMLE_BASE + createFullNameFromID(nameSpace, key));
+        Path path = Paths.get(CAMEL_BASE + createFullNameFromID(nameSpace, key));
         try {
             Files.delete(path);
         } catch (IOException e) {
