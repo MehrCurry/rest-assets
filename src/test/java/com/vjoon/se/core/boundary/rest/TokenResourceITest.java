@@ -6,6 +6,7 @@ import com.vjoon.se.core.categories.SlowTest;
 import com.vjoon.se.core.pojo.Token;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -60,6 +61,7 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
 
     @Test
     @Category(SlowTest.class)
+    @Ignore
     public void testCreateTokenWithTTL() throws InterruptedException {
         assertThat(tokenMap).hasSize(0);
         given().
