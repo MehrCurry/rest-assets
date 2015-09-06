@@ -65,13 +65,13 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
         given().
                 queryParam("mediaId",asset.getMediaId()).
                 queryParam("type","download").
-                queryParam("ttl",5).
+                queryParam("ttl",3).
                 when().
                 post("/tokens").
                 then().
                 statusCode(200);
         assertThat(tokenMap).hasSize(1);
-        Thread.sleep(6000);
+        Thread.sleep(5000);
         assertThat(tokenMap).hasSize(0);
     }
 

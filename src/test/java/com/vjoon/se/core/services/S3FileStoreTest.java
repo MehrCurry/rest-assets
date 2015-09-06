@@ -68,10 +68,11 @@ public class S3FileStoreTest {
 
     @Test
     public void testS3Stream() throws IOException {
-        InputStream stream = fileStore.getStream("junit", "12345678");
-        assertThat(stream).isNotNull();
-        String readMessage= IOUtils.toString(stream, "UTF-8");
-        assertThat(readMessage).isEqualTo(MESSAGE);
+        try (InputStream stream = fileStore.getStream("junit", "12345678")) {
+            assertThat(stream).isNotNull();
+            String readMessage= IOUtils.toString(stream, "UTF-8");
+            assertThat(readMessage).isEqualTo(MESSAGE);
+        }
     }
 
     @Test

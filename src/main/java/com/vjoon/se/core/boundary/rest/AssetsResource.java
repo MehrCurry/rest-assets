@@ -44,7 +44,7 @@ import java.util.List;
             @ApiResponse(code = 200, message = "A list of all assets") })
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public List<Asset> findAll() {
-        return repository.findAll();
+        return controller.findAll();
     }
 
     @ApiOperation(value = "Removes all assets from the production area. Datebase Entries will be update.",

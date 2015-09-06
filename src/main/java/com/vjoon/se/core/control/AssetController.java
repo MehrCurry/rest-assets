@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,10 +77,10 @@ public class AssetController {
             m.setExistsInProduction(false);
             m.setDeletedAt(new Date());
             repository.save(m);
+            m.delete(fileStore);
         }
     }
 
-    @Async
     public void deleteAll() {
         List<Asset> assets = repository.findAll();
         assets.forEach(m -> {
@@ -96,5 +95,9 @@ public class AssetController {
 
     public boolean assetExists(String assetID) {
         return !repository.findByMediaId(assetID).isEmpty();
+    }
+
+    public List<Asset> findAll() {
+        return repository.findAll();
     }
 }

@@ -38,7 +38,7 @@ public class Asset extends AbstractEntity implements Serializable {
 
     private String hash;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Snapshot> snapshots;
 

@@ -97,10 +97,7 @@ public class LocalFileStore implements FileStore {
         while ((path=path.getParent())!=null) {
             if (Files.isDirectory(path) && directoryIsEmpty(path)) {
                 Files.deleteIfExists(path);
-            } else {
-                break;
             }
-
         }
     }
 
