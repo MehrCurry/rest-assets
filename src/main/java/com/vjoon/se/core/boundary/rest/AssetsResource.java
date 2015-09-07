@@ -28,7 +28,8 @@ import java.util.List;
     @ApiOperation(value = "Creates an Asset from an multipart file upload",
             notes = "The database entry will only be set to existsInProduction=false")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "") })
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 409, message = "Duplicate Key")})
     @RequestMapping(method = RequestMethod.POST) public @ResponseBody HttpEntity handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "key", required = true) String ref,

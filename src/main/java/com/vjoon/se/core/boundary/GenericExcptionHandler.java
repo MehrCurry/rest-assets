@@ -1,5 +1,6 @@
 package com.vjoon.se.core.boundary;
 
+import com.vjoon.se.core.services.DuplicateKeyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,6 +29,12 @@ import java.util.NoSuchElementException;
     @ResponseStatus(HttpStatus.BAD_REQUEST) @ExceptionHandler(IllegalStateException.class) @ResponseBody
     String handleIllegalState(Exception e) {
         log.warn("Exception mapped to http error 400", e);
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT) @ExceptionHandler(DuplicateKeyException.class) @ResponseBody
+    String handleDuplicateKey(Exception e) {
+        log.warn("Exception mapped to http error " + HttpStatus.CONFLICT, e);
         return e.getMessage();
     }
 }

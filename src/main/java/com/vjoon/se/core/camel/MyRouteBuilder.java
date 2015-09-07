@@ -36,7 +36,9 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
-                .to("http4://localhost:" + port +"/assets");
+                .to("http4://localhost:" + port +"/assets")
+                .to("log:failed?showAll=true&multiline=true");
+        ;
 
         from("direct:production").routeId("production")
                 .to("file:assets?autoCreate=true");
