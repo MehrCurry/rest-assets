@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class Asset extends AbstractEntity implements Serializable {
 
     private String hash;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Snapshot> snapshots;
 
@@ -73,7 +74,11 @@ public class Asset extends AbstractEntity implements Serializable {
     }
 
     public void copy(@NotNull FileStore from, @NotNull FileStore to) {
-        to.save(nameSpace, externalReference, getStream(from), Optional.of(hash), false);
+        try (InputStream stream = getStream(from)) {
+            to.save(nameSpace, externalReference, stream, Optional.of(hash), false);
+        } catch (IOException e) {
+            log.warn("Problem with stream",e );
+        }
     }
 
     public void delete(FileStore fileStore) {

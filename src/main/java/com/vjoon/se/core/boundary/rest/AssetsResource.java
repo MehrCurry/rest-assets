@@ -1,6 +1,6 @@
 package com.vjoon.se.core.boundary.rest;
 
-import com.vjoon.se.core.control.MediaController;
+import com.vjoon.se.core.control.AssetController;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.repository.AssetRepository;
 import io.swagger.annotations.Api;
@@ -21,14 +21,15 @@ import java.util.List;
 @Api(basePath = "/assets", value = "Assets", description = "Operations with Assets", produces = "application/json")
 @RestController @Slf4j @RequestMapping(value = "/assets")public class AssetsResource {
 
-    @Autowired private MediaController controller;
+    @Autowired private AssetController controller;
 
     @Autowired private AssetRepository repository;
 
     @ApiOperation(value = "Creates an Asset from an multipart file upload",
             notes = "The database entry will only be set to existsInProduction=false")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "") })
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 409, message = "Duplicate Key")})
     @RequestMapping(method = RequestMethod.POST) public @ResponseBody HttpEntity handleFileUpload(
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "key", required = true) String ref,
@@ -44,7 +45,7 @@ import java.util.List;
             @ApiResponse(code = 200, message = "A list of all assets") })
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     public List<Asset> findAll() {
-        return repository.findAll();
+        return controller.findAll();
     }
 
     @ApiOperation(value = "Removes all assets from the production area. Datebase Entries will be update.",

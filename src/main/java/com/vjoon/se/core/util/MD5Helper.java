@@ -33,7 +33,9 @@ import java.io.IOException;
     }
 
     public byte[] calculateS3Hash(File file) throws IOException {
-        return Base64.encode(DigestUtils.md5(new FileInputStream(file)));
+        try (FileInputStream stream = new FileInputStream(file)) {
+            return Base64.encode(DigestUtils.md5(stream));
+        }
     }
 
 }

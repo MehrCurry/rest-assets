@@ -2,7 +2,6 @@ package com.vjoon.se.core.boundary.rest;
 
 import com.vjoon.se.core.boundary.StreamHelper;
 import com.vjoon.se.core.control.TokenController;
-import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
 import com.vjoon.se.core.services.FileStore;
 import io.swagger.annotations.*;
@@ -12,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
