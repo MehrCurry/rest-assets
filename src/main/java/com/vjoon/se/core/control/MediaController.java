@@ -67,9 +67,14 @@ public class MediaController {
     }
 
     private void deleteFromProduction(Asset m) {
-        m.setExistsInProduction(false);
-        m.setDeletedAt(new Date());
-        repository.save(m);
+        if (m.getSnapshots().isEmpty()) {
+            repository.delete(m);
+            eventBus.post(new AssetDeletedEvent(m));
+        } else {
+            m.setExistsInProduction(false);
+            m.setDeletedAt(new Date());
+            repository.save(m);
+        }
         m.delete(fileStore);
     }
 
@@ -84,5 +89,9 @@ public class MediaController {
     @Subscribe
     public void mediaDeleted(AssetDeletedEvent event) {
         event.getMedia().delete(fileStore);
+    }
+
+    public boolean assetExists(String assetID) {
+        return !repository.findByMediaId(assetID).isEmpty();
     }
 }
