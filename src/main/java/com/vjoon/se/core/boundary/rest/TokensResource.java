@@ -41,7 +41,7 @@ import java.util.Optional;
             String mediaId,
 
             @RequestParam(value = "type")
-            @ApiParam(name = "Type", value = "[download|upload]")
+            @ApiParam(name = "type", value = "[download|upload]")
             String type,
 
             @RequestParam(value = "ttl", required = false)

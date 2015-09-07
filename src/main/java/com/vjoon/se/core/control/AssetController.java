@@ -49,11 +49,9 @@ public class AssetController {
             String contentType = new Tika().detect(stream);
             Asset media= Asset.builder()
                     .length(multipart.getSize())
-                    .contentType(multipart.getContentType())
                     .nameSpace(nameSpace)
                     .originalFilename(multipart.getOriginalFilename())
                     .contentType(contentType)
-                    .length(multipart.getSize())
                     .externalReference(ref)
                     .hash(fileStore.getHash(nameSpace,ref))
                     .existsInProduction(true)
