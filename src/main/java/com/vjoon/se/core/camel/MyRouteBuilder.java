@@ -54,8 +54,7 @@ public class MyRouteBuilder extends RouteBuilder {
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
                 .threads(2).maxPoolSize(4).maxQueueSize(10000)
                 .filter().method(assetController, "assetExists(${file:name})")
-                .to("mock:s3");
-                // .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&multiPartUpload=true&storageClass=REDUCED_REDUNDANCY&region=eu-central-1");
+                .to("aws-s3://gzbundles?accessKey=RAW(AKIAJYCTHK5TTAZOJX3A)&secretKey=RAW(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)&multiPartUpload=true&storageClass=REDUCED_REDUNDANCY&region=eu-central-1");
 
         from("direct:failed").routeId("failed")
             .errorHandler(defaultErrorHandler())
