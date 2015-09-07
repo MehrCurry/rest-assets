@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.ImportResource;
@@ -44,6 +45,7 @@ public class S3FileStoreTest {
     private ResourceLoader resourceLoader;
 
     @Autowired
+    @Qualifier("s3")
     private S3FileStore fileStore;
     private static final String ID = MediaIDGenerator.generateID("junit", "12345678");
 
@@ -68,10 +70,11 @@ public class S3FileStoreTest {
 
     @Test
     public void testS3Stream() throws IOException {
-        InputStream stream = fileStore.getStream("junit", "12345678");
-        assertThat(stream).isNotNull();
-        String readMessage= IOUtils.toString(stream, "UTF-8");
-        assertThat(readMessage).isEqualTo(MESSAGE);
+        try (InputStream stream = fileStore.getStream("junit", "12345678")) {
+            assertThat(stream).isNotNull();
+            String readMessage= IOUtils.toString(stream, "UTF-8");
+            assertThat(readMessage).isEqualTo(MESSAGE);
+        }
     }
 
     @Test

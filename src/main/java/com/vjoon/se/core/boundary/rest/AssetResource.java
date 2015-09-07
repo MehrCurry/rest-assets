@@ -1,6 +1,6 @@
 package com.vjoon.se.core.boundary.rest;
 
-import com.vjoon.se.core.control.MediaController;
+import com.vjoon.se.core.control.AssetController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 @Api(basePath = "/asset", value = "Asset", description = "Operations with a single Asset", produces = "application/json")
 @RestController @Slf4j @RequestMapping(value = "/asset") public class AssetResource {
 
-    @Autowired private MediaController controller;
+    @Autowired private AssetController controller;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Remove asset form production area",

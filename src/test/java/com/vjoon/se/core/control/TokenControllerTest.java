@@ -55,6 +55,14 @@ public class TokenControllerTest {
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
     }
 
+    @Test public void testExpiredTokenWithGivenTTL() throws Exception {
+        Token t = controller.createToken(media.getMediaId(), "DOWNLOAD",3);
+        Thread.sleep(2000);
+        assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
+        Thread.sleep(1500);
+        assertThat(controller.getTokenFor(t.getId()).isPresent()).isFalse();
+    }
+
     @Test public void testExpiredToken() throws Exception {
         Token t = controller.createToken(media.getMediaId(), "DOWNLOAD");
         Thread.sleep(TIME_TO_LIVE_SECONDS * 1500);

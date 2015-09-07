@@ -61,7 +61,7 @@ public class LocalFileStoreTest {
     @Test public void testDuplicateFile() throws Exception {
         fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
         assertThat(fileStore.exists(NAME_SPACE, FILE_KEY)).isTrue();
-        thrown.expect(IllegalStateException.class);
+        thrown.expect(DuplicateKeyException.class);
         fileStore.save(NAME_SPACE, FILE_KEY, Files.newInputStream(f), Optional.empty(), false);
     }
 

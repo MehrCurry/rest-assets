@@ -1,1 +1,2 @@
 excluded-categories=com.vjoon.se.core.categories.SlowTest
+.*ITest
