@@ -43,7 +43,7 @@ public class Asset extends AbstractEntity implements Serializable {
     private Set<Snapshot> snapshots;
 
     @NotNull private String nameSpace;
-    @NotNull @Size(min = 8) private String externalReference;
+    @NotNull @Size(min = 8) @Column(name = "reference") private String key;
     @NotNull private String originalFilename;
 
     @NotNull private String contentType;
@@ -56,12 +56,12 @@ public class Asset extends AbstractEntity implements Serializable {
 
     @JsonIgnore
     public InputStream getStream(FileStore fileStore) {
-        checkState(fileStore.exists(nameSpace, externalReference));
-        return fileStore.getStream(nameSpace, externalReference);
+        checkState(fileStore.exists(nameSpace, key));
+        return fileStore.getStream(nameSpace, key);
     }
 
     @PrePersist public void prePersist() {
-        this.mediaId = MediaIDGenerator.generateID(nameSpace, externalReference);
+        this.mediaId = MediaIDGenerator.generateID(nameSpace, key);
     }
 
     public void addSnapshot(Snapshot snapshot) {
@@ -75,13 +75,13 @@ public class Asset extends AbstractEntity implements Serializable {
 
     public void copy(@NotNull FileStore from, @NotNull FileStore to) {
         try (InputStream stream = getStream(from)) {
-            to.save(nameSpace, externalReference, stream, Optional.of(hash), false);
+            to.save(nameSpace, key, stream, Optional.of(hash), false);
         } catch (IOException e) {
             log.warn("Problem with stream",e );
         }
     }
 
     public void delete(FileStore fileStore) {
-        fileStore.delete(nameSpace,externalReference);
+        fileStore.delete(nameSpace, key);
     }
 }

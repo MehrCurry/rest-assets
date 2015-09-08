@@ -23,4 +23,6 @@ public interface FileStore {
     void deleteAll();
 
     String getHash(String nameSpace, String key);
+
+    long getSize(String namespace, String key);
 }

@@ -10,6 +10,7 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +67,7 @@ public class S3FileStore implements FileStore {
     @Override
     public InputStream getStream(String namespace, String key) {
         try {
-            return resourceLoader.getResource("s3://" + BUCKET_NAME + "/" + createFileNameFromID(namespace,key)).getInputStream();
+            return getResource(namespace, key).getInputStream();
         } catch (IOException e) {
             throw new FileStoreException(e);
         }
@@ -100,5 +101,17 @@ public class S3FileStore implements FileStore {
     public String getHash(String nameSpace, String key) {
         return getMetaData(nameSpace,key)
                 .orElseThrow(() -> new FileStoreException("Could not find s3 Object")).getETag();
+    }
+
+    @Override public long getSize(String namespace, String key) {
+        try {
+            return getResource(namespace, key).contentLength();
+        } catch (IOException e) {
+            throw new FileStoreException(e);
+        }
+    }
+
+    private Resource getResource(String namespace, String key) {
+        return resourceLoader.getResource("s3://" + BUCKET_NAME + "/" + createFileNameFromID(namespace,key));
     }
 }

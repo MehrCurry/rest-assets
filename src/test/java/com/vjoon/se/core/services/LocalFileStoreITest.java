@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,4 +75,16 @@ public class LocalFileStoreITest {
             assertThat(is).isNotNull();
         };
     }
+
+    @Test
+    public void testSize() throws IOException {
+        Path p=Files.createTempFile("junit",".txt");
+        Files.write(p, "bla".getBytes());
+        try (InputStream stream = Files.newInputStream(p)) {
+            fileStore.save("junit", "12345678", stream, Optional.empty(),false);
+        }
+        Files.delete(p);
+        assertThat(fileStore.getSize("junit", "12345678")).isEqualTo(3);
+    }
+
 }

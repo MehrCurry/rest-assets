@@ -52,7 +52,7 @@ public class AssetController {
                     .nameSpace(nameSpace)
                     .originalFilename(multipart.getOriginalFilename())
                     .contentType(contentType)
-                    .externalReference(ref)
+                    .key(ref)
                     .hash(fileStore.getHash(nameSpace,ref))
                     .existsInProduction(true)
                     .build();

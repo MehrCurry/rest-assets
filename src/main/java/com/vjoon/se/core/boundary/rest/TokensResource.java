@@ -33,22 +33,26 @@ import java.util.Optional;
     @Qualifier("production")
     private FileStore fileStore;
 
-    @ApiOperation(value = "creates a token for the given mediaID", notes = "mediaID will be checked.", produces = "application/json")
+    @ApiOperation(value = "creates a token for the given namespace and key", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST)
     public Token createToken(
-            @RequestParam(value = "mediaId")
-            @ApiParam(value = "Asset Id to get a Token for", name = "mediaId", required = true)
-            String mediaId,
+            @RequestParam(value = "namespace")
+            @ApiParam(value = "namespace", name = "namespace", required = true)
+            String namespace,
+
+            @RequestParam(value = "key")
+            @ApiParam(value = "key", name = "key", required = true)
+            String key,
 
             @RequestParam(value = "type")
-            @ApiParam(name = "type", value = "[download|upload]")
+            @ApiParam(name = "type", value = "[download|upload]", required = true)
             String type,
 
             @RequestParam(value = "ttl", required = false)
             @ApiParam(name = "ttl", value = "Time-To-Live for the created token in seconds")
             Long ttl)
     {
-        return controller.createToken(mediaId, type, Optional.ofNullable(ttl));
+        return controller.createToken(namespace,key , type, Optional.ofNullable(ttl));
     }
 
     @ApiOperation(value = "show all existing tokens", notes = "tokens will expire after a short time", produces = "application/json")

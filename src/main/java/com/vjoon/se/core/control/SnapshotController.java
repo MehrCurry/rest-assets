@@ -7,10 +7,12 @@ import com.vjoon.se.core.repository.SnapshotRepository;
 import com.vjoon.se.core.services.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -27,9 +29,13 @@ import static com.google.common.base.Preconditions.checkState;
     @Qualifier("production")
     private FileStore productionFileStore;
 
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("mirror")
     private FileStore mirrorFileStore;
+
+    @Autowired(required = false)
+    @Qualifier("s3")
+    private FileStore s3FileStore;
 
     public Snapshot create() {
         List<Asset> assets = assetRepository.findByExistsInProduction(true);
@@ -59,16 +65,29 @@ import static com.google.common.base.Preconditions.checkState;
 
     public Snapshot restore(Long id, boolean restoreSnapshot) {
         Snapshot snapshot=repository.findOne(id);
-        checkState(snapshot != null);
+        if (snapshot==null)
+            throw new NoSuchElementException();
         if (restoreSnapshot) {
-            assetController.deleteAllFromProduction();
-
-            snapshot.getIncluded().forEach(a -> {
-                a.copy(mirrorFileStore, productionFileStore);
-                a.setExistsInProduction(true);
-                assetRepository.save(a);
-            });
+            restoreFiles(snapshot);
         }
         return snapshot;
+    }
+
+    public void restoreFiles(Snapshot snapshot) {
+        assetController.deleteAllFromProduction();
+
+        snapshot.getIncluded()
+                .stream()
+                .sorted((a1, a2) -> Long.compare(a1.getLength(), a2.getLength()))
+                .forEach(a -> {
+                    a.copy(getMirrorFileStore(), productionFileStore);
+                    a.setExistsInProduction(true);
+                    assetRepository.save(a);
+                });
+    }
+
+    public FileStore getMirrorFileStore() {
+        checkState((mirrorFileStore!=null || s3FileStore!=null),"At least one filestore must be available");
+        return (mirrorFileStore != null) ? mirrorFileStore : s3FileStore;
     }
 }

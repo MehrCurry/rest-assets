@@ -24,7 +24,7 @@ public class AbstracAssetResourceITest {
         this.asset= Asset.builder()
                 .originalFilename("junit.test")
                 .contentType("text/plain")
-                .externalReference("12345678")
+                .key("12345678")
                 .nameSpace("test").build();
         assetRepository.save(asset);
     }

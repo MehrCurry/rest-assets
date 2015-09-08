@@ -7,8 +7,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,24 +31,21 @@ public class LocalFileStoreTest {
 
     private void deleteAll(Path path) throws IOException {
         Files.walkFileTree(path, new FileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+            @Override public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 return FileVisitResult.CONTINUE;
             }
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            @Override public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
                 return FileVisitResult.CONTINUE;
             }
 
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            @Override public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
                 Files.delete(dir);
                 return FileVisitResult.CONTINUE;
             }
