@@ -86,6 +86,13 @@ public class AssetController {
         });
     }
 
+    public void deleteAllFromProduction() {
+        List<Asset> assets = repository.findByExistsInProduction(true);
+        assets.forEach(m -> {
+            deleteFromProduction(m);
+        });
+    }
+
     @Subscribe
     public void mediaDeleted(AssetDeletedEvent event) {
         event.getMedia().delete(fileStore);

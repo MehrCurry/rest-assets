@@ -82,10 +82,6 @@ public class LocalFileStore implements FileStore {
         Path path = Paths.get(createFullNameFromID(nameSpace, key));
         try {
             Files.delete(path);
-        } catch (IOException e) {
-            log.warn("Problems while deleting file",e);
-        }
-        try {
             deleteEmptyParentDirectories(path.getParent());
         } catch (IOException e) {
             log.warn("Problems while deleting file",e);

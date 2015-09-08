@@ -61,7 +61,7 @@ import static com.google.common.base.Preconditions.checkState;
         Snapshot snapshot=repository.findOne(id);
         checkState(snapshot != null);
         if (restoreSnapshot) {
-            assetController.deleteAll();
+            assetController.deleteAllFromProduction();
 
             snapshot.getIncluded().forEach(a -> {
                 a.copy(mirrorFileStore, productionFileStore);
