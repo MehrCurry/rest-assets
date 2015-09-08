@@ -66,7 +66,7 @@ public class LocalFileStore implements FileStore {
     @Override
     public InputStream getStream(String nameSpace, String key) {
         try {
-            return new FileInputStream(root + File.separator + createFullNameFromID(nameSpace,key));
+            return new FileInputStream(createFullNameFromID(nameSpace,key));
         } catch (FileNotFoundException e) {
             throw new FileStoreException(e);
         }
@@ -74,12 +74,12 @@ public class LocalFileStore implements FileStore {
 
     @Override
     public boolean exists(String nameSpace, String key) {
-        return Files.exists(Paths.get(root + File.separator + createFullNameFromID(nameSpace,key)));
+        return Files.exists(Paths.get(createFullNameFromID(nameSpace,key)));
     }
 
     @Override
     public void delete(String nameSpace, String key) {
-        Path path = Paths.get(root + File.separator + createFullNameFromID(nameSpace, key));
+        Path path = Paths.get(createFullNameFromID(nameSpace, key));
         try {
             Files.delete(path);
         } catch (IOException e) {

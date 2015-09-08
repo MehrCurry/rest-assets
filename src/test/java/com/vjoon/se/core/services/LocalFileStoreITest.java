@@ -32,13 +32,12 @@ public class LocalFileStoreITest {
     private static final String FILE_KEY = "12345678";
 
     @Autowired
-    @Qualifier("production")
+    @Qualifier("test")
     private LocalFileStore fileStore;
     private static final String NAME_SPACE = "junit";
     private Path f;
 
     @Before public void setUp() throws Exception {
-        fileStore.setRoot("assets/test");
         f = Files.createTempFile("junit", ".txt");
         Files.write(f, "bla" .getBytes());
     }
