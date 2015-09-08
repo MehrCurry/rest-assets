@@ -16,6 +16,16 @@ import org.springframework.stereotype.Component;
 public class MyRouteBuilder extends RouteBuilder {
     @Value("${server.port}")
     private int port;
+
+    @Value("${upload.root}")
+    private String uploadRoot;
+
+    @Value("${production.root}")
+    private String productionRoot;
+
+    @Value("${mirror.root}")
+    private String mirrorRoot;
+
     @Autowired
     private MediaService mediaService;
 
@@ -30,21 +40,21 @@ public class MyRouteBuilder extends RouteBuilder {
         getContext().setTracing(false);
         errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
 
-        from("file:assets/upload?delete=true&readLock=changed").routeId("Upload File")
+        from("file:"+ uploadRoot + "?delete=true&readLock=changed").routeId("Upload File")
                 .threads(5).maxPoolSize(10)
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
-                .to("http4://localhost:" + port +"/assets")
+                .to("http4://localhost:" + port + "/assets")
                 .to("log:failed?showAll=true&multiline=true");
         ;
 
         from("direct:production").routeId("production")
-                .to("file:assets?autoCreate=true");
+                .to("file:"+ productionRoot + "?autoCreate=true");
 
         from("direct:mirror").routeId("mirror")
-                .to("file:assets?autoCreate=true")
+                .to("file:"+ mirrorRoot + "?autoCreate=true")
                 .bean(verifier);
 
         from("direct:" + S3FileStore.S3_QUEUE).routeId(S3FileStore.S3_QUEUE)
