@@ -26,6 +26,9 @@ public class MyRouteBuilder extends RouteBuilder {
     @Value("${mirror.root}")
     private String mirrorRoot;
 
+    @Value("${s3Upload.root}")
+    private String s3UploadRoot;
+
     @Autowired
     private MediaService mediaService;
 
@@ -58,9 +61,9 @@ public class MyRouteBuilder extends RouteBuilder {
                 .bean(verifier);
 
         from("direct:" + S3FileStore.S3_QUEUE).routeId(S3FileStore.S3_QUEUE)
-                .to("file:assets/" + S3FileStore.S3_QUEUE + "?flatten=true").bean(verifier);
+                .to("file:" + s3UploadRoot + "?flatten=true").bean(verifier);
 
-        from("file:assets/" + S3FileStore.S3_QUEUE + "?recursive=true&delete=true&readLock=changed").routeId("toS3")
+        from("file:" + s3UploadRoot + "?recursive=true&delete=true&readLock=changed").routeId("toS3")
                 .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
