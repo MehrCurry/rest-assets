@@ -140,4 +140,8 @@ public class LocalFileStore implements FileStore {
             throw new FileStoreException(e);
         }
     }
+    @Override
+    public long getSize(String nameSpace, String key) {
+        return new File(createFullNameFromID(nameSpace,key)).length();
+    }
 }

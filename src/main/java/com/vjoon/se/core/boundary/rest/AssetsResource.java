@@ -3,11 +3,13 @@ package com.vjoon.se.core.boundary.rest;
 import com.vjoon.se.core.control.AssetController;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.repository.AssetRepository;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Api(basePath = "/assets", value = "Assets", description = "Operations with Assets", produces = "application/json")
@@ -34,6 +37,19 @@ import java.util.List;
             @RequestParam(value = "namespace", required = true) String nameSpace) throws IOException {
 
         controller.handleUpload(file, ref, nameSpace, false);
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+    
+
+    @SuppressWarnings("rawtypes")
+    @ApiOperation(value = "Creates an Asset from simple file upload",
+            notes = "The database entry will only be set to existsInProduction=false")
+    @RequestMapping(value="/singleFileUpload", method=RequestMethod.POST)
+    public ResponseEntity handleSingeFileUpload(@RequestParam(value = "file", required = true) InputStream inputStream,
+            @RequestParam(value = "key", required = true) String ref, @RequestParam(value = "namespace",
+                    required = true) String nameSpace, @RequestParam(value = "name", required = true) String name)
+            throws IOException {
+        controller.handleUpload(inputStream, name, ref, nameSpace, false);
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
