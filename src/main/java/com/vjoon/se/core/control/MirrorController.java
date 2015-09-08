@@ -10,7 +10,6 @@ import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,7 +37,6 @@ public class MirrorController {
         event.getMedia().delete(mirrorFileStore);
     }
 
-    @Async
     private void mirror(Asset media) {
         media.copy(productionFileStore, mirrorFileStore);
     }
