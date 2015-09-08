@@ -1,14 +1,18 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.collect.ImmutableMap;
+
 import com.vjoon.se.core.util.MediaIDGenerator;
+
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.validation.constraints.NotNull;
+
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -142,6 +146,10 @@ public class LocalFileStore implements FileStore {
     }
     @Override
     public long getSize(String nameSpace, String key) {
-        return new File(createFullNameFromID(nameSpace,key)).length();
+        try {
+            return Files.size(Paths.get(createFullNameFromID(nameSpace,key)));
+        } catch (IOException e) {
+            throw new FileStoreException(e);
+        }
     }
 }
