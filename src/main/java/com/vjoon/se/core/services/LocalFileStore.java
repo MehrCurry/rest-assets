@@ -152,12 +152,4 @@ public class LocalFileStore implements FileStore {
             throw new FileStoreException(e);
         }
     }
-
-    @Override public long getSize(String nameSpace, String key) {
-        try {
-            return Files.size(Paths.get(createFullNameFromID(nameSpace,key)));
-        } catch (IOException e) {
-            throw new FileStoreException(e);
-        }
-    }
 }
