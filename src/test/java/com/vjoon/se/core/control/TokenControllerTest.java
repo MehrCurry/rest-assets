@@ -12,6 +12,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -40,9 +42,10 @@ public class TokenControllerTest {
         repository = mock(AssetRepository.class);
         controller.setRepository(repository);
 
-        media = Asset.builder().nameSpace("junit").externalReference("12345678").contentType("text/plain")
+        media = Asset.builder().nameSpace("junit").key("12345678").contentType("text/plain")
                 .originalFilename("junit.txt").build();
         when(repository.findByMediaId(anyString())).thenReturn(ImmutableList.of(media));
+        when(repository.findByNameSpaceAndKey(anyString(), anyString())).thenReturn(ImmutableList.of(media));
         controller.setTokenMap(instance.getMap(TEST_MAP));
     }
 
@@ -52,6 +55,12 @@ public class TokenControllerTest {
 
     @Test public void testToken() throws Exception {
         Token t = controller.createToken(media.getMediaId(), "DOWNLOAD");
+        assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
+    }
+
+    @Test public void testTokenByNamespaceAndKey() throws Exception {
+        Token t = controller.createToken(media.getNameSpace(), media.getKey(), "DOWNLOAD",
+                Optional.empty());
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
     }
 

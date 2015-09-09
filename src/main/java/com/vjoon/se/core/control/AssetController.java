@@ -2,15 +2,12 @@ package com.vjoon.se.core.control;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.event.AssetCreatedEvent;
 import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.services.FileStore;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,11 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -51,39 +45,20 @@ public class AssetController {
 
         fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
         multipart.getInputStream().close();
-            long size = multipart.getSize();
-            buildAndSaveAsset(multipart.getOriginalFilename(), ref, nameSpace, size);
-        
-    }
-    public void handleUpload(InputStream inputStream, String name, String ref, String nameSpace, boolean overwrite) throws IOException {
-        checkNotNull(inputStream);
-        checkNotNull(name);
-        checkNotNull(nameSpace);
-        checkNotNull(ref);
-        
-        fileStore.save(nameSpace, ref, inputStream, Optional.empty(), overwrite);
-        inputStream.close();
-
-        
-            long size = fileStore.getSize(nameSpace, ref);
-            buildAndSaveAsset(name, ref, nameSpace, size);
-        
-        
-    }
-    private void buildAndSaveAsset(String name, String ref, String nameSpace, long size) throws IOException {
         try (InputStream stream = fileStore.getStream(nameSpace, ref)) {
-        String contentType = new Tika().detect(stream);
-        Asset media= Asset.builder()
-                .length(size)
-                .nameSpace(nameSpace)
-                .originalFilename(name)
-                .contentType(contentType)
-                .externalReference(ref)
-                .hash(fileStore.getHash(nameSpace,ref))
-                .existsInProduction(true)
-                .build();
-        repository.save(media);;
-        eventBus.post(new AssetCreatedEvent(media));}
+            String contentType = new Tika().detect(stream);
+            Asset media= Asset.builder()
+                    .length(multipart.getSize())
+                    .nameSpace(nameSpace)
+                    .originalFilename(multipart.getOriginalFilename())
+                    .contentType(contentType)
+                    .key(ref)
+                    .hash(fileStore.getHash(nameSpace,ref))
+                    .existsInProduction(true)
+                    .build();
+            repository.save(media);
+            eventBus.post(new AssetCreatedEvent(media));
+        }
     }
 
     public void delete(String id) {
@@ -110,7 +85,7 @@ public class AssetController {
             deleteFromProduction(m);
         });
     }
-    
+
     public void deleteAllFromProduction() {
         List<Asset> assets = repository.findByExistsInProduction(true);
         assets.forEach(m -> {

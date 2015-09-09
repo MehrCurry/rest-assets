@@ -55,7 +55,7 @@ import java.util.List;
 
     @ApiOperation(value = "Returns all known assets",
             notes = "The database entry will only be set to existsInProduction=false")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "A list of all assets")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "A (possible empty) list of all assets")})
     @RequestMapping(method = RequestMethod.GET, produces = "application/json") public List<Asset> findAll() {
         return controller.findAll();
     }
@@ -64,7 +64,7 @@ import java.util.List;
             notes = "If the asset is not part of any snapshot, it will be completly delete by the garbage collector")
     @ApiResponses(value = {@ApiResponse(code = 204, message = "")}) @RequestMapping(method = RequestMethod.DELETE)
     public HttpEntity deleteAll() throws IOException {
-        controller.deleteAll();
+        controller.deleteAllFromProduction();
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

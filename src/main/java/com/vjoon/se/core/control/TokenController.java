@@ -36,18 +36,28 @@ import static com.google.common.base.Preconditions.*;
 
     public Token createToken(String payload, String type, long ttl) {
         checkArgument(ttl > 0);
-        return createToken(payload,type,Optional.of(ttl));
+        return createToken(payload, type, Optional.of(ttl));
     }
 
     public Token createToken(String payload, String type, Optional<Long> ttl) {
         checkArgument(TokenType.valueOf(type.toUpperCase()) != null);
 
-        List<Asset> mediaList = repository.findByMediaId(payload);
-        if (mediaList.isEmpty())
-            throw new NoSuchElementException("No media found:" + payload);
-        checkState(mediaList.size() == 1, "mediaId not unique:" + payload);
+        List<Asset> assets = repository.findByMediaId(payload);
+        Asset asset=getUniqueResultFromList(assets);
 
-        Token token = new Token(mediaList.get(0), TokenType.valueOf(type.toUpperCase()));
+        TokenType tokenType = TokenType.valueOf(type.toUpperCase());
+        return createToken(asset, tokenType, ttl);
+    }
+
+    private Asset getUniqueResultFromList(List<Asset> assets) {
+        if (assets.isEmpty())
+            throw new NoSuchElementException("No media found");
+        checkState(assets.size() == 1, "More than one result found");
+        return assets.get(0);
+    }
+
+    private Token createToken(Asset asset, TokenType tokenType, Optional<Long> ttl) {
+        Token token = new Token(asset, tokenType);
         if (ttl.isPresent()) {
             tokenMap.put(token.getId(), token,ttl.get(), TimeUnit.SECONDS);
         } else {
@@ -75,6 +85,16 @@ import static com.google.common.base.Preconditions.*;
     }
 
     public Optional<Token> getTokenFor(String id, TokenType type) {
-        return Optional.ofNullable(tokenMap.get(id)).filter(t -> t.getTokenType()==type);
+        return Optional.ofNullable(tokenMap.get(id)).filter(t -> t.getTokenType() == type);
+    }
+
+    public Token createToken(String namespace, String key, String type, Optional<Long> ttl) {
+        checkArgument(TokenType.valueOf(type.toUpperCase()) != null);
+
+        List<Asset> assets = repository.findByNameSpaceAndKey(namespace, key);
+        Asset asset=getUniqueResultFromList(assets);
+
+        TokenType tokenType = TokenType.valueOf(type.toUpperCase());
+        return createToken(asset, tokenType, ttl);
     }
 }
