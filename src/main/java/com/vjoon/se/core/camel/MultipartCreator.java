@@ -14,10 +14,14 @@ import java.io.File;
         final String key = (String) ex.getIn().getHeader("key");
         final String namespace = (String) ex.getIn().getHeader("namespace");
 
+        return getHttpEntity(file, key, namespace);
+    }
+
+    public HttpEntity getHttpEntity(File file, String key, String namespace) {
         String name = file.getName();
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addBinaryBody("file", file);
-        builder.addTextBody("name", name);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create()
+                .addBinaryBody("file", file)
+                .addTextBody("name", name);
         if (key != null)
             builder.addTextBody("key", key);
         if (namespace != null)
