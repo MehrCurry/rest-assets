@@ -2,6 +2,7 @@ package com.vjoon.se.core.boundary;
 
 import com.vjoon.se.core.services.DuplicateKeyException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +36,12 @@ import java.util.NoSuchElementException;
     @ResponseStatus(HttpStatus.CONFLICT) @ExceptionHandler(DuplicateKeyException.class) @ResponseBody
     String handleDuplicateKey(Exception e) {
         log.warn("Exception mapped to http error " + HttpStatus.CONFLICT, e);
+        return e.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST) @ExceptionHandler(NotYetImplementedException.class) @ResponseBody
+    String handleNotYetImplemented(Exception e) {
+        log.warn("Exception mapped to http error " + HttpStatus.BAD_REQUEST, e);
         return e.getMessage();
     }
 }

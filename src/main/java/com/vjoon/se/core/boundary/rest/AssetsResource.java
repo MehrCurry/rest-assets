@@ -26,8 +26,6 @@ import java.util.List;
 
     @Autowired private AssetController controller;
 
-    @Autowired private AssetRepository repository;
-
     @ApiOperation(value = "Creates an Asset from an multipart file upload",
             notes = "The database entry will only be set to existsInProduction=false")
     @ApiResponses(value = {@ApiResponse(code = 201, message = ""), @ApiResponse(code = 409, message = "Duplicate Key")})

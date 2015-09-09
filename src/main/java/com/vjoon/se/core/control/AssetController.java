@@ -9,6 +9,7 @@ import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.services.FileStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
+import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -104,5 +105,9 @@ public class AssetController {
 
     public List<Asset> findAll() {
         return repository.findAll();
+    }
+
+    public void handleUpload(InputStream inputStream, String name, String ref, String nameSpace, boolean b) {
+        throw new NotYetImplementedException();
     }
 }
