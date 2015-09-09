@@ -49,8 +49,9 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
     public void testCreateToken() {
         assertThat(tokenMap).hasSize(0);
         given().
-                queryParam("mediaId",asset.getMediaId()).
-                queryParam("type","download").
+                queryParam("namespace",asset.getNameSpace()).
+                queryParam("key",asset.getKey()).
+                queryParam("type", "download").
         when().
             post("/tokens").
                 then().
@@ -65,7 +66,8 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
     public void testCreateTokenWithTTL() throws InterruptedException {
         assertThat(tokenMap).hasSize(0);
         given().
-                queryParam("mediaId",asset.getMediaId()).
+                queryParam("namespace", asset.getNameSpace()).
+                queryParam("key",asset.getKey()).
                 queryParam("type","download").
                 queryParam("ttl",3).
                 when().
@@ -81,7 +83,8 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
     public void testCreateTokenWithInvalidMediaID() {
         assertThat(tokenMap).hasSize(0);
         given().
-                queryParam("mediaId","Not Existing").
+                queryParam("namespace", asset.getNameSpace()).
+                queryParam("key","not existing").
                 queryParam("type","download").
                 when().
                 post("/tokens").
@@ -93,7 +96,8 @@ public class TokenResourceITest extends AbstracAssetResourceITest {
     public void testCreateTokenWithInvalidType() {
         assertThat(tokenMap).hasSize(0);
         given().
-                queryParam("mediaId",asset.getMediaId()).
+                queryParam("namespace",asset.getNameSpace()).
+                queryParam("key",asset.getKey()).
                 queryParam("type","not valid").
                 when().
                 post("/tokens").
