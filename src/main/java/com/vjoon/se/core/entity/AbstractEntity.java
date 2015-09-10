@@ -12,4 +12,7 @@ import java.util.Date;
 
     @Temporal(TemporalType.TIMESTAMP) @Column(updatable = false) @Getter private Date createdAt = new Date();
 
+    @Version
+    private long version;
+
 }

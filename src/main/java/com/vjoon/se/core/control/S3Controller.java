@@ -5,6 +5,7 @@ import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.event.AssetCreatedEvent;
 import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.services.FileStore;
+import com.vjoon.se.core.togglz.FileStoreFeature;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,18 @@ public class S3Controller {
 
     @Subscribe
     public void mediaCreated(AssetCreatedEvent event) {
-        sendToS3(event.getMedia());
+        if (FileStoreFeature.S3_MIRROR.isActive())
+            sendToS3(event.getMedia());
     }
 
     @Subscribe
     public void mediaDeleted(AssetDeletedEvent event) {
-        event.getMedia().delete(s3FileStore);
+        if (FileStoreFeature.S3_MIRROR.isActive())
+            event.getMedia().delete(s3FileStore);
     }
 
     public void sendToS3(Asset media) {
-        media.copy(productionFileStore, s3FileStore);
+        if (FileStoreFeature.S3_MIRROR.isActive())
+            media.copy(productionFileStore, s3FileStore);
     }
 }

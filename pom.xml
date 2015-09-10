@@ -23,11 +23,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>com.vjoon.se.core.AssetRepositoryApplication</start-class>
         <java.version>1.8</java.version>
-        <camel.version>2.15.2</camel.version>
+        <camel.version>2.15.3</camel.version>
         <docker.image.prefix>gzockoll</docker.image.prefix>
-        <mongo.db.uri>mongodb://admin:123456@192.168.99.100:27017/admin</mongo.db.uri>
         <docker.imageName>rest-assets</docker.imageName>
         <hazelcast.version>3.5.1</hazelcast.version>
+        <togglz.version>2.2.0.Final</togglz.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -54,6 +54,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <!-- Other Spring -->
         <dependency>
@@ -162,6 +166,30 @@
             <artifactId>joda-time</artifactId>
             <version>2.8.2</version>
             <!-- Version must be >= 2.8.1, see https://github.com/aws/aws-sdk-java/issues/484 -->
+        </dependency>
+        <!-- Togglz core module (mandatory) -->
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-core</artifactId>
+            <version>${togglz.version}</version>
+        </dependency>
+        <!-- Togglz for Servlet environments (mandatory for webapps) -->
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-servlet</artifactId>
+            <version>${togglz.version}</version>
+        </dependency>
+        <!-- Spring integration (optional) -->
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-spring-web</artifactId>
+            <version>${togglz.version}</version>
+        </dependency>
+        <!-- Togglz Admin Console -->
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-console</artifactId>
+            <version>${togglz.version}</version>
         </dependency>
         <!-- Springfox Swagger -->
         <dependency>

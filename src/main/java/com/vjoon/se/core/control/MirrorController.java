@@ -5,6 +5,7 @@ import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.event.AssetCreatedEvent;
 import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.services.FileStore;
+import com.vjoon.se.core.togglz.FileStoreFeature;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,18 @@ public class MirrorController {
 
     @Subscribe
     public void mediaCreated(AssetCreatedEvent event) {
-        mirror(event.getMedia());
+        if (FileStoreFeature.LOCAL_MIRROR.isActive())
+            mirror(event.getMedia());
     }
 
     @Subscribe
     public void mediaDeleted(AssetDeletedEvent event) {
-        event.getMedia().delete(mirrorFileStore);
+        if (FileStoreFeature.LOCAL_MIRROR.isActive())
+            event.getMedia().delete(mirrorFileStore);
     }
 
     private void mirror(Asset media) {
-        media.copy(productionFileStore, mirrorFileStore);
+        if (FileStoreFeature.LOCAL_MIRROR.isActive())
+            media.copy(productionFileStore, mirrorFileStore);
     }
 }
