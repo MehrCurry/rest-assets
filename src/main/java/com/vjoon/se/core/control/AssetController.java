@@ -109,7 +109,7 @@ public class AssetController {
             final String contentType = new Tika().detect(stream);
             final Asset media =
                     Asset.builder().length(size).nameSpace(nameSpace).originalFilename(name).contentType(contentType)
-                            .externalReference(ref).hash(fileStore.getHash(nameSpace, ref)).existsInProduction(true)
+                            .key(ref).hash(fileStore.getHash(nameSpace, ref)).existsInProduction(true)
                             .build();
             repository.save(media);
             ;
