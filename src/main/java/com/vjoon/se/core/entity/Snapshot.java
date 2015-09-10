@@ -9,10 +9,14 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity @Data @EqualsAndHashCode(callSuper = false) @Slf4j public class Snapshot extends AbstractEntity {
+    @Pattern(message="namespace is not alphanumeric" , regexp="^[a-zA-Z0-9]+$")
+    @Size(min=3)
     private String namespace;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)

@@ -10,6 +10,7 @@ import org.apache.tika.Tika;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,8 @@ public class Asset extends AbstractEntity implements Serializable {
     @JsonBackReference
     private Set<Snapshot> snapshots;
 
+    @Pattern(message="namespace is not alphanumeric" , regexp="^[a-zA-Z0-9]+$")
+    @Size(min=3)
     @NotNull private String nameSpace;
     @NotNull @Size(min = 8) @Column(name = "reference") private String key;
     @NotNull private String originalFilename;

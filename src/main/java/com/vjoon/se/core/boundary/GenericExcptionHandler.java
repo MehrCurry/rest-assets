@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolationException;
 import java.io.FileNotFoundException;
 import java.util.NoSuchElementException;
 
@@ -26,7 +27,9 @@ import java.util.NoSuchElementException;
         return e.getMessage();
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST) @ExceptionHandler(IllegalStateException.class) @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({IllegalStateException.class, ConstraintViolationException.class})
+    @ResponseBody
     String handleIllegalState(Exception e) {
         log.warn("Exception mapped to http error 400", e);
         return e.getMessage();
