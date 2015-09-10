@@ -1,18 +1,15 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.collect.ImmutableMap;
-
 import com.vjoon.se.core.util.MediaIDGenerator;
-
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.validation.constraints.NotNull;
-
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -48,9 +45,7 @@ public class LocalFileStore implements FileStore {
             throw new DuplicateKeyException(String.format("File already existing: %s/%s",nameSpace,key));
         }
         String filename=createFullNameFromID(nameSpace, key).replaceFirst(root, "");
-        Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName", filename,
-                "Checksum", checksum.orElse(""));
+        Map<String,Object> headers= ImmutableMap.of("CamelFileName", filename, "Checksum", checksum.orElse(""));
 
         template.sendBodyAndHeaders(stream,headers);
     }
@@ -93,7 +88,7 @@ public class LocalFileStore implements FileStore {
     }
 
     void deleteEmptyParentDirectories(Path dir) throws IOException {
-        checkArgument(Files.isDirectory(dir),"Path must be a directory");
+        checkArgument(Files.isDirectory(dir), "Path must be a directory");
         if (Files.isDirectory(dir) && directoryIsEmpty(dir)) {
             removeDirectoryIfEmpty(dir);
             deleteEmptyParentDirectories(dir.getParent());
@@ -151,5 +146,18 @@ public class LocalFileStore implements FileStore {
         } catch (IOException e) {
             throw new FileStoreException(e);
         }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void cleanUp() throws IOException {
+        Path dir=Paths.get(root);
+        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                removeDirectoryIfEmpty(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
     }
 }

@@ -1,10 +1,6 @@
 package com.vjoon.se.core.camel;
 
-import com.vjoon.se.core.control.AssetController;
-import com.vjoon.se.core.services.MediaService;
-import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;

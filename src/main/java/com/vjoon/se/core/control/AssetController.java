@@ -44,8 +44,9 @@ public class AssetController {
         checkNotNull(nameSpace);
         checkNotNull(ref);
 
-        fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
-        multipart.getInputStream().close();
+        try (InputStream multipartInputStream = multipart.getInputStream()) {
+            fileStore.save(nameSpace, ref, multipartInputStream, Optional.empty(), overwrite);
+        }
         try (InputStream stream = fileStore.getStream(nameSpace, ref)) {
             String contentType = new Tika().detect(stream);
             Asset media= Asset.builder()
@@ -59,6 +60,9 @@ public class AssetController {
                     .build();
             repository.save(media);
             eventBus.post(new AssetCreatedEvent(media));
+        } catch (Exception e) {
+            fileStore.delete(nameSpace,ref);
+            throw e;
         }
     }
 
@@ -87,8 +91,8 @@ public class AssetController {
         });
     }
 
-    public void deleteAllFromProduction() {
-        List<Asset> assets = repository.findByExistsInProduction(true);
+    public void deleteAllFromProduction(String namespace) {
+        List<Asset> assets = repository.findByNameSpaceAndExistsInProduction(namespace, true);
         assets.forEach(m -> {
             deleteFromProduction(m);
         });

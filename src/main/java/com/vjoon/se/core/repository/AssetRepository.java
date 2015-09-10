@@ -1,11 +1,10 @@
 package com.vjoon.se.core.repository;
 
-import java.util.List;
-
+import com.vjoon.se.core.entity.Asset;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.vjoon.se.core.entity.Asset;
+import java.util.List;
 
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
@@ -17,4 +16,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     List<Asset> findByNotExistsInProductionAndSnapshotsIsEmpty();
 
     List<Asset> findByNameSpaceAndKey(String namespace, String key);
+
+    List<Asset> findByNameSpaceAndExistsInProduction(String namespace, boolean b);
 }
