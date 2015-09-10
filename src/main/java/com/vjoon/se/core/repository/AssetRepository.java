@@ -16,4 +16,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     List<Asset> findByNotExistsInProductionAndSnapshotsIsEmpty();
 
     List<Asset> findByNameSpaceAndKey(String namespace, String key);
+
+    List<Asset> findByNameSpaceAndExistsInProduction(String namespace, boolean b);
 }

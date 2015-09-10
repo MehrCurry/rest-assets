@@ -3,10 +3,7 @@ package com.vjoon.se.core.boundary.rest;
 import com.vjoon.se.core.control.AssetController;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.repository.AssetRepository;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -47,8 +44,12 @@ import java.util.List;
     @ApiOperation(value = "Removes all assets from the production area. Datebase Entries will be update.",
             notes = "If the asset is not part of any snapshot, it will be completly delete by the garbage collector")
     @ApiResponses(value = {@ApiResponse(code = 204, message = "")}) @RequestMapping(method = RequestMethod.DELETE)
-    public HttpEntity deleteAll() throws IOException {
-        controller.deleteAllFromProduction();
+    public HttpEntity deleteAll(
+            @RequestParam(value = "namespace")
+            @ApiParam(value = "namespace", name = "namespace", required = true)
+            String namespace
+    ) throws IOException {
+        controller.deleteAllFromProduction(namespace);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

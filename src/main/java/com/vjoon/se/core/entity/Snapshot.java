@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity @Data @EqualsAndHashCode(callSuper = false) @Slf4j public class Snapshot extends AbstractEntity {
+    private String namespace;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JsonManagedReference
@@ -21,7 +22,8 @@ import java.util.List;
     public Snapshot() {
     }
 
-    public Snapshot(List<Asset> included) {
+    public Snapshot(String namespace,List<Asset> included) {
+        this.namespace=namespace;
         this.included = included;
         included.forEach(m -> m.addSnapshot(this));
     }

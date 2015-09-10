@@ -86,8 +86,8 @@ public class AssetController {
         });
     }
 
-    public void deleteAllFromProduction() {
-        List<Asset> assets = repository.findByExistsInProduction(true);
+    public void deleteAllFromProduction(String namespace) {
+        List<Asset> assets = repository.findByNameSpaceAndExistsInProduction(namespace,true);
         assets.forEach(m -> {
             deleteFromProduction(m);
         });

@@ -7,7 +7,6 @@ import com.vjoon.se.core.repository.SnapshotRepository;
 import com.vjoon.se.core.services.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,18 +36,18 @@ import static com.google.common.base.Preconditions.checkState;
     @Qualifier("s3")
     private FileStore s3FileStore;
 
-    public Snapshot create() {
-        List<Asset> assets = assetRepository.findByExistsInProduction(true);
-        Snapshot snapshot = new Snapshot(assets);
+    public Snapshot create(String namespace) {
+        List<Asset> assets = assetRepository.findByNameSpaceAndExistsInProduction(namespace, true);
+        Snapshot snapshot = new Snapshot(namespace,assets);
         return repository.save(snapshot);
     }
 
-    public List<Snapshot> findAll() {
-        return repository.findAll();
+    public List<Snapshot> findAll(String namespace) {
+        return repository.findByNamespace(namespace);
     }
 
-    public void deleteAll() {
-        repository.findAll().forEach(s -> {
+    public void deleteAll(String namespace) {
+        repository.findByNamespace(namespace).forEach(s -> {
             s.getIncluded().forEach(a -> {
                 a.remove(s);
                 assetRepository.save(a);
@@ -74,7 +73,7 @@ import static com.google.common.base.Preconditions.checkState;
     }
 
     public void restoreFiles(Snapshot snapshot) {
-        assetController.deleteAllFromProduction();
+        assetController.deleteAllFromProduction(snapshot.getNamespace());
 
         snapshot.getIncluded()
                 .stream()
@@ -87,7 +86,7 @@ import static com.google.common.base.Preconditions.checkState;
     }
 
     public FileStore getMirrorFileStore() {
-        checkState((mirrorFileStore!=null || s3FileStore!=null),"At least one filestore must be available");
+        checkState((mirrorFileStore != null || s3FileStore != null), "At least one filestore must be available");
         return (mirrorFileStore != null) ? mirrorFileStore : s3FileStore;
     }
 }
