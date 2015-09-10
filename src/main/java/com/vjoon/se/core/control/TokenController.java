@@ -31,19 +31,10 @@ import static com.google.common.base.Preconditions.*;
     @Setter(AccessLevel.PACKAGE)
     private AssetRepository repository;
 
-    public Token createToken(NameSpace nameSpace, String payload, String type, Optional<Long> empty) {
-        return createToken(payload,type,Optional.empty());
-    }
-
-    public Token createToken(String payload, String type, long ttl) {
-        checkArgument(ttl > 0);
-        return createToken(payload, type, Optional.of(ttl));
-    }
-
-    public Token createToken(String payload, String type, Optional<Long> ttl) {
+    public Token createToken(NameSpace nameSpace, String key, String type, Optional<Long> ttl) {
         checkArgument(TokenType.valueOf(type.toUpperCase()) != null);
 
-        List<Asset> assets = repository.findByMediaId(payload);
+        List<Asset> assets = repository.findByNameSpaceAndKey(nameSpace,key);
         Asset asset=getUniqueResultFromList(assets);
 
         TokenType tokenType = TokenType.valueOf(type.toUpperCase());

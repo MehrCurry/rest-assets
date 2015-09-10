@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
  * Created by guido on 29.08.15.
  */
 public class AbstracAssetResourceITest {
+    public static final NameSpace TEST_NAMESPACE = new NameSpace("test");
+    public static final String TEST_KEY = "12345678";
     protected Asset asset;
     @Value("${local.server.port}")
     private int port;
@@ -25,8 +27,8 @@ public class AbstracAssetResourceITest {
         this.asset= Asset.builder()
                 .originalFilename("junit.test")
                 .contentType("text/plain")
-                .key("12345678")
-                .nameSpace(new NameSpace("test")).build();
+                .key(TEST_KEY)
+                .nameSpace(TEST_NAMESPACE).build();
         assetRepository.save(asset);
     }
 

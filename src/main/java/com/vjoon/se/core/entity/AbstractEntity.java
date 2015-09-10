@@ -12,4 +12,9 @@ import java.util.Date;
 
     @Temporal(TemporalType.TIMESTAMP) @Column(updatable = false) @Getter private Date createdAt = new Date();
 
+    @Override
+    @Transient
+    public boolean isValid() {
+        return super.isValid();
+    }
 }

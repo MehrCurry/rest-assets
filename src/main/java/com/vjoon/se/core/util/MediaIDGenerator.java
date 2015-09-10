@@ -9,6 +9,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class MediaIDGenerator {
 
     public static String generateID(NameSpace nameSpace, String key) {
-        return DigestUtils.sha256Hex(nameSpace + "#" + key);
+        return DigestUtils.sha256Hex((nameSpace != null ? nameSpace.asString() : "") + "#" + key);
     }
 }

@@ -15,7 +15,7 @@ public abstract class ValidateableObject {
         return VALIDATOR.validate(this);
     }
 
-    @Transient @org.springframework.data.annotation.Transient public boolean isValid() {
+    public boolean isValid() {
         return validationErrors().size() == 0;
     }
 
