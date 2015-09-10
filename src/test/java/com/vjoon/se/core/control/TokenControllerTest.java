@@ -5,6 +5,7 @@ import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
 import com.vjoon.se.core.repository.AssetRepository;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,10 +44,10 @@ public class TokenControllerTest {
         repository = mock(AssetRepository.class);
         controller.setRepository(repository);
 
-        media = Asset.builder().nameSpace("junit").key("12345678").contentType("text/plain")
+        media = Asset.builder().nameSpace(new NameSpace("junit")).key("12345678").contentType("text/plain")
                 .originalFilename("junit.txt").build();
         when(repository.findByMediaId(anyString())).thenReturn(ImmutableList.of(media));
-        when(repository.findByNameSpaceAndKey(anyString(), anyString())).thenReturn(ImmutableList.of(media));
+        when(repository.findByNameSpaceAndKey(anyObject(), anyString())).thenReturn(ImmutableList.of(media));
         controller.setTokenMap(instance.getMap(TEST_MAP));
     }
 
@@ -54,7 +56,7 @@ public class TokenControllerTest {
     }
 
     @Test public void testToken() throws Exception {
-        Token t = controller.createToken(media.getMediaId(), "DOWNLOAD");
+        Token t = controller.createToken(media.getNameSpace(), media.getMediaId(), "DOWNLOAD", Optional.empty());
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isTrue();
     }
 
@@ -73,13 +75,13 @@ public class TokenControllerTest {
     }
 
     @Test public void testExpiredToken() throws Exception {
-        Token t = controller.createToken(media.getMediaId(), "DOWNLOAD");
+        Token t = controller.createToken(media.getNameSpace(), media.getMediaId(), "DOWNLOAD", Optional.empty());
         Thread.sleep(TIME_TO_LIVE_SECONDS * 1500);
         assertThat(controller.getTokenFor(t.getId()).isPresent()).isFalse();
     }
 
     @Test public void testTokenType() {
-        Token t = controller.createToken(media.getMediaId(), "DOWNLOAD");
+        Token t = controller.createToken(media.getNameSpace(), media.getMediaId(), "DOWNLOAD", Optional.empty());
         assertThat(controller.getTokenFor(t.getId(), TokenType.DOWNLOAD).isPresent()).isTrue();
         assertThat(controller.getTokenFor(t.getId(), TokenType.UPLOAD).isPresent()).isFalse();
     }

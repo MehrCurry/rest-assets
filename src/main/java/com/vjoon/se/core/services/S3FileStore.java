@@ -4,6 +4,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.google.common.collect.ImmutableMap;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.EndpointInject;
@@ -39,7 +40,7 @@ public class S3FileStore implements FileStore {
 
 
     @Override
-    public void save(String nameSpace, String key, InputStream stream, Optional<String> checksum, boolean overwrite) {
+    public void save(NameSpace nameSpace, String key, InputStream stream, Optional<String> checksum, boolean overwrite) {
         checkNotNull(nameSpace);
         checkNotNull(key != null);
         checkNotNull(stream != null);
@@ -53,18 +54,18 @@ public class S3FileStore implements FileStore {
     }
 
     @Override
-    public String createFileNameFromID(String nameSpace, String key) {
+    public String createFileNameFromID(NameSpace nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
         return MediaIDGenerator.generateID(nameSpace, key);
     }
 
     @Override
-    public String createFullNameFromID(String nameSpace, String key) {
+    public String createFullNameFromID(NameSpace nameSpace, String key) {
         return createFileNameFromID(nameSpace,key);
     }
 
     @Override
-    public InputStream getStream(String namespace, String key) {
+    public InputStream getStream(NameSpace namespace, String key) {
         try {
             return getResource(namespace, key).getInputStream();
         } catch (IOException e) {
@@ -73,11 +74,11 @@ public class S3FileStore implements FileStore {
     }
 
     @Override
-    public boolean exists(String nameSpace, String key) {
+    public boolean exists(NameSpace nameSpace, String key) {
         return getMetaData(nameSpace,key).isPresent();
     }
 
-    private Optional<ObjectMetadata> getMetaData(String nameSpace, String key) {
+    private Optional<ObjectMetadata> getMetaData(NameSpace nameSpace, String key) {
         try {
             return Optional.of(amazonS3.getObjectMetadata(BUCKET_NAME,createFileNameFromID(nameSpace,key)));
         } catch (AmazonClientException e) {
@@ -87,7 +88,7 @@ public class S3FileStore implements FileStore {
     }
 
     @Override
-    public void delete(String nameSpace, String key) {
+    public void delete(NameSpace nameSpace, String key) {
         amazonS3.deleteObject(BUCKET_NAME,createFileNameFromID(nameSpace,key));
     }
 
@@ -97,12 +98,12 @@ public class S3FileStore implements FileStore {
     }
 
     @Override
-    public String getHash(String nameSpace, String key) {
+    public String getHash(NameSpace nameSpace, String key) {
         return getMetaData(nameSpace,key)
                 .orElseThrow(() -> new FileStoreException("Could not find s3 Object")).getETag();
     }
 
-    @Override public long getSize(String namespace, String key) {
+    @Override public long getSize(NameSpace namespace, String key) {
         try {
             return getResource(namespace, key).contentLength();
         } catch (IOException e) {
@@ -110,7 +111,7 @@ public class S3FileStore implements FileStore {
         }
     }
 
-    private Resource getResource(String namespace, String key) {
+    private Resource getResource(NameSpace namespace, String key) {
         return resourceLoader.getResource("s3://" + BUCKET_NAME + "/" + createFileNameFromID(namespace,key));
     }
 }

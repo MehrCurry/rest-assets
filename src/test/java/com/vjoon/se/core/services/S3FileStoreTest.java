@@ -2,6 +2,7 @@ package com.vjoon.se.core.services;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.vjoon.se.core.AssetRepositoryApplication;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -37,6 +38,7 @@ public class S3FileStoreTest {
 
     private static final String BUCKET_NAME="gzbundles";
     public static final String MESSAGE = "test";
+    public static final NameSpace JUNIT_NAMESPACE = new NameSpace("junit");
 
     @Autowired
     private AmazonS3 amazonS3;
@@ -47,7 +49,7 @@ public class S3FileStoreTest {
     @Autowired
     @Qualifier("s3")
     private S3FileStore fileStore;
-    private static final String ID = MediaIDGenerator.generateID("junit", "12345678");
+    private static final String ID = MediaIDGenerator.generateID(JUNIT_NAMESPACE, "12345678");
 
     public void writeResource() throws IOException {
         Resource resource = this.resourceLoader.getResource("s3://" + BUCKET_NAME + "/" + ID);
@@ -70,7 +72,7 @@ public class S3FileStoreTest {
 
     @Test
     public void testS3Stream() throws IOException {
-        try (InputStream stream = fileStore.getStream("junit", "12345678")) {
+        try (InputStream stream = fileStore.getStream(JUNIT_NAMESPACE, "12345678")) {
             assertThat(stream).isNotNull();
             String readMessage= IOUtils.toString(stream, "UTF-8");
             assertThat(readMessage).isEqualTo(MESSAGE);
@@ -79,17 +81,17 @@ public class S3FileStoreTest {
 
     @Test
     public void testExists() {
-        assertThat(fileStore.exists("junit", "12345678")).isTrue();
+        assertThat(fileStore.exists(JUNIT_NAMESPACE, "12345678")).isTrue();
     }
 
     @Test
     public void testNotExists() {
-        assertThat(fileStore.exists("junit", "xxx12345678")).isFalse();
+        assertThat(fileStore.exists(JUNIT_NAMESPACE, "xxx12345678")).isFalse();
     }
 
     @Test
     public void testHash() {
-        String hash=fileStore.getHash("junit", "12345678");
+        String hash=fileStore.getHash(JUNIT_NAMESPACE, "12345678");
         assertThat(hash).isEqualTo("098f6bcd4621d373cade4e832627b4f6");
     }
 }

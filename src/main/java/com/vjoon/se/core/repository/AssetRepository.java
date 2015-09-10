@@ -1,6 +1,7 @@
 package com.vjoon.se.core.repository;
 
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,7 +16,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     @Query("select a from Asset a where a.existsInProduction = false and a.snapshots is empty")
     List<Asset> findByNotExistsInProductionAndSnapshotsIsEmpty();
 
-    List<Asset> findByNameSpaceAndKey(String namespace, String key);
+    List<Asset> findByNameSpaceAndKey(NameSpace namespace, String key);
 
-    List<Asset> findByNameSpaceAndExistsInProduction(String namespace, boolean b);
+    List<Asset> findByNameSpaceAndExistsInProduction(NameSpace namespace, boolean b);
 }

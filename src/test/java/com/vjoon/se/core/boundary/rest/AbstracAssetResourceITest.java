@@ -2,6 +2,7 @@ package com.vjoon.se.core.boundary.rest;
 
 import com.jayway.restassured.RestAssured;
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.repository.AssetRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +26,7 @@ public class AbstracAssetResourceITest {
                 .originalFilename("junit.test")
                 .contentType("text/plain")
                 .key("12345678")
-                .nameSpace("test").build();
+                .nameSpace(new NameSpace("test")).build();
         assetRepository.save(asset);
     }
 

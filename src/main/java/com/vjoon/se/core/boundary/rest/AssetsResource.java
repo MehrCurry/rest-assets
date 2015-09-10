@@ -2,6 +2,7 @@ package com.vjoon.se.core.boundary.rest;
 
 import com.vjoon.se.core.control.AssetController;
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ import java.util.List;
             @ApiParam(value = "namespace", name = "namespace", required = true)
             String namespace
     ) throws IOException {
-        controller.deleteAllFromProduction(namespace);
+        controller.deleteAllFromProduction(new NameSpace(namespace));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }

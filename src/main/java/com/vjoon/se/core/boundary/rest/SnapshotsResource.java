@@ -1,6 +1,7 @@
 package com.vjoon.se.core.boundary.rest;
 
 import com.vjoon.se.core.control.SnapshotController;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.entity.Snapshot;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ import java.util.List;
             @ApiParam(value = "namespace", name = "namespace", required = true)
             String namespace
     ) {
-        controller.create(namespace);
+        controller.create(new NameSpace(namespace));
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
@@ -39,7 +40,7 @@ import java.util.List;
             @ApiParam(value = "namespace", name = "namespace", required = true)
             String namespace
     ) {
-        controller.deleteAll(namespace);
+        controller.deleteAll(new NameSpace(namespace));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -52,6 +53,6 @@ import java.util.List;
             @ApiParam(value = "namespace", name = "namespace", required = true)
             String namespace
     ) {
-        return controller.findAll(namespace);
+        return controller.findAll(new NameSpace(namespace));
     }
 }

@@ -2,6 +2,7 @@ package com.vjoon.se.core.control;
 
 import com.hazelcast.core.IMap;
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.pojo.TokenType;
 import com.vjoon.se.core.repository.AssetRepository;
@@ -30,7 +31,7 @@ import static com.google.common.base.Preconditions.*;
     @Setter(AccessLevel.PACKAGE)
     private AssetRepository repository;
 
-    public Token createToken(String payload, String type) {
+    public Token createToken(NameSpace nameSpace, String payload, String type, Optional<Long> empty) {
         return createToken(payload,type,Optional.empty());
     }
 
@@ -86,15 +87,5 @@ import static com.google.common.base.Preconditions.*;
 
     public Optional<Token> getTokenFor(String id, TokenType type) {
         return Optional.ofNullable(tokenMap.get(id)).filter(t -> t.getTokenType() == type);
-    }
-
-    public Token createToken(String namespace, String key, String type, Optional<Long> ttl) {
-        checkArgument(TokenType.valueOf(type.toUpperCase()) != null);
-
-        List<Asset> assets = repository.findByNameSpaceAndKey(namespace, key);
-        Asset asset=getUniqueResultFromList(assets);
-
-        TokenType tokenType = TokenType.valueOf(type.toUpperCase());
-        return createToken(asset, tokenType, ttl);
     }
 }

@@ -1,6 +1,7 @@
 package com.vjoon.se.core.services;
 
 import com.vjoon.se.core.AssetRepositoryApplication;
+import com.vjoon.se.core.entity.NameSpace;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +36,7 @@ public class LocalFileStoreITest {
     @Autowired
     @Qualifier("test")
     private LocalFileStore fileStore;
-    private static final String NAME_SPACE = "junit";
+    private static final NameSpace NAME_SPACE = new NameSpace("junit");
     private Path f;
 
     @Before public void setUp() throws Exception {
@@ -80,11 +81,12 @@ public class LocalFileStoreITest {
     public void testSize() throws IOException {
         Path p=Files.createTempFile("junit",".txt");
         Files.write(p, "bla".getBytes());
+        NameSpace junit = new NameSpace("junit");
         try (InputStream stream = Files.newInputStream(p)) {
-            fileStore.save("junit", "12345678", stream, Optional.empty(),false);
+            fileStore.save(junit, "12345678", stream, Optional.empty(),false);
         }
         Files.delete(p);
-        assertThat(fileStore.getSize("junit", "12345678")).isEqualTo(3);
+        assertThat(fileStore.getSize(junit, "12345678")).isEqualTo(3);
     }
 
 }

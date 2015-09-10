@@ -1,6 +1,7 @@
 package com.vjoon.se.core.control;
 
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.entity.Snapshot;
 import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.repository.SnapshotRepository;
@@ -36,17 +37,17 @@ import static com.google.common.base.Preconditions.checkState;
     @Qualifier("s3")
     private FileStore s3FileStore;
 
-    public Snapshot create(String namespace) {
+    public Snapshot create(NameSpace namespace) {
         List<Asset> assets = assetRepository.findByNameSpaceAndExistsInProduction(namespace, true);
         Snapshot snapshot = new Snapshot(namespace,assets);
         return repository.save(snapshot);
     }
 
-    public List<Snapshot> findAll(String namespace) {
+    public List<Snapshot> findAll(NameSpace namespace) {
         return repository.findByNamespace(namespace);
     }
 
-    public void deleteAll(String namespace) {
+    public void deleteAll(NameSpace namespace) {
         repository.findByNamespace(namespace).forEach(s -> {
             s.getIncluded().forEach(a -> {
                 a.remove(s);

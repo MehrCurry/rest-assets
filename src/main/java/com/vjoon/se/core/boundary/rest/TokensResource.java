@@ -2,6 +2,7 @@ package com.vjoon.se.core.boundary.rest;
 
 import com.vjoon.se.core.boundary.StreamHelper;
 import com.vjoon.se.core.control.TokenController;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.pojo.Token;
 import com.vjoon.se.core.services.FileStore;
 import io.swagger.annotations.Api;
@@ -52,7 +53,7 @@ import java.util.Optional;
             @ApiParam(name = "ttl", value = "Time-To-Live for the created token in seconds")
             Long ttl)
     {
-        return controller.createToken(namespace,key , type, Optional.ofNullable(ttl));
+        return controller.createToken(new NameSpace(namespace),key , type, Optional.ofNullable(ttl));
     }
 
     @ApiOperation(value = "show all existing tokens", notes = "tokens will expire after a short time", produces = "application/json")

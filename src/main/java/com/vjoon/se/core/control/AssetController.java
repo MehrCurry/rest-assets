@@ -3,6 +3,7 @@ package com.vjoon.se.core.control;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vjoon.se.core.entity.Asset;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.event.AssetCreatedEvent;
 import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.repository.AssetRepository;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
@@ -42,26 +44,28 @@ public class AssetController {
     public void handleUpload(MultipartFile multipart, String ref, String nameSpace, boolean overwrite) throws IOException {
         checkNotNull(multipart);
         checkNotNull(nameSpace);
+        NameSpace ns=new NameSpace(nameSpace);
+        checkArgument(ns.isValid());
         checkNotNull(ref);
 
         try (InputStream multipartInputStream = multipart.getInputStream()) {
-            fileStore.save(nameSpace, ref, multipartInputStream, Optional.empty(), overwrite);
+            fileStore.save(ns, ref, multipartInputStream, Optional.empty(), overwrite);
         }
-        try (InputStream stream = fileStore.getStream(nameSpace, ref)) {
+        try (InputStream stream = fileStore.getStream(ns, ref)) {
             String contentType = new Tika().detect(stream);
             Asset media= Asset.builder()
                     .length(multipart.getSize())
-                    .nameSpace(nameSpace)
+                    .nameSpace(ns)
                     .originalFilename(multipart.getOriginalFilename())
                     .contentType(contentType)
                     .key(ref)
-                    .hash(fileStore.getHash(nameSpace,ref))
+                    .hash(fileStore.getHash(ns,ref))
                     .existsInProduction(true)
                     .build();
             repository.save(media);
             eventBus.post(new AssetCreatedEvent(media));
         } catch (Exception e) {
-            fileStore.delete(nameSpace,ref);
+            fileStore.delete(ns,ref);
             throw e;
         }
     }
@@ -91,7 +95,7 @@ public class AssetController {
         });
     }
 
-    public void deleteAllFromProduction(String namespace) {
+    public void deleteAllFromProduction(NameSpace namespace) {
         List<Asset> assets = repository.findByNameSpaceAndExistsInProduction(namespace, true);
         assets.forEach(m -> {
             deleteFromProduction(m);

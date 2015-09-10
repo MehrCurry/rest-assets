@@ -1,6 +1,7 @@
 package com.vjoon.se.core.control;
 
 import com.vjoon.se.core.AssetRepositoryApplication;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.services.FileStore;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -69,13 +70,12 @@ public class AssetControllerITest {
 
     @Test
     public void testFailedUpload() throws IOException {
-        thrown.expect(ConstraintViolationException.class);
-        thrown.expectMessage("namespace is not alphanumeric");
+        thrown.expect(IllegalArgumentException.class);
         try {
             uploadFile(f1, "unit/test","testname");
-        } catch (ConstraintViolationException e) {
+        } catch (Exception e) {
             assertThat(assetController.findAll()).hasSize(0);
-            assertThat(fileStore.exists("unit/test","testname")).isFalse();
+            assertThat(fileStore.exists(new NameSpace("unit/test"),"testname")).isFalse();
             throw e;
         }
     }

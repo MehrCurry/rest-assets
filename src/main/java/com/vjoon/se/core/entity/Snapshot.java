@@ -15,9 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity @Data @EqualsAndHashCode(callSuper = false) @Slf4j public class Snapshot extends AbstractEntity {
-    @Pattern(message="namespace is not alphanumeric" , regexp="^[a-zA-Z0-9]+$")
-    @Size(min=3)
-    private String namespace;
+    private NameSpace namespace;
 
     @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JsonManagedReference
@@ -26,7 +24,7 @@ import java.util.List;
     public Snapshot() {
     }
 
-    public Snapshot(String namespace,List<Asset> included) {
+    public Snapshot(NameSpace namespace,List<Asset> included) {
         this.namespace=namespace;
         this.included = included;
         included.forEach(m -> m.addSnapshot(this));

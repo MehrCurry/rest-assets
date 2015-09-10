@@ -1,6 +1,7 @@
 package com.vjoon.se.core.services;
 
 import com.google.common.collect.ImmutableMap;
+import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -33,7 +34,7 @@ public class LocalFileStore implements FileStore {
     }
 
     @Override
-    public void save(@NotNull String nameSpace,
+    public void save(@NotNull NameSpace nameSpace,
                      @NotNull String key,
                      @NotNull InputStream stream,
                      Optional<String> checksum,
@@ -51,19 +52,19 @@ public class LocalFileStore implements FileStore {
     }
 
     @Override
-    public String createFileNameFromID(String nameSpace, String key) {
+    public String createFileNameFromID(NameSpace nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
         String mediaID= MediaIDGenerator.generateID(nameSpace, key);
         String parts[] = mediaID.substring(0, 8).split("(?<=\\G.{2})");
         return nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }
 
-    @Override public String createFullNameFromID(String nameSpace, String key) {
+    @Override public String createFullNameFromID(NameSpace nameSpace, String key) {
         return root + File.separator + createFileNameFromID(nameSpace, key);
     }
 
     @Override
-    public InputStream getStream(String nameSpace, String key) {
+    public InputStream getStream(NameSpace nameSpace, String key) {
         try {
             return new FileInputStream(createFullNameFromID(nameSpace,key));
         } catch (FileNotFoundException e) {
@@ -72,12 +73,12 @@ public class LocalFileStore implements FileStore {
     }
 
     @Override
-    public boolean exists(String nameSpace, String key) {
+    public boolean exists(NameSpace nameSpace, String key) {
         return Files.exists(Paths.get(createFullNameFromID(nameSpace,key)));
     }
 
     @Override
-    public void delete(String nameSpace, String key) {
+    public void delete(NameSpace nameSpace, String key) {
         Path path = Paths.get(createFullNameFromID(nameSpace, key));
         try {
             Files.delete(path);
@@ -131,7 +132,7 @@ public class LocalFileStore implements FileStore {
     }
 
     @Override
-    public String getHash(String nameSpace, String key) {
+    public String getHash(NameSpace nameSpace, String key) {
         checkState(exists(nameSpace, key));
         try (InputStream stream = getStream(nameSpace, key)){
             return DigestUtils.md5Hex(stream);
@@ -140,7 +141,7 @@ public class LocalFileStore implements FileStore {
         }
     }
     @Override
-    public long getSize(String nameSpace, String key) {
+    public long getSize(NameSpace nameSpace, String key) {
         try {
             return Files.size(Paths.get(createFullNameFromID(nameSpace,key)));
         } catch (IOException e) {
