@@ -6,7 +6,6 @@ import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.repository.AssetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +21,6 @@ public class GarbageCollector {
 
     @Autowired
     private EventBus eventBus;
-
-    @Autowired
-    @Qualifier("production")
-    private FileStore fileStore;
 
     @Scheduled(fixedRate = 60000)
     public void deleteOrphanedAssets() {

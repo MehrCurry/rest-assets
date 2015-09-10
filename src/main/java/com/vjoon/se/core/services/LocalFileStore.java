@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
@@ -143,9 +144,22 @@ public class LocalFileStore implements FileStore {
 
     @Override public long getSize(String nameSpace, String key) {
         try {
-            return Files.size(Paths.get(createFullNameFromID(nameSpace,key)));
+            return Files.size(Paths.get(createFullNameFromID(nameSpace, key)));
         } catch (IOException e) {
             throw new FileStoreException(e);
         }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void cleanUp() throws IOException {
+        Path dir=Paths.get(root);
+        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                removeDirectoryIfEmpty(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
     }
 }
