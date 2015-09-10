@@ -2,6 +2,7 @@ package com.vjoon.se.core.boundary;
 
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.services.FileStore;
+import com.vjoon.se.core.services.FileStoreException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -29,6 +32,10 @@ import static com.google.common.base.Preconditions.checkArgument;
         httpHeaders.setContentType(MediaType.valueOf(media.getContentType()));
         httpHeaders.setContentDispositionFormData("attachment", media.getOriginalFilename());
         httpHeaders.setContentLength(media.getLength());
-        return new ResponseEntity<>(new InputStreamResource(media.getStream(fileStore)), httpHeaders, HttpStatus.OK);
+        try (final InputStream stream = media.getStream(fileStore)) {
+            return new ResponseEntity<>(new InputStreamResource(stream), httpHeaders, HttpStatus.OK);
+        } catch (IOException e) {
+            throw new FileStoreException(e);
+        }
     }
 }

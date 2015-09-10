@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -56,7 +57,7 @@ public class LocalFileStore implements FileStore {
         checkArgument(key.length() >= 8, "Key too short");
         String mediaID= MediaIDGenerator.generateID(nameSpace, key);
         String parts[] = mediaID.substring(0, 8).split("(?<=\\G.{2})");
-        return nameSpace + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
+        return nameSpace.asString() + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }
 
     @Override public String createFullNameFromID(NameSpace nameSpace, String key) {
@@ -105,7 +106,9 @@ public class LocalFileStore implements FileStore {
     }
 
     private boolean directoryIsEmpty(Path path) throws IOException {
-        return Files.list(path).count()==0;
+        try (final Stream<Path> list = Files.list(path)) {
+            return list.count()==0;
+        }
     }
 
     @Override

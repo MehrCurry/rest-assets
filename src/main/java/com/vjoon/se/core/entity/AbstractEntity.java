@@ -1,5 +1,6 @@
 package com.vjoon.se.core.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vjoon.se.core.util.ValidateableObject;
 import lombok.Getter;
 
@@ -14,6 +15,7 @@ import java.util.Date;
 
     @Override
     @Transient
+    @JsonIgnore
     public boolean isValid() {
         return super.isValid();
     }
