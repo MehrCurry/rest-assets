@@ -43,8 +43,9 @@ public class AssetController {
         checkNotNull(nameSpace);
         checkNotNull(ref);
 
-        fileStore.save(nameSpace, ref, multipart.getInputStream(), Optional.empty(), overwrite);
-        multipart.getInputStream().close();
+        try (InputStream input = multipart.getInputStream()) {
+            fileStore.save(nameSpace, ref, input, Optional.empty(), overwrite);
+        }
         try (InputStream stream = fileStore.getStream(nameSpace, ref)) {
             String contentType = new Tika().detect(stream);
             Asset media= Asset.builder()

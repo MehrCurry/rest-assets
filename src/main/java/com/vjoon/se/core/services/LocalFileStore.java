@@ -44,9 +44,9 @@ public class LocalFileStore implements FileStore {
         if (!overwrite && exists(nameSpace,key)) {
             throw new DuplicateKeyException(String.format("File already existing: %s/%s",nameSpace,key));
         }
-        String filename=createFullNameFromID(nameSpace, key).replaceFirst(root, "");
+        String filename=createFullNameFromID(nameSpace, key);
         Map<String,Object> headers= ImmutableMap.of(
-                "CamelFileName", filename,
+                "targetName", filename,
                 "Checksum", checksum.orElse(""));
 
         template.sendBodyAndHeaders(stream,headers);

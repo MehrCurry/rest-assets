@@ -1,6 +1,7 @@
 package com.vjoon.se.core.camel;
 
 import com.vjoon.se.core.control.AssetController;
+import com.vjoon.se.core.services.FileWriter;
 import com.vjoon.se.core.services.MediaService;
 import com.vjoon.se.core.services.S3FileStore;
 import com.vjoon.se.core.util.MD5Helper;
@@ -37,8 +38,8 @@ public class MyRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        getContext().setTracing(false);
-        errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
+        getContext().setTracing(true);
+        errorHandler(deadLetterChannel("direct:failed").useOriginalMessage().maximumRedeliveries(3).redeliveryDelay(5000));
 
         from("file:"+ uploadRoot + "?delete=true&readLock=changed").routeId("Upload File")
                 .threads(5).maxPoolSize(10)
@@ -51,12 +52,15 @@ public class MyRouteBuilder extends RouteBuilder {
         ;
 
         from("direct:production").routeId("production")
-                .to("file:"+ productionRoot + "?autoCreate=true");
+                .to("file:" + productionRoot + "?autoCreate=true");
+
+        from("direct:saveToFile").routeId("saveToFile")
+                .beanRef("fileWriter");
 
         from("direct:failed").routeId("failed")
             .errorHandler(defaultErrorHandler())
-                .to("log:failed?showAll=true&multiline=true");
-            // .to("file:assets/failed?autoCreate=true");
+                .to("log:failed?showAll=true&multiline=true")
+                .to("file:assets/failed?autoCreate=true");
 
         from("timer:dump?period=300000").routeId("dump")
                 .errorHandler(defaultErrorHandler())
