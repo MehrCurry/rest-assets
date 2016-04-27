@@ -1,5 +1,7 @@
 package com.vjoon.se.core.camel;
 
+import com.google.common.hash.Hashing;
+import com.vjoon.se.core.services.ChecksumCalculator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,6 +23,7 @@ public class ChecksumVerifierTest {
     @Before
     public void setUp() throws Exception {
         this.verifier=new ChecksumVerifier();
+        verifier.setCalc(new ChecksumCalculator(Hashing.crc32()));
         this.testPath=Files.createTempFile("junit-",".txt");
         Files.write(testPath, "JUnit Test".getBytes());
     }
@@ -32,7 +35,7 @@ public class ChecksumVerifierTest {
 
     @Test
     public void testVerify() throws Exception {
-        verifier.verify(testPath.normalize().toString(), "41047c81be99e7e4e9124f35bfa19b0c");
+        verifier.verify(testPath.normalize().toString(), "ZC7jgQ==");
     }
 
     @Test

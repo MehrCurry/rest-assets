@@ -35,30 +35,41 @@ public class MyRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         getContext().setTracing(false);
-        errorHandler(deadLetterChannel("direct:failed").maximumRedeliveries(3));
+        errorHandler(deadLetterChannel("direct:failed").useOriginalMessage().maximumRedeliveries(3));
 
         from("file:"+ uploadRoot + "?delete=true&readLock=changed").routeId("Upload File")
-                .threads(5).maxPoolSize(10)
+                .threads(10)
                 .setHeader("namespace", constant("imported"))
                 .setHeader("key", simple("${header.CamelFileName}"))
                 .beanRef("multipartCreator")
                 .setHeader(Exchange.CONTENT_TYPE, constant("multipart/form-data"))
-                .to("http4://localhost:" + port + "/assets")
-                .to("log:failed?showAll=true&multiline=true");
-        ;
+                .to("http4://localhost:" + port + "/assets");
+
+        from("file:" + uploadRoot + "2?delete=true&readLock=changed&delay=200").routeId("Upload File 2")
+                .to("seda:sendFile");
+
+        from("seda:sendFile").routeId("sendFile")
+                .threads(10)
+                .setHeader("namespace", constant("imported"))
+                .bean(mediaService, "uploadAsset");
 
         from("direct:production").routeId("production")
-                .to("file:"+ productionRoot + "?autoCreate=true");
+                .to("file:" + productionRoot + "?autoCreate=true");
 
         from("direct:failed").routeId("failed")
             .errorHandler(defaultErrorHandler())
-                .to("log:failed?showAll=true&multiline=true");
-            // .to("file:assets/failed?autoCreate=true");
+                .to("log:failed?showAll=true&multiline=true")
+                .marshal().json(JsonLibrary.Jackson)
+                .to("file:assets/failed?autoCreate=true");
 
         from("timer:dump?period=300000").routeId("dump")
                 .errorHandler(defaultErrorHandler())
                 .bean(mediaService, "getAll").setHeader("CamelFileName",constant("info.json")).marshal().json(
-                JsonLibrary.Jackson).to("file:assets");
+                JsonLibrary.Jackson).marshal().zipFile().to("file:assets");
 
+        from("timer:createFile?period=1000")
+                .setBody(constant("Test!"))
+                .setHeader("namespace").constant("auto")
+                .to("file:" + uploadRoot + "2");
     }
 }

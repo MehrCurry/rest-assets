@@ -66,9 +66,8 @@ import static com.google.common.base.Preconditions.*;
         checkNotNull(id);
         checkNotNull(tokenType);
 
-        Optional<Object> opt = getTokenFor(id).filter(t -> t.getTokenType() == tokenType).map(Token::getPayload);
-        if (opt.isPresent())
-            tokenMap.remove(id);
+        Optional<Object> opt = getTokenFor(id,tokenType).map(Token::getPayload);
+        opt.ifPresent(t -> tokenMap.remove(t));
         return opt;
     }
 

@@ -15,6 +15,7 @@ public abstract class ValidateableObject {
         return VALIDATOR.validate(this);
     }
 
+    @Transient
     public boolean isValid() {
         return validationErrors().size() == 0;
     }

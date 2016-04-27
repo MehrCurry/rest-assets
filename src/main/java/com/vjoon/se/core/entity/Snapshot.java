@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
 
+@RepositoryRestResource(collectionResourceRel = "snapshot", path = "xsnapshot")
 @Entity @Data @EqualsAndHashCode(callSuper = false) @Slf4j public class Snapshot extends AbstractEntity {
     private NameSpace namespace;
 

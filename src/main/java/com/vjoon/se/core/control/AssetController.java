@@ -1,7 +1,11 @@
 package com.vjoon.se.core.control;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.HashingInputStream;
+import com.hazelcast.util.Base64;
 import com.vjoon.se.core.entity.Asset;
 import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.event.AssetCreatedEvent;
@@ -9,6 +13,8 @@ import com.vjoon.se.core.event.AssetDeletedEvent;
 import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.services.FileStore;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.ProducerTemplate;
 import org.apache.tika.Tika;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -41,27 +48,49 @@ public class AssetController {
     @Qualifier("production")
     private FileStore fileStore;
 
+    @Autowired
+    private HashFunction hashFunction;
+
+    @EndpointInject
+    private ProducerTemplate camel;
+
     public void handleUpload(MultipartFile multipart, String ref, String nameSpace, boolean overwrite) throws IOException {
+        Stopwatch sw = Stopwatch.createStarted();
         checkNotNull(multipart);
         checkNotNull(nameSpace);
         NameSpace ns=new NameSpace(nameSpace);
         checkArgument(ns.isValid());
         checkNotNull(ref);
 
-        try (InputStream multipartInputStream = multipart.getInputStream()) {
-            fileStore.save(ns, ref, multipartInputStream, Optional.empty(), overwrite);
+        try {
+            final InputStream inputStream = multipart.getInputStream();
+            final String originalFilename = multipart.getOriginalFilename();
+            saveAsset(inputStream, ref, ns, originalFilename, overwrite);
+            log.debug("Upload took {}",sw.toString());
+        } catch (Exception e) {
+            fileStore.delete(ns,ref);
+            throw e;
         }
+    }
+
+    public void saveAsset(InputStream inputStream, String ref, NameSpace ns, String originalFilename, boolean overwrite) throws IOException {
+        String hash;
+        try (HashingInputStream multipartInputStream = new HashingInputStream(hashFunction, inputStream)) {
+            fileStore.save(ns, ref, multipartInputStream, Optional.empty(), overwrite);
+            hash=new String(Base64.encode(multipartInputStream.hash().asBytes()));
+        }
+        long size = fileStore.getSize(ns,ref);
         try (InputStream stream = fileStore.getStream(ns, ref)) {
             String contentType = new Tika().detect(stream);
             Asset media= Asset.builder()
-                    .length(multipart.getSize())
-                    .nameSpace(ns)
-                    .originalFilename(multipart.getOriginalFilename())
-                    .contentType(contentType)
-                    .key(ref)
-                    .hash(fileStore.getHash(ns,ref))
-                    .existsInProduction(true)
-                    .build();
+                .length(size)
+                .nameSpace(ns)
+                .originalFilename(originalFilename)
+                .contentType(contentType)
+                .key(ref)
+                .hash(hash)
+                .existsInProduction(true)
+                .build();
             repository.save(media);
             eventBus.post(new AssetCreatedEvent(media));
         } catch (Exception e) {
@@ -76,30 +105,23 @@ public class AssetController {
         deleteFromProduction(m);
     }
 
-    private void deleteFromProduction(Asset m) {
-        if (m.getSnapshots().isEmpty()) {
-            repository.delete(m);
-            eventBus.post(new AssetDeletedEvent(m));
-        } else {
-            m.setExistsInProduction(false);
-            m.setDeletedAt(new Date());
-            repository.save(m);
-            m.delete(fileStore);
-        }
+    public void deleteFromProduction(Asset m) {
+        m.setExistsInProduction(false);
+        m.setDeletedAt(new Date());
+        repository.save(m);
+        m.delete(fileStore);
     }
 
-    public void deleteAll() {
+    public <R> void deleteAll() {
         List<Asset> assets = repository.findAll();
-        assets.forEach(m -> {
-            deleteFromProduction(m);
-        });
+        List<Command> commands = assets.stream().map(a -> new DeleteCommand(a, fileStore)).collect(Collectors.toList());
+        camel.asyncSendBody("direct:commands", commands);
     }
 
     public void deleteAllFromProduction(NameSpace namespace) {
         List<Asset> assets = repository.findByNameSpaceAndExistsInProduction(namespace, true);
-        assets.forEach(m -> {
-            deleteFromProduction(m);
-        });
+        List<Command> commands = assets.stream().map(a -> new DeleteCommand(a, fileStore)).collect(Collectors.toList());
+        camel.asyncSendBody("direct:commands", commands);
     }
 
     @Subscribe

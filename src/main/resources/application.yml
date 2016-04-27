@@ -1,0 +1,45 @@
+server:
+  port: 9099
+
+multipart:
+  maxFileSize: 100Gb
+
+info:
+  version: @pom.version@
+
+logging:
+  file: /tmp/log.log
+
+spring:
+  application:
+    name: @project.artifactId@
+  profiles:
+    active: localMirror
+  datasource:
+    url: jdbc:derby:directory:db;create=true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
+    show-sql: true
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAJYCTHK5TTAZOJX3A
+      secretKey: 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
+    region:
+      static: eu-west-1
+
+filesystem:
+  root: files
+upload:
+  root: ${filesystem.root}/upload
+production:
+  root: ${filesystem.root}/production
+mirror:
+  root: ${filesystem.root}/mirror
+s3Upload:
+  root: ${filesystem.root}/s3Upload
+test:
+  root: ${env.TMPDIR}

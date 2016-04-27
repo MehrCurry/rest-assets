@@ -9,20 +9,23 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration public class HazelcastConfig {
 
-    @Bean public HazelcastInstance hazelcastInstance() {
-        return Hazelcast.newHazelcastInstance(config());
+    @Bean
+    public HazelcastInstance hazelcastInstance() {
+        return Hazelcast.newHazelcastInstance(hzConfig());
     }
 
-    @Bean public Config config() {
+    @Bean public Config hzConfig() {
         return new Config().addMapConfig(mapConfig()).setNetworkConfig(networkConfig());
 
     }
 
-    @Bean public MapConfig mapConfig() {
+    @Bean
+    public MapConfig mapConfig() {
         return new MapConfig().setName("tokens").setTimeToLiveSeconds(60);
     }
 
-    @Bean(name = "tokens") public IMap tokensMap() {
+    @Bean(name = "tokens")
+    public IMap tokensMap() {
         return hazelcastInstance().getMap("tokens");
     }
 

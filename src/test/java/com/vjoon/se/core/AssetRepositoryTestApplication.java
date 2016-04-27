@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.servlet.MultipartConfigElement;
@@ -16,12 +15,10 @@ import java.util.concurrent.Executors;
 
 @SpringBootApplication
 @EnableAsync
-@EnableScheduling
-// @EnableEurekaClient
-public class AssetRepositoryApplication {
+public class AssetRepositoryTestApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AssetRepositoryApplication.class, args);
+        SpringApplication.run(AssetRepositoryTestApplication.class, args);
     }
 
     @Bean

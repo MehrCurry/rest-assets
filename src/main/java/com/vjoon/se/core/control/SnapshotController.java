@@ -6,6 +6,8 @@ import com.vjoon.se.core.entity.Snapshot;
 import com.vjoon.se.core.repository.AssetRepository;
 import com.vjoon.se.core.repository.SnapshotRepository;
 import com.vjoon.se.core.services.FileStore;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,14 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 
 @Service @Transactional public class SnapshotController {
+    private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     @Autowired private AssetRepository assetRepository;
 
@@ -36,6 +42,9 @@ import static com.google.common.base.Preconditions.checkState;
     @Autowired(required = false)
     @Qualifier("s3")
     private FileStore s3FileStore;
+
+    @EndpointInject(uri = "direct:copy")
+    private ProducerTemplate producer;
 
     public Snapshot create(NameSpace namespace) {
         List<Asset> assets = assetRepository.findByNameSpaceAndExistsInProduction(namespace, true);
@@ -75,16 +84,22 @@ import static com.google.common.base.Preconditions.checkState;
 
     public void restoreFiles(Snapshot snapshot) {
         assetController.deleteAllFromProduction(snapshot.getNamespace());
+        List<CopyCommand> commands = snapshot.getIncluded().stream().map(a -> new CopyCommand(a, getMirrorFileStore(), productionFileStore)).collect(Collectors.toList());
+        producer.asyncSendBody("direct:commands",commands);
 
         snapshot.getIncluded()
                 .stream()
                 .sorted((a1, a2) -> Long.compare(a1.getLength(), a2.getLength()))
                 .forEach(a -> {
-                    a.copy(getMirrorFileStore(), productionFileStore);
                     a.setExistsInProduction(true);
                     assetRepository.save(a);
                 });
     }
+
+    private void copy(Asset a, FileStore from, FileStore to) {
+        producer.asyncSendBody("direct:copy",new CopyCommand(a,from,to));
+    }
+
 
     public FileStore getMirrorFileStore() {
         checkState((mirrorFileStore != null || s3FileStore != null), "At least one filestore must be available");

@@ -42,7 +42,9 @@ public class Asset extends AbstractEntity implements Serializable {
     @JsonBackReference
     private Set<Snapshot> snapshots;
 
-    @NotNull private NameSpace nameSpace;
+    @NotNull
+    @Embedded
+    private NameSpace nameSpace;
     @NotNull @Size(min = 8) @Column(name = "reference") private String key;
     @NotNull private String originalFilename;
 
@@ -75,7 +77,7 @@ public class Asset extends AbstractEntity implements Serializable {
 
     public void copy(@NotNull FileStore from, @NotNull FileStore to) {
         try (InputStream stream = getStream(from)) {
-            to.save(nameSpace, key, stream, Optional.of(hash), false);
+            to.save(nameSpace, key, stream, Optional.of(hash), true);
         } catch (IOException e) {
             log.warn("Problem with stream",e );
         }

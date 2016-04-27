@@ -1,8 +1,8 @@
 package com.vjoon.se.core.camel;
 
 import com.vjoon.se.core.control.AssetController;
+import com.vjoon.se.core.services.ChecksumCalculator;
 import com.vjoon.se.core.services.S3FileStore;
-import com.vjoon.se.core.util.MD5Helper;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,9 @@ public class S3RouteBuilder extends RouteBuilder {
     @Autowired
     private AssetController assetController;
 
+    @Autowired
+    private ChecksumCalculator calc;
+
     @Override
     public void configure() throws Exception {
         getContext().setTracing(false);
@@ -34,7 +37,7 @@ public class S3RouteBuilder extends RouteBuilder {
                 .to("file:" + s3UploadRoot + "?flatten=true").bean(verifier);
 
         from("file:" + s3UploadRoot + "?recursive=true&delete=true&readLock=changed").routeId("toS3")
-                .setHeader(S3Constants.CONTENT_MD5, method(new MD5Helper(), "calculateS3Hash"))
+                .setHeader(S3Constants.CONTENT_MD5, method(calc, "calculateS3Hash"))
                 .setHeader(S3Constants.KEY, simple("${file:name}"))
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${file:size}"))
                 .threads(2).maxPoolSize(4).maxQueueSize(10000)

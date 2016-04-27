@@ -1,6 +1,5 @@
 package com.vjoon.se.core.services;
 
-import com.google.common.collect.ImmutableMap;
 import com.vjoon.se.core.entity.NameSpace;
 import com.vjoon.se.core.util.MediaIDGenerator;
 import lombok.AccessLevel;
@@ -8,13 +7,13 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,6 +33,27 @@ public class LocalFileStore implements FileStore {
         this.root=root;
     }
 
+    public void save2(@NotNull NameSpace nameSpace,
+                     @NotNull String key,
+                     @NotNull InputStream stream,
+                     Optional<String> checksum,
+                     boolean overwrite) {
+        checkNotNull(nameSpace);
+        checkNotNull(key != null);
+        checkNotNull(stream != null);
+        if (!overwrite && exists(nameSpace,key)) {
+            throw new DuplicateKeyException(String.format("File already existing: %s/%s",nameSpace,key));
+        }
+        String filename=createFullNameFromID(nameSpace, key).replaceFirst(root, "");
+        Map<String,Object> headers= new HashMap<String, Object>() {{
+            put("targetDir",root);
+            put("CamelFileName", filename);
+        }};
+        checksum.ifPresent(sum -> headers.put("Checksum", sum));
+
+        template.sendBodyAndHeaders(stream,headers);
+    }
+
     @Override
     public void save(@NotNull NameSpace nameSpace,
                      @NotNull String key,
@@ -47,7 +67,10 @@ public class LocalFileStore implements FileStore {
             throw new DuplicateKeyException(String.format("File already existing: %s/%s",nameSpace,key));
         }
         String filename=createFullNameFromID(nameSpace, key).replaceFirst(root, "");
-        Map<String,Object> headers= ImmutableMap.of("CamelFileName", filename, "Checksum", checksum.orElse(""));
+        Map<String,Object> headers= new HashMap<String, Object>() {{
+            put("CamelFileName", filename);
+        }};
+        checksum.ifPresent(sum -> headers.put("Checksum", sum));
 
         template.sendBodyAndHeaders(stream,headers);
     }
@@ -56,7 +79,7 @@ public class LocalFileStore implements FileStore {
     public String createFileNameFromID(NameSpace nameSpace, String key) {
         checkArgument(key.length() >= 8, "Key too short");
         String mediaID= MediaIDGenerator.generateID(nameSpace, key);
-        String parts[] = mediaID.substring(0, 8).split("(?<=\\G.{2})");
+        String parts[] = mediaID.substring(0, 9).split("(?<=\\G.{3})");
         return nameSpace.asString() + File.separator + Arrays.stream(parts).collect(Collectors.joining(File.separator)) + File.separator + mediaID;
     }
 
@@ -90,10 +113,12 @@ public class LocalFileStore implements FileStore {
     }
 
     void deleteEmptyParentDirectories(Path dir) throws IOException {
-        checkArgument(Files.isDirectory(dir), "Path must be a directory");
-        if (Files.isDirectory(dir) && directoryIsEmpty(dir)) {
-            removeDirectoryIfEmpty(dir);
-            deleteEmptyParentDirectories(dir.getParent());
+        checkArgument(dir==null || Files.isDirectory(dir), "Path must be a directory");
+        if (dir!=null) {
+            if (Files.isDirectory(dir) && directoryIsEmpty(dir)) {
+                removeDirectoryIfEmpty(dir);
+                deleteEmptyParentDirectories(dir.getParent());
+            }
         }
     }
 
@@ -152,16 +177,17 @@ public class LocalFileStore implements FileStore {
         }
     }
 
-    @Scheduled(fixedRate = 60000)
+    // @Scheduled(fixedRate = 60000)
     public void cleanUp() throws IOException {
         Path dir=Paths.get(root);
-        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                removeDirectoryIfEmpty(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
+        if (!directoryIsEmpty(dir)) {
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    removeDirectoryIfEmpty(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
     }
 }
