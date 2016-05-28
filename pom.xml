@@ -211,7 +211,7 @@
         <dependency>
             <groupId>rubygems</groupId>
             <artifactId>asciidoctor-diagram</artifactId>
-            <version>1.2.1</version>
+            <version>1.4.0</version>
             <type>gem</type>
             <scope>provided</scope>
             <exclusions>
@@ -243,11 +243,30 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -268,7 +287,7 @@
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.2.13</version>
+                <version>0.4.1</version>
                 <configuration>
                     <imageName>${docker.imageName}</imageName>
                     <dockerDirectory>src/main/docker</dockerDirectory>
@@ -340,6 +359,46 @@
             </plugins>
         </pluginManagement>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.6</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <doclet>org.asciidoctor.Asciidoclet</doclet>
+                    <docletArtifact>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoclet</artifactId>
+                        <version>${asciidoclet.version}</version>
+                    </docletArtifact>
+                    <overview>src/main/java/overview.adoc</overview>
+                    <additionalparam>
+                        --base-dir ${project.basedir}
+                        --attribute "name=${project.name}"
+                        --attribute "version=${project.version}"
+                        --attribute "title-link=http://example.com[${project.name} ${project.version}]"
+                        --require asciidoctor-diagram
+                        --gem-path ${project.build.directory}/rubygems-provided
+                        --attribute data-uri
+                    </additionalparam>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
     <repositories>
         <repository>
             <id>rubygems-proxy-releases</id>
@@ -354,6 +413,41 @@
         </repository>
     </repositories>
     <profiles>
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.7.6.201602180812</version>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <destFile>${sonar.jacoco.reportPath}</destFile>
+                                </configuration>
+                                <id>pre-test</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <configuration>
+                                    <destFile>${sonar.jacoco.itReportPath}</destFile>
+                                </configuration>
+                                <id>pre-itest</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>doc</id>
             <build>

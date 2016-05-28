@@ -11,8 +11,12 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class ChecksumVerifier {
+    private final MD5Helper md5Helper;
+
     @Autowired
-    private MD5Helper md5Helper;
+    public ChecksumVerifier(MD5Helper md5Helper) {
+        this.md5Helper = md5Helper;
+    }
 
     public void verify(@Header("CamelFileNameProduced") String fileName, @Header("Checksum") String checksum) throws IOException {
         if (!checksum.equalsIgnoreCase(md5Helper.checksum(fileName))) {

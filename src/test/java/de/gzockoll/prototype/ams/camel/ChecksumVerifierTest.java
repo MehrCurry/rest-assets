@@ -1,5 +1,6 @@
 package de.gzockoll.prototype.ams.camel;
 
+import de.gzockoll.prototype.ams.util.MD5Helper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,6 +11,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ChecksumVerifierTest {
 
     private ChecksumVerifier verifier;
@@ -17,10 +22,12 @@ public class ChecksumVerifierTest {
 
     @Rule
     public ExpectedException thrown=ExpectedException.none();
+    private MD5Helper helper;
 
     @Before
     public void setUp() throws Exception {
-        this.verifier=new ChecksumVerifier();
+        helper = mock(MD5Helper.class);
+        this.verifier=new ChecksumVerifier(helper);
         this.testPath=Files.createTempFile("junit-",".txt");
         Files.write(testPath, "JUnit Test".getBytes());
     }
@@ -32,7 +39,8 @@ public class ChecksumVerifierTest {
 
     @Test
     public void testVerify() throws Exception {
-        verifier.verify(testPath.normalize().toString(), "41047c81be99e7e4e9124f35bfa19b0c");
+        when(helper.checksum(anyString())).thenReturn("123");
+        verifier.verify(testPath.normalize().toString(), "123");
     }
 
     @Test
