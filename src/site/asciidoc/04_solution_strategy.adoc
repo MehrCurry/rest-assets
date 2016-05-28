@@ -92,7 +92,7 @@ K4 -- (Alle Token anzeigen)
 ==== Messaging
 
 Statt direkte Abhängigkeiten zwischen Produktion und Spiegelbereich zu pflegen, kommunizieren die Teile über einen
-asynchronen Message Bus (siehe <<Kommunikation zwischen den einzelnen Bausteinen der vjoon Storage Engine>>). Der EventBus
+asynchronen Message Bus (siehe <<Kommunikation zwischen den einzelnen Bausteinen>>). Der EventBus
 verwendet eine bestimmte Anzahl an Threads um die Teile auch zeitlich zu entkoppeln.
 
 [plantuml,EventBus]

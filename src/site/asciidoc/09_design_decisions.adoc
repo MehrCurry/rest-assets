@@ -34,8 +34,6 @@ Die BLOBs sollen u.a. im File System gespeichert werden. Dazu stehen verschieden
 Da beim Speichen einige Probleme auftreten können, sollen gute Monitoring Möglichkeiten und wie Retry-Mechanismen
 vorhanden sein.
 
-Die vjoon StorageEngine soll neben ihren inhaltlichen Zielen auch Technologie Test-Plattform für spätere Entwicklungen sein.
-
 ==== Annahmen
 
 Mit welchen Risiken müssen Sie rechnen?
@@ -92,10 +90,10 @@ image::route-details.png[Statistische Daten]
 
 
 
-=== Kommunikation zwischen den einzelnen Bausteinen der vjoon Storage Engine
+=== Kommunikation zwischen den einzelnen Bausteinen
 
 ==== Fragestellung
-Die vjoon StorageEngine besteht aus zwei weitgehend unabhängigen Teile:
+Die Applikation besteht aus zwei weitgehend unabhängigen Teile:
 
 * Speichern und Verwalten der Produktionsdaten
 * Spechern und Verwalten der gespiegelten Produktionsdaten
@@ -104,8 +102,6 @@ Die vjoon StorageEngine besteht aus zwei weitgehend unabhängigen Teile:
 Die Verwaltung der Produktionsdaten ist zeitkritisch, da der Anwender Verzögerungen direkt bemerken würde. Die Teile
 sollten auf Quellcode Ebene gut entkoppelt sein, da zum Speichern der gespiegelten Daten unterschiedle Technologien in
 Frage kommen können.
-
-Die vjoon StorageEngine soll neben ihren inhaltlichen Zielen auch Technologie Test-Plattform für spätere Entwicklungen sein.
 
 ==== Annahmen
 
@@ -136,7 +132,7 @@ Die Entscheidung ist vorläufig. gzo, 2015-08-27
 === Zeitliche begrenztes Speichern von Tokens
 
 ==== Fragestellung
-Für alles Interaktionen mit dem BLOBs in der vjoon StorageEngine sollen zeitlich begrenzte Zugriffsschlüssel (sog. Tokens)
+Für alles Interaktionen mit dem BLOBs im System sollen zeitlich begrenzte Zugriffsschlüssel (sog. Tokens)
 verwendet werden.
 
 ==== Rahmenbedingungen
@@ -145,7 +141,7 @@ Verwendung ungültig werden.
 
 ==== Annahmen
 
-* Tokens müssen nicht über den Neustart der vjoon StorageEngine gültig bleiben.
+* Tokens müssen nicht über den Neustart gültig bleiben.
 * Im Clusterbetrieb müssen Tokens auf allen Clusterknoten gültig sein.
 
 ==== Entscheidungskriterien
@@ -175,7 +171,7 @@ Die Entscheidung ist vorläufig. gzo, 2015-08-27
 === Verwendung einer Datenbank
 
 ==== Fragestellung
-Innerhalb der vjoon storageEngine müssen einige Entitäten gespeichert werden.
+Innerhalb des Systems müssen einige Entitäten gespeichert werden.
 
 ==== Rahmenbedingungen
 Die Daten müssen sich auch von Administratoren mit wenige Know-How einfach sicher lassen.
