@@ -13,11 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Configuration
 public class FileStoreConfig {
-    @EndpointInject(uri="direct:production")
-    private ProducerTemplate productionTemplate;
-
-    @EndpointInject(uri="direct:mirror")
-    private ProducerTemplate mirrorTemplate;
+    @EndpointInject(uri="direct:saveToFile")
+    private ProducerTemplate template;
 
     @Value("${production.root}")
     private String productionRoot;
@@ -27,13 +24,13 @@ public class FileStoreConfig {
 
     @Bean(name = "production")
     public FileStore productionFileStore() {
-        return new LocalFileStore(productionTemplate, productionRoot);
+        return new LocalFileStore(template, productionRoot);
     }
 
     @Bean(name = "mirror")
     @Profile("localMirror")
     public FileStore mirrorFileStore() {
-        return new LocalFileStore(mirrorTemplate, mirrorRoot);
+        return new LocalFileStore(template, mirrorRoot);
     }
 
 }
